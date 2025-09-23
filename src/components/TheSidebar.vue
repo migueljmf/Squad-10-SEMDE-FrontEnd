@@ -3,7 +3,7 @@
     <nav class="sidebar-nav">
       <ul>
         <li>
-          <RouterLink to="/">
+          <RouterLink to="/inicio">
             <mdicon name="home" :size="24" />
             <span>Início</span>
           </RouterLink>
@@ -15,8 +15,8 @@
           </RouterLink>
         </li>
         <li>
-          <RouterLink to="/demandas">
-            <mdicon name="file-document-multiple" :size="24" />
+          <RouterLink to="/gestao-demandas">
+            <mdicon name="clipboard-list" :size="24" />
             <span>Gestão de demandas</span>
           </RouterLink>
         </li>
@@ -70,25 +70,24 @@ import mdicon from 'mdi-vue/v3'
 .sidebar {
   background-color: #1565C0;
   color: #ffffff;
-  width: 280px;
+  width: 260px; /* ajustei p/ encaixar melhor */
   height: 100vh;
   display: flex;
   flex-direction: column;
   padding: 20px 15px;
   box-sizing: border-box;
   font-family: 'Inter', sans-serif;
+  position: fixed; /* fixa no lado esquerdo */
+  left: 0;
+  top: 0;
 }
-
 .sidebar-nav {
   flex-grow: 1;
 }
-
 .sidebar-nav ul {
   list-style: none;
   padding: 0;
 }
-
-/* ESTILO PADRÃO DOS LINKS */
 li a {
   display: flex;
   align-items: center;
@@ -101,29 +100,24 @@ li a {
   border-radius: 8px;
   margin-bottom: 5px;
 }
-
 li a:hover {
   background-color: #5998DF;
   color: #ffffff;
 }
-
 li a.router-link-exact-active {
   background-color: #5998DF; 
   color: #ffffff;
   font-weight: 600;
 }
-
 .sidebar-logout {
-  margin-top: auto; 
+  margin-top: auto;
 }
-
 .logout-button {
   width: 100%;
   display: flex;
   align-items: center;
   gap: 15px;
   padding: 12px 15px;
-  /* Cor do botão de logout (cinza azulado) */
   background-color: #3B6FB8;
   color: #ffffff;
   border: none;
@@ -134,7 +128,6 @@ li a.router-link-exact-active {
   font-weight: 600;
   text-align: left;
 }
-
 .logout-button:hover {
   background-color: #505c70;
 }
