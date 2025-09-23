@@ -1,13 +1,15 @@
 <template>
   <div class="acoes">
     <div class="acoes-content">
+      <div class="toolbar">
+        <button @click="$router.push('/cadastrar-acao')" class="nova-acao">
+          + Nova Ação
+        </button>
+      </div>
+
       <div class="map-wrapper">
         <LeafletMap class="map" :center="[-23.5505, -46.6333]" :zoom="12" />
       </div>
-
-      <button @click="$router.push('/cadastrar-acao')" class="nova-acao">
-        + Nova Ação
-      </button>
     </div>
   </div>
  </template>
@@ -30,6 +32,12 @@ import LeafletMap from '@/components/LeafletMap.vue'
   padding: 0 24px;
 }
 
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
 .map-wrapper {
   width: 100%;
   height: 420px;
@@ -46,10 +54,22 @@ import LeafletMap from '@/components/LeafletMap.vue'
 
 .nova-acao {
   background: #1565c0;
-  color: white;
+  color: #fff;
   border: none;
-  padding: 12px 20px;
+  height: 44px;
+  min-width: 160px;
+  padding: 0 20px;
   border-radius: 8px;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+}
+
+@media (max-width: 640px) {
+  .toolbar { justify-content: stretch; }
+  .nova-acao { width: 100%; min-width: 0; }
 }
 </style>
