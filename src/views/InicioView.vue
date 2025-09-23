@@ -1,8 +1,6 @@
 <template>
   <div class="inicio-container">
-    <TheSidebar />
     <div class="content-area">
-      <h1 class="page-title">Início</h1>
       <div class="main-area">
         <div class="text-section">
           <h2 class="app-name">CRM POLÍTICO</h2>
@@ -20,70 +18,74 @@
       </div>
     </div>
   </div>
-</template>
+ </template>
 
 <script setup>
-import TheSidebar from '../components/TheSidebar.vue';
+// Nada a importar aqui; sidebar vem de App.vue
 </script>
 
 <style scoped>
-.page-title {
-  font-family: 'Poppins', sans-serif;
-  font-size: 30px;
-  font-weight: 600;
-  color: #333;
-  margin-top: 0; /* Garante que o título comece no topo */
-  margin-bottom: 60px; /* Espaço entre o título e o conteúdo abaixo */
-}
-
-.inicio-container {
-  display: flex;
-}
+.inicio-container { display: block; }
 
 .content-area {
-  flex: 1;
-  padding-left: 20px;
+  max-width: 1120px; /* centraliza horizontalmente */
+  margin: 0 auto;
+  padding: 0 24px;
+  /* Centralização vertical relativa à viewport menos a altura do header */
+  min-height: calc(100vh - 96px);
+  display: flex;
+  align-items: center; /* centra verticalmente o .main-area */
 }
 
 .main-area {
   display: flex;
-  justify-content: space-around;
   align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  width: 100%;
+  /* desloca o bloco cerca de 2cm para baixo */
+  transform: translateY(2cm);
 }
 
 .text-section {
-  flex: 1;
-  max-width: 480px; 
+  flex: 1 1 50%;
+  max-width: 540px;
 }
 
 .app-name {
   font-family: 'Inter', sans-serif;
-  font-size: 40px;
-  font-weight: 600;
+  font-size: 48px;
+  font-weight: 800;
   color: #000;
   margin-bottom: 20px;
 }
 
 .app-description {
   font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  line-height: 24px;
+  font-size: 16px;
+  line-height: 28px;
   color: #555;
   text-align: justify;
 }
 
 .image-placeholder {
-  flex: 1;
-  max-width: 500px;
-  height: 450px;
+  flex: 1 1 50%;
+  max-width: 560px;
+  height: 420px;
   background-color: #e0e0e0;
   display: flex;
   justify-content: center;
   align-items: center;
   font-family: 'Inter', sans-serif;
-  font-size: 40px;
-  font-weight: 600;
+  font-size: 36px;
+  font-weight: 700;
   color: #aaa;
-  border-radius: 8px;
+  border-radius: 12px;
+}
+
+@media (max-width: 1024px) {
+  .main-area { flex-direction: column; align-items: flex-start; }
+  .image-placeholder { width: 100%; max-width: none; height: 320px; }
+  .text-section { max-width: none; }
 }
 </style>

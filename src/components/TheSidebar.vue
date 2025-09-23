@@ -53,7 +53,7 @@
       </ul>
     </nav>
     <div class="sidebar-logout">
-      <button class="logout-button">
+      <button class="logout-button" @click="onLogout" type="button">
         <mdicon name="logout" :size="24" />
         <span>Logout</span>
       </button>
@@ -62,8 +62,14 @@
 </template>
 
 <script setup>
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import mdicon from 'mdi-vue/v3'
+
+const router = useRouter()
+const onLogout = () => {
+  // Se houver lógica de sessão futuramente, limpe aqui.
+  router.push('/login')
+}
 </script>
 
 <style scoped>
