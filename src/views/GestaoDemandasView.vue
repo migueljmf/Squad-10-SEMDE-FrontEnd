@@ -117,7 +117,7 @@ const userIconSvg =
 .title { display: flex; align-items: center; gap: 12px; }
 
 /* �cones utilit�rios (c�rculo amarelo) */
-.utility-icons { display: flex; align-items: center; justify-content: center; gap: 8px; width: 72px; height: 72px; border-radius: 50%; background: #FFD54F; box-shadow: 0 2px 6px rgba(0,0,0,0.15); margin: 6px 12px 14px auto; }
+.utility-icons { display: flex; align-items: center; gap: 12px; margin: 6px 12px 14px auto; }
 
 /* Cards de Status */
 .status-cards { display: flex; justify-content: center; gap: 24px; margin: 32px auto; max-width: 1000px; width: 100%; }
@@ -149,12 +149,15 @@ const userIconSvg =
 .tag.concluido { background: #C8E6C9; color: #2E7D32; }
 .actions { position: absolute; right: 24px; bottom: 16px; display: flex; gap: 18px; }
 .action-icon { font-size: 20px; color: #374957; cursor: pointer; }
+/* Tamanho fixo para os SVGs dos ícones utilitários */
+.icon-svg { display: flex; width: 28px; height: 28px; padding: 0 0.001px; justify-content: center; align-items: center; flex-shrink: 0; }
 </style>
 <style module>
 .userIcon {
-  width: 100%;
-  position: relative;
-  height: 29.3px;
+  width: 26.832px;
+  height: 19.514px;
+  flex-shrink: 0;
+  display: block;
 }
 </style>
 
@@ -164,6 +167,7 @@ body {
   line-height: normal;
 }
 </style>
+
 
 
 
