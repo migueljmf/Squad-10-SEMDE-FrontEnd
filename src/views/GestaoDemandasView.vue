@@ -118,6 +118,16 @@ const userIconSvg =
 
 /* �cones utilit�rios (c�rculo amarelo) */
 .utility-icons { display: flex; align-items: center; gap: 12px; margin: 6px 12px 14px auto; }
+.icon-star,
+.icon-search {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: #374957;
+}
+
 
 /* Cards de Status */
 .status-cards { display: flex; justify-content: center; gap: 24px; margin: 32px auto; max-width: 1000px; width: 100%; }
