@@ -25,8 +25,8 @@ const fotoUsuario = ref("");
 // Sidebar não aparece no login
 const mostrarSidebar = computed(() => route.path !== "/login");
 
-// Header não aparece no login e na gestão de demandas
-const mostrarHeader = computed(() => route.path !== "/login" && route.path !== "/gestao-demandas");
+// Header não aparece apenas no login
+const mostrarHeader = computed(() => route.path !== "/login");
 
 // Título automático por rota
 const tituloPagina = computed(() => {
@@ -65,8 +65,8 @@ const tituloPagina = computed(() => {
   top: 0;
 }
 
-/* Empurra o conteúdo para baixo quando o header está visível */
 .main-content.with-header {
+  /* Empurra o conteúdo para baixo quando o header está fixo */
   padding-top: 96px;
 }
 
@@ -75,7 +75,7 @@ const tituloPagina = computed(() => {
   margin-left: 0;
 }
 
-/* Faz o header ocupar toda a largura útil (fora do escopo do componente) */
+/* Faz o header ocupar toda a largura útil e ficar fixo */
 .main-content .app-header {
   position: fixed !important;
   top: 0;
