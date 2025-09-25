@@ -3,9 +3,9 @@
     <div class="content-area">
       <div class="main-area">
         <div class="text-section">
-          <h2 class="app-name">CRM POLÍTICO</h2>
+          <h2 class="app-name">Mandatuum</h2>
           <p class="app-description">
-            O CRM é um sistema de gestão política em desenvolvimento, com foco em
+            O Mandatuum é um sistema de gestão política em desenvolvimento, com foco em
             otimizar a organização, a comunicação e as campanhas eleitorais. Ele
             inclui funcionalidades como análise de dados, criação de tarefas e
             acompanhamento de ações, ajudando a equipe a gerenciar de forma
@@ -13,7 +13,7 @@
           </p>
         </div>
         <div class="image-placeholder">
-          <span>IMAGEM ILUSTRATIVA</span>
+          <img src="../assets/img/Mandatuum.png" alt="">
         </div>
       </div>
     </div>
@@ -25,16 +25,27 @@
 </script>
 
 <style scoped>
-.inicio-container { display: block; }
+
+body{
+  overflow: hidden;
+}
+
+.inicio-container {
+  /* Ocupa a tela inteira e centraliza seu conteúdo */
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden; /* Impede qualquer barra de rolagem */
+}
 
 .content-area {
-  max-width: 1120px; /* centraliza horizontalmente */
+  max-width: 1120px;
+  width: 100%;
   margin: 0 auto;
   padding: 0 24px;
-  /* Centralização vertical relativa à viewport menos a altura do header */
-  min-height: calc(100vh - 96px);
-  display: flex;
-  align-items: center; /* centra verticalmente o .main-area */
+  display: flex; /* Necessário para alinhar o .main-area */
+  align-items: center;
 }
 
 .main-area {
@@ -43,8 +54,7 @@
   justify-content: space-between;
   gap: 40px;
   width: 100%;
-  /* desloca o bloco cerca de 2cm para baixo */
-  transform: translateY(2cm);
+  /* A linha 'transform' foi removida daqui */
 }
 
 .text-section {
@@ -68,24 +78,21 @@
   text-align: justify;
 }
 
-.image-placeholder {
-  flex: 1 1 50%;
-  max-width: 560px;
-  height: 420px;
-  background-color: #e0e0e0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: 'Inter', sans-serif;
-  font-size: 36px;
-  font-weight: 700;
-  color: #aaa;
-  border-radius: 12px;
+img {
+  width: 500px;
+  height: auto;
+  border-radius: 16px;
+  display: block; /* Ajuda a evitar espaços extras inesperados */
 }
 
 @media (max-width: 1024px) {
-  .main-area { flex-direction: column; align-items: flex-start; }
-  .image-placeholder { width: 100%; max-width: none; height: 320px; }
-  .text-section { max-width: none; }
+  .main-area {
+    flex-direction: column;
+    align-items: center; /* Centraliza na vertical em telas menores */
+    text-align: center; /* Centraliza o texto */
+  }
+  .text-section {
+    max-width: none;
+  }
 }
 </style>
