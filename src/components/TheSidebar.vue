@@ -1,11 +1,11 @@
-<template>
+﻿<template>
   <aside class="sidebar">
     <nav class="sidebar-nav">
       <ul>
         <li>
           <RouterLink to="/inicio">
             <mdicon name="home" :size="24" />
-            <span>Início</span>
+            <span>In&iacute;cio</span>
           </RouterLink>
         </li>
         <li>
@@ -17,13 +17,13 @@
         <li>
           <RouterLink to="/gestao-demandas">
             <mdicon name="clipboard-list" :size="24" />
-            <span>Gestão de demandas</span>
+            <span>Gest&atilde;o de demandas</span>
           </RouterLink>
         </li>
         <li>
           <RouterLink to="/acoes">
             <mdicon name="account-group" :size="24" />
-            <span>Ações</span>
+            <span>A&ccedil;&otilde;es</span>
           </RouterLink>
         </li>
         <li>
@@ -41,19 +41,19 @@
         <li>
           <RouterLink to="/eleicoes">
             <mdicon name="vote" :size="24" />
-            <span>Eleições</span>
+            <span>Eleic&otilde;es</span>
           </RouterLink>
         </li>
         <li>
           <RouterLink to="/configuracoes">
             <mdicon name="cog" :size="24" />
-            <span>Configurações</span>
+            <span>Configura&ccedil;&otilde;es</span>
           </RouterLink>
         </li>
       </ul>
     </nav>
     <div class="sidebar-logout">
-      <button class="logout-button">
+      <button class="logout-button" @click="onLogout" type="button">
         <mdicon name="logout" :size="24" />
         <span>Logout</span>
       </button>
@@ -62,22 +62,27 @@
 </template>
 
 <script setup>
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import mdicon from 'mdi-vue/v3'
+
+const router = useRouter()
+const onLogout = () => {
+  router.push('/login')
+}
 </script>
 
 <style scoped>
 .sidebar {
   background-color: #1565C0;
   color: #ffffff;
-  width: 260px; /* ajustei p/ encaixar melhor */
+  width: 260px;
   height: 100vh;
   display: flex;
   flex-direction: column;
   padding: 20px 15px;
   box-sizing: border-box;
   font-family: 'Inter', sans-serif;
-  position: fixed; /* fixa no lado esquerdo */
+  position: fixed;
   left: 0;
   top: 0;
 }
@@ -105,7 +110,7 @@ li a:hover {
   color: #ffffff;
 }
 li a.router-link-exact-active {
-  background-color: #5998DF; 
+  background-color: #5998DF;
   color: #ffffff;
   font-weight: 600;
 }
