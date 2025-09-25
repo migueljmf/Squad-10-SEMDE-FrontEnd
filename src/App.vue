@@ -39,6 +39,7 @@ const tituloPagina = computed(() => {
     "/cadastrar-acao": "Cadastrar Ação",
     "/tarefas": "Tarefas",
     "/cadastrar-tarefa": "Cadastrar Tarefa",
+    "/perfil": "Perfil do Usuario",
     "/financeiro": "Financeiro",
     "/eleicoes": "Eleições",
     "/configuracoes": "Configurações",

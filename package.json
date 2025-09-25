@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@jamescoyle/vue-icon": "^0.1.2",
     "@mdi/js": "^7.4.47",
     "leaflet": "^1.9.4",
     "mdi-vue": "^3.0.13",
@@ -17,6 +18,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.1",
-    "vite": "^7.1.6"
+    "vite": "^7.1.6",
+    "vite-svg-loader": "^5.1.0"
   }
 }

@@ -8,6 +8,7 @@ import AcoesView from "../views/AcoesView.vue";
 import CadastrarAcaoView from "../views/CadastrarAcaoView.vue";
 import TarefasView from "../views/TarefasView.vue";
 import CadastrarTarefaView from "../views/CadastrarTarefaView.vue";
+import PerfilUsuarioView from "../views/PerfilUsuarioView.vue";
 
 const routes = [
   { path: "/", redirect: "/login" },
@@ -18,6 +19,7 @@ const routes = [
   { path: "/cadastrar-acao", name: "CadastrarAcao", component: CadastrarAcaoView },
   { path: "/tarefas", name: "Tarefas", component: TarefasView },
   { path: "/cadastrar-tarefa", name: "CadastrarTarefa", component: CadastrarTarefaView },
+  { path: "/perfil", name: "PerfilUsuario", component: PerfilUsuarioView },
 ];
 
 const router = createRouter({
