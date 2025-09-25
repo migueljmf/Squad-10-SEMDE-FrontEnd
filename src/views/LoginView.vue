@@ -29,34 +29,48 @@
             <a href="#">Esqueceu a senha?</a>
           </div>
 
-          <button class="btn" type="submit">ENTRAR</button>
+          <button class="btn" type="submit" :disabled="loading">
+            {{ loading ? "Entrando..." : "ENTRAR" }}
+          </button>
         </form>
+
+        <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
       </div>
     </div>
   </div>
 </template>
 
-
-
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import { login } from "../services/authService";
 
 const email = ref("");
 const senha = ref("");
+const loading = ref(false);
+const errorMessage = ref("");
 const router = useRouter();
 
-function handleLogin() {
+async function handleLogin() {
   if (!email.value || !senha.value) {
-    alert("Por favor, preencha todos os campos!");
+    errorMessage.value = "Por favor, preencha todos os campos!";
     return;
   }
 
-  // validar com backend
-  alert(`Login com: ${email.value}`);
+  try {
+    loading.value = true;
+    errorMessage.value = "";
 
-  // redireciona para a tela inicial
-  router.push("/inicio");
+    await login(email.value, senha.value);
+
+    // redireciona para a tela inicial
+    router.push({ name: "Inicio" });
+  } catch (err: any) {
+    console.error("Erro no login:", err);
+    errorMessage.value = "Credenciais inválidas. Tente novamente.";
+  } finally {
+    loading.value = false;
+  }
 }
 </script>
 
