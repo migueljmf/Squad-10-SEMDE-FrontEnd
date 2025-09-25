@@ -4,47 +4,53 @@
     <TheSidebar v-if="mostrarSidebar" />
 
     <main class="main-content" :class="{ 'no-sidebar': !mostrarSidebar, 'with-header': mostrarHeader }">
-      <!-- Header oculto em login e gestão de demandas -->
+      <!-- Header oculto em login -->
       <TheHeader v-if="mostrarHeader" :titulo="tituloPagina" :fotoUsuario="fotoUsuario" />
 
-      <!-- Conteúdo das rotas -->
+      <!-- Conteudo das rotas -->
       <RouterView />
     </main>
   </div>
- </template>
+</template>
 
 <script setup>
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
-import TheSidebar from "./components/TheSidebar.vue";
 import TheHeader from "./components/TheHeader.vue";
+import TheSidebar from "./components/TheSidebar.vue";
 
 const route = useRoute();
 const fotoUsuario = ref("");
 
-// Sidebar não aparece no login
 const mostrarSidebar = computed(() => route.path !== "/login");
-
-// Header não aparece apenas no login
 const mostrarHeader = computed(() => route.path !== "/login");
 
-// Título automático por rota
 const tituloPagina = computed(() => {
-  const map = {
+  const pathMap = {
     "/login": "Login",
-    "/inicio": "Início",
+    "/inicio": "Inicio",
     "/dashboard": "Dashboard",
-    "/gestao-demandas": "Gestão de Demandas",
-    "/acoes": "Ações",
-    "/cadastrar-acao": "Cadastrar Ação",
+    "/gestao-demandas": "Gestao de Demandas",
+    "/acoes": "Acoes",
+    "/cadastrar-acao": "Cadastrar Acao",
     "/tarefas": "Tarefas",
     "/cadastrar-tarefa": "Cadastrar Tarefa",
     "/perfil": "Perfil do Usuario",
     "/financeiro": "Financeiro",
-    "/eleicoes": "Eleições",
-    "/configuracoes": "Configurações",
+    "/eleicoes": "Eleicoes",
+    "/configuracoes": "Configuracoes",
   };
-  return map[route.path] || "CRM Político";
+
+  const nameMap = {
+    GestaoDemandas: "Gestao de Demandas",
+    FavoritosDemandas: "Favoritos",
+    DetalheTarefa: "Detalhe da Tarefa",
+    DetalheAcao: "Detalhe da Acao",
+    EditarTarefa: "Editar Demanda",
+    PerfilUsuario: "Perfil do Usuario",
+  };
+
+  return nameMap[route.name] || pathMap[route.path] || "Gestao de Demandas";
 });
 </script>
 
@@ -52,22 +58,21 @@ const tituloPagina = computed(() => {
 #app {
   display: flex;
   min-height: 100vh;
-  width: 100vw; /* garante largura total da viewport */
+  width: 100vw;
 }
 
 .main-content {
   flex: 1 1 auto;
-  width: calc(100vw - 260px); /* ocupa toda a largura restante */
-  margin-left: 260px; /* espaço da sidebar fixa */
+  width: calc(100vw - 260px);
+  margin-left: 260px;
   box-sizing: border-box;
-  padding: 0 !important; /* garante sem espaçamento superior */
-  margin-top: 0 !important; /* colado no topo */
+  padding: 0 !important;
+  margin-top: 0 !important;
   position: relative;
   top: 0;
 }
 
 .main-content.with-header {
-  /* Empurra o conteúdo para baixo quando o header está fixo */
   padding-top: 96px;
 }
 
@@ -76,7 +81,6 @@ const tituloPagina = computed(() => {
   margin-left: 0;
 }
 
-/* Faz o header ocupar toda a largura útil e ficar fixo */
 .main-content .app-header {
   position: fixed !important;
   top: 0;

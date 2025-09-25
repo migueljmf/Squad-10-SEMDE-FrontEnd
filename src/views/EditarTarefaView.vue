@@ -1,15 +1,15 @@
 <template>
   <div class="page-wrapper">
-    <div class="cadastro-container">
+    <div v-if="demanda" class="cadastro-container">
       <header class="cadastro-header">
-        <h1>Cadastrar tarefa</h1>
-        <p>Organize as demandas registrando os detalhes da nova tarefa.</p>
+        <h1>Editar demanda</h1>
+        <p>Atualize as informacoes da tarefa ou acao selecionada.</p>
       </header>
 
-      <form class="cadastro-form" @submit.prevent="salvarTarefa">
+      <form class="cadastro-form" @submit.prevent="salvarAlteracoes">
         <div class="form-group">
-          <label for="titulo">Titulo da tarefa</label>
-          <input id="titulo" v-model="titulo" type="text" placeholder="Digite o titulo da tarefa" required />
+          <label for="titulo">Titulo</label>
+          <input id="titulo" v-model="titulo" type="text" placeholder="Digite o titulo" required />
         </div>
 
         <div class="form-group">
@@ -18,35 +18,30 @@
         </div>
 
         <div class="form-group">
-          <label for="solicitante">Nome do solicitante</label>
-          <input id="solicitante" v-model="solicitante" type="text" placeholder="Quem solicitou a tarefa?" />
+          <label for="solicitante">Solicitante</label>
+          <input id="solicitante" v-model="solicitante" type="text" placeholder="Quem solicitou?" />
         </div>
 
         <div class="form-group">
-          <label for="contato">Contato (email ou telefone)</label>
-          <input id="contato" v-model="contato" type="text" placeholder="Informe um contato" />
+          <label for="contato">Contato</label>
+          <input id="contato" v-model="contato" type="text" placeholder="Email ou telefone" />
         </div>
 
         <div class="form-grid">
           <div class="form-group">
-            <label for="endereco">Endereco</label>
-            <input id="endereco" v-model="endereco" type="text" placeholder="Digite o endereco" />
+            <label for="endereco">Endereco / Local</label>
+            <input id="endereco" v-model="endereco" type="text" placeholder="Onde sera executada?" />
           </div>
 
           <div class="form-group">
             <label for="categoria">Categoria</label>
-            <select id="categoria" v-model="categoria">
-              <option value="">Selecione</option>
-              <option value="Infraestrutura">Infraestrutura</option>
-              <option value="Limpeza">Limpeza</option>
-              <option value="Seguranca">Seguranca</option>
-            </select>
+            <input id="categoria" v-model="categoria" type="text" placeholder="Informe a categoria" />
           </div>
         </div>
 
         <div class="form-grid">
           <div class="form-group">
-            <label for="data">Data da solicitacao</label>
+            <label for="data">Data</label>
             <input id="data" type="date" v-model="data" />
           </div>
 
@@ -61,26 +56,54 @@
         </div>
 
         <div class="form-group">
-          <label for="anexo">Anexos</label>
+          <label>Anexos atuais</label>
+          <ul v-if="anexosExistentes.length" class="anexos-lista">
+            <li v-for="(arquivo, index) in anexosExistentes" :key="`${arquivo.nome}-${index}`" class="anexo-item">
+              <mdicon name="paperclip" :size="18" />
+              <span class="anexo-nome">{{ arquivo.nome }}</span>
+              <button type="button" class="anexo-remover" @click="removerAnexoExistente(index)">
+                Remover
+              </button>
+            </li>
+          </ul>
+          <p v-else class="anexos-vazio">Nenhum anexo cadastrado.</p>
+        </div>
+
+        <div class="form-group">
+          <label for="anexo">Adicionar novos anexos</label>
           <input id="anexo" ref="anexoInput" type="file" multiple />
         </div>
 
         <div class="form-actions">
           <button type="button" class="btn btn-secondary" @click="voltar">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Salvar</button>
+          <button type="submit" class="btn btn-primary">Salvar alteracoes</button>
         </div>
       </form>
+    </div>
+
+    <div v-else class="cadastro-container vazio">
+      <header class="cadastro-header">
+        <h1>Demanda nao encontrada</h1>
+        <p>O ID informado nao corresponde a uma demanda cadastrada.</p>
+      </header>
+      <div class="form-actions centro">
+        <button type="button" class="btn btn-primary" @click="voltar">Voltar</button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { computed, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import mdicon from "mdi-vue/v3";
 import { useDemandasStore } from "../stores/useDemandasStore";
 
+const route = useRoute();
 const router = useRouter();
 const store = useDemandasStore();
+
+const demanda = computed(() => store.getById(route.params.id));
 
 const titulo = ref("");
 const descricao = ref("");
@@ -90,47 +113,63 @@ const endereco = ref("");
 const categoria = ref("");
 const data = ref("");
 const status = ref("Pendente");
+const anexosExistentes = ref([]);
 const anexoInput = ref(null);
 
-const limparFormulario = () => {
-  titulo.value = "";
-  descricao.value = "";
-  solicitante.value = "";
-  contato.value = "";
-  endereco.value = "";
-  categoria.value = "";
-  data.value = "";
-  status.value = "Pendente";
-  if (anexoInput.value) {
-    anexoInput.value.value = "";
-  }
-};
+watch(
+  demanda,
+  (valor) => {
+    if (!valor) return;
+    titulo.value = valor.titulo || "";
+    descricao.value = valor.descricao || "";
+    solicitante.value = valor.solicitante || "";
+    contato.value = valor.contato || "";
+    endereco.value = valor.endereco || valor.local || "";
+    categoria.value = valor.categoria || valor.tipo || "";
+    data.value = valor.data || "";
+    status.value = valor.status || "Pendente";
+    anexosExistentes.value = (valor.anexos || []).map((arquivo) => ({ ...arquivo }));
+  },
+  { immediate: true }
+);
 
-function salvarTarefa() {
-  const anexos = Array.from(anexoInput.value?.files || []).map((arquivo) => ({
+function salvarAlteracoes() {
+  if (!demanda.value) return;
+
+  const novosAnexos = Array.from(anexoInput.value?.files || []).map((arquivo) => ({
     nome: arquivo.name,
     tamanho: arquivo.size,
     tipo: arquivo.type,
   }));
 
-  store.addTarefa({
+  const sucesso = store.updateDemanda(demanda.value.id, {
     titulo: titulo.value,
     descricao: descricao.value,
     solicitante: solicitante.value,
     contato: contato.value,
     endereco: endereco.value,
+    local: endereco.value,
     categoria: categoria.value,
     data: data.value,
     status: status.value,
-    anexos,
+    anexos: [...anexosExistentes.value, ...novosAnexos],
   });
 
-  limparFormulario();
-  router.push("/gestao-demandas");
+  if (!sucesso) {
+    window.alert("Nao foi possivel atualizar a demanda.");
+    return;
+  }
+
+  window.alert("Demanda atualizada com sucesso!");
+  router.push({ name: "DetalheTarefa", params: { id: demanda.value.id } });
+}
+
+function removerAnexoExistente(index) {
+  anexosExistentes.value.splice(index, 1);
 }
 
 function voltar() {
-  router.push("/gestao-demandas");
+  router.back();
 }
 </script>
 
@@ -156,6 +195,11 @@ function voltar() {
   flex-direction: column;
   gap: 32px;
   font-family: "Poppins", sans-serif;
+}
+
+.cadastro-container.vazio {
+  align-items: center;
+  text-align: center;
 }
 
 .cadastro-header h1 {
@@ -222,25 +266,41 @@ textarea {
   resize: vertical;
 }
 
-input[type="file"] {
-  background: #fff;
-  cursor: pointer;
+.anexos-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-input[type="file"]::file-selector-button {
-  background: #1565c0;
-  border: none;
-  color: #fff;
-  padding: 10px 16px;
-  border-radius: 10px;
-  margin-right: 16px;
+.anexo-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f2f5ff;
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: #1f2a3c;
+}
+
+.anexo-nome {
+  flex: 1;
   font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s ease;
 }
 
-input[type="file"]::file-selector-button:hover {
-  background: #0f4a92;
+.anexo-remover {
+  border: none;
+  background: transparent;
+  color: #e53935;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.anexos-vazio {
+  margin: 0;
+  color: #6d7685;
 }
 
 .form-actions {
@@ -249,6 +309,10 @@ input[type="file"]::file-selector-button:hover {
   gap: 12px;
   flex-wrap: wrap;
   margin-top: 8px;
+}
+
+.form-actions.centro {
+  justify-content: center;
 }
 
 .btn {
@@ -267,13 +331,13 @@ input[type="file"]::file-selector-button:hover {
 }
 
 .btn-primary {
-  background: #43a047;
+  background: #1565c0;
   color: #fff;
-  box-shadow: 0 12px 20px rgba(67, 160, 71, 0.24);
+  box-shadow: 0 12px 20px rgba(21, 101, 192, 0.24);
 }
 
 .btn-primary:hover {
-  background: #388e3c;
+  background: #0f4a92;
 }
 
 .btn-secondary {

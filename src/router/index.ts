@@ -9,6 +9,10 @@ import CadastrarAcaoView from "../views/CadastrarAcaoView.vue";
 import TarefasView from "../views/TarefasView.vue";
 import CadastrarTarefaView from "../views/CadastrarTarefaView.vue";
 import PerfilUsuarioView from "../views/PerfilUsuarioView.vue";
+import DetalheTarefaView from "../views/DetalheTarefaView.vue";
+import DetalheAcaoView from "../views/DetalheAcaoView.vue";
+import EditarTarefaView from "../views/EditarTarefaView.vue";
+import FavoritosDemandasView from "../views/FavoritosDemandasView.vue";
 
 const routes = [
   { path: "/", redirect: "/login" },
@@ -20,6 +24,10 @@ const routes = [
   { path: "/tarefas", name: "Tarefas", component: TarefasView },
   { path: "/cadastrar-tarefa", name: "CadastrarTarefa", component: CadastrarTarefaView },
   { path: "/perfil", name: "PerfilUsuario", component: PerfilUsuarioView },
+  { path: "/detalhe-tarefa/:id", name: "DetalheTarefa", component: DetalheTarefaView },
+  { path: "/detalhe-acao/:id", name: "DetalheAcao", component: DetalheAcaoView },
+  { path: "/editar-tarefa/:id", name: "EditarTarefa", component: EditarTarefaView },
+  { path: "/gestao-demandas/favoritos", name: "FavoritosDemandas", component: FavoritosDemandasView },
 ];
 
 const router = createRouter({

@@ -20,13 +20,11 @@
 <script setup>
 import { RouterLink } from "vue-router";
 
-// Componente de header simples e reutilizavel
 const props = defineProps({
   titulo: { type: String, default: "" },
   fotoUsuario: { type: String, default: "" },
 });
 
-// Avatar padrao embutido (SVG)
 const defaultAvatar =
   'data:image/svg+xml;utf8,' +
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">' +
@@ -54,6 +52,13 @@ const defaultAvatar =
   margin: 0;
 }
 
+.title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+}
+
 .avatar-link {
   display: inline-flex;
   align-items: center;
@@ -70,13 +75,6 @@ const defaultAvatar =
 
 .avatar-link:focus-visible {
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.45);
-}
-
-.title {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #fff;
 }
 
 .avatar {

@@ -9,12 +9,22 @@
       <form class="cadastro-form" @submit.prevent="salvarAcao">
         <div class="form-group">
           <label for="titulo">Titulo da acao</label>
-          <input id="titulo" v-model="titulo" type="text" placeholder="Digite o titulo da acao" />
+          <input id="titulo" v-model="titulo" type="text" placeholder="Digite o titulo da acao" required />
         </div>
 
         <div class="form-group">
           <label for="descricao">Descricao detalhada</label>
-          <textarea id="descricao" v-model="descricao" placeholder="Explique o objetivo e as etapas"></textarea>
+          <textarea id="descricao" v-model="descricao" placeholder="Explique o objetivo e as etapas" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="responsavel">Responsavel / Solicitante</label>
+          <input id="responsavel" v-model="solicitante" type="text" placeholder="Quem esta responsavel?" />
+        </div>
+
+        <div class="form-group">
+          <label for="contato">Contato (email ou telefone)</label>
+          <input id="contato" v-model="contato" type="text" placeholder="Informe um contato" />
         </div>
 
         <div class="form-group">
@@ -50,17 +60,41 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import { useDemandasStore } from "../stores/useDemandasStore";
 
 const router = useRouter();
+const store = useDemandasStore();
 
 const titulo = ref("");
 const descricao = ref("");
+const solicitante = ref("");
+const contato = ref("");
 const local = ref("");
 const data = ref("");
 const status = ref("Pendente");
 
+const limparFormulario = () => {
+  titulo.value = "";
+  descricao.value = "";
+  solicitante.value = "";
+  contato.value = "";
+  local.value = "";
+  data.value = "";
+  status.value = "Pendente";
+};
+
 function salvarAcao() {
-  alert(`Acao "${titulo.value}" criada com sucesso!`);
+  store.addAcao({
+    titulo: titulo.value,
+    descricao: descricao.value,
+    solicitante: solicitante.value,
+    contato: contato.value,
+    local: local.value,
+    data: data.value,
+    status: status.value,
+  });
+
+  limparFormulario();
   router.push("/gestao-demandas");
 }
 
