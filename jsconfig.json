@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "jsx": "preserve",
+    "allowJs": true,
+    "checkJs": false,
+    "allowSyntheticDefaultImports": true
+  },
+  "include": ["src/**/*.js", "src/**/*.vue"],
+  "vueCompilerOptions": {
+    "globalTypesPath": "./src/types/vue-shims.d.ts"
+  }
+}

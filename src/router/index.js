@@ -4,6 +4,7 @@ import { isAuthenticated, hasRole } from "../auth/auth";
 // Views
 import LoginView from "../views/LoginView.vue";
 import InicioView from "../views/InicioView.vue";
+import DashboardView from "../views/DashboardView.vue";
 import GestaoDemandasView from "../views/GestaoDemandasView.vue";
 import AcoesView from "../views/AcoesView.vue";
 import CadastrarAcaoView from "../views/CadastrarAcaoView.vue";
@@ -16,15 +17,20 @@ import EditarTarefaView from "../views/EditarTarefaView.vue";
 import FavoritosDemandasView from "../views/FavoritosDemandasView.vue";
 
 const routes = [
-  { path: "/", redirect: "/login" },
+  { path: "/", redirect: "/inicio" },
 
   { path: "/login", name: "Login", component: LoginView },
 
-  { 
-    path: "/inicio", 
-    name: "Inicio", 
-    component: InicioView,
-    meta: { requiresAuth: true } 
+  {
+    path: "/inicio",
+    name: "Inicio",
+    component: InicioView
+  },
+
+  {
+    path: "/dashboard", 
+    name: "Dashboard", 
+    component: DashboardView
   },
 
   { 
@@ -117,3 +123,4 @@ router.beforeEach((to, from, next) => {
 });
 
 export default router;
+

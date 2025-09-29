@@ -1,5 +1,7 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Poppins", system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
   color: #111827;
@@ -29,7 +31,7 @@ html, body, #app, main {
 a { color: inherit; text-decoration: none; }
 h1, h2, h3, h4, h5, h6 { margin: 0; }
 
-/* Remover as regras padr√£o do template que centralizavam tudo */
+/* Remover as regras padrıes do template que centralizavam tudo */
 #app {
   max-width: none;
   margin: 0;

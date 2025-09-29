@@ -1,76 +1,82 @@
 <template>
-  <div class="page-wrapper">
-    <div class="cadastro-container">
-      <header class="cadastro-header">
-        <h1>Cadastrar tarefa</h1>
-        <p>Organize as demandas registrando os detalhes da nova tarefa.</p>
+  <div class="page">
+    <form class="card" @submit.prevent="salvarTarefa">
+      <header class="card__header">
+        <div>
+          <h1>Cadastrar tarefa</h1>
+          <p>Informe os detalhes essenciais da demanda para que a equipe acompanhe o andamento.</p>
+        </div>
+        <div class="card__actions">
+          <button type="button" class="btn ghost" @click="voltar">Cancelar</button>
+          <button type="submit" class="btn primary">Salvar</button>
+        </div>
       </header>
 
-      <form class="cadastro-form" @submit.prevent="salvarTarefa">
-        <div class="form-group">
-          <label for="titulo">Titulo da tarefa</label>
-          <input id="titulo" v-model="titulo" type="text" placeholder="Digite o titulo da tarefa" required />
-        </div>
-
-        <div class="form-group">
-          <label for="descricao">Descricao detalhada</label>
-          <textarea id="descricao" v-model="descricao" placeholder="Descreva a solicitacao" required></textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="solicitante">Nome do solicitante</label>
-          <input id="solicitante" v-model="solicitante" type="text" placeholder="Quem solicitou a tarefa?" />
-        </div>
-
-        <div class="form-group">
-          <label for="contato">Contato (email ou telefone)</label>
-          <input id="contato" v-model="contato" type="text" placeholder="Informe um contato" />
-        </div>
-
-        <div class="form-grid">
-          <div class="form-group">
-            <label for="endereco">Endereco</label>
-            <input id="endereco" v-model="endereco" type="text" placeholder="Digite o endereco" />
-          </div>
-
-          <div class="form-group">
-            <label for="categoria">Categoria</label>
-            <select id="categoria" v-model="categoria">
+      <section class="group">
+        <div class="grid two">
+          <label class="field">
+            <span>Titulo *</span>
+            <input v-model="titulo" type="text" placeholder="Informe o titulo" required />
+          </label>
+          <label class="field">
+            <span>Categoria</span>
+            <select v-model="categoria">
               <option value="">Selecione</option>
               <option value="Infraestrutura">Infraestrutura</option>
               <option value="Limpeza">Limpeza</option>
               <option value="Seguranca">Seguranca</option>
             </select>
-          </div>
+          </label>
         </div>
 
-        <div class="form-grid">
-          <div class="form-group">
-            <label for="data">Data da solicitacao</label>
-            <input id="data" type="date" v-model="data" />
-          </div>
+        <label class="field">
+          <span>Descricao *</span>
+          <textarea v-model="descricao" rows="4" placeholder="Descreva o que precisa ser resolvido" required></textarea>
+        </label>
+      </section>
 
-          <div class="form-group">
-            <label for="status">Status</label>
-            <select id="status" v-model="status">
-              <option value="Pendente">Pendente</option>
-              <option value="Em andamento">Em andamento</option>
-              <option value="Concluida">Concluida</option>
-            </select>
-          </div>
+      <section class="group">
+        <div class="grid two">
+          <label class="field">
+            <span>Solicitante</span>
+            <input v-model="solicitante" type="text" placeholder="Quem solicitou?" />
+          </label>
+          <label class="field">
+            <span>Contato</span>
+            <input v-model="contato" type="text" placeholder="Email ou telefone" />
+          </label>
         </div>
 
-        <div class="form-group">
-          <label for="anexo">Anexos</label>
-          <input id="anexo" ref="anexoInput" type="file" multiple />
+        <div class="grid two">
+          <label class="field">
+            <span>Endereco / local</span>
+            <input v-model="endereco" type="text" placeholder="Onde sera executada?" />
+          </label>
+          <label class="field">
+            <span>Data prevista</span>
+            <input v-model="data" type="date" />
+          </label>
         </div>
 
-        <div class="form-actions">
-          <button type="button" class="btn btn-secondary" @click="voltar">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Salvar</button>
-        </div>
-      </form>
-    </div>
+        <label class="field field--shrink">
+          <span>Status</span>
+          <select v-model="status">
+            <option value="Pendente">Pendente</option>
+            <option value="Em andamento">Em andamento</option>
+            <option value="Concluida">Concluida</option>
+          </select>
+        </label>
+      </section>
+
+      <section class="group">
+        <h2>Anexos</h2>
+        <label class="upload">
+          <input ref="anexoInput" type="file" multiple />
+          <strong>Arraste arquivos ou clique para selecionar</strong>
+          <span>PDF, imagens ou planilhas com ate 10 MB cada.</span>
+        </label>
+      </section>
+    </form>
   </div>
 </template>
 
@@ -92,7 +98,7 @@ const data = ref("");
 const status = ref("Pendente");
 const anexoInput = ref(null);
 
-const limparFormulario = () => {
+function limparFormulario() {
   titulo.value = "";
   descricao.value = "";
   solicitante.value = "";
@@ -104,7 +110,7 @@ const limparFormulario = () => {
   if (anexoInput.value) {
     anexoInput.value.value = "";
   }
-};
+}
 
 function salvarTarefa() {
   const anexos = Array.from(anexoInput.value?.files || []).map((arquivo) => ({
@@ -135,175 +141,177 @@ function voltar() {
 </script>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
-
-.page-wrapper {
-  min-height: 100vh;
+.page {
+  min-height: calc(100vh - 96px);
+  padding: 96px 24px 72px;
+  background: linear-gradient(180deg, #f5f7fb 0%, #ffffff 100%);
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: 40px 20px;
-  background: linear-gradient(135deg, #f0f4ff 0%, #f8fbff 100%);
+  box-sizing: border-box;
 }
 
-.cadastro-container {
-  width: min(960px, 100%);
-  background: #fff;
-  border-radius: 20px;
-  padding: 48px;
-  box-shadow: 0 24px 40px rgba(21, 101, 192, 0.12);
+.card {
+  width: min(760px, 100%);
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1);
+  border: 1px solid rgba(148, 163, 184, 0.16);
   display: flex;
   flex-direction: column;
-  gap: 32px;
-  font-family: "Poppins", sans-serif;
+  gap: 24px;
 }
 
-.cadastro-header h1 {
-  font-size: 32px;
+.card__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.card__header h1 {
+  margin: 0 0 8px;
+  font-size: 26px;
   font-weight: 600;
-  color: #0f1d40;
-  margin-bottom: 8px;
+  color: #0f172a;
 }
 
-.cadastro-header p {
-  font-size: 15px;
-  color: #5a6473;
+.card__header p {
   margin: 0;
+  color: #55637a;
+  font-size: 14px;
 }
 
-.cadastro-form {
+.card__actions {
+  display: flex;
+  gap: 12px;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.grid.two {
   display: grid;
-  gap: 24px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
 }
 
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 24px;
-}
-
-.form-group {
+.field {
   display: flex;
   flex-direction: column;
   gap: 8px;
-}
-
-.form-group label {
   font-size: 13px;
-  font-weight: 500;
-  color: #555;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
+  color: #475569;
 }
 
-.form-group input,
-.form-group textarea,
-.form-group select {
-  border: 1px solid #d6deea;
-  border-radius: 12px;
-  padding: 14px 16px;
-  font-size: 15px;
-  color: #1b2a4a;
-  background: #f9fbff;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+.field--shrink {
+  max-width: 220px;
 }
 
-.form-group input:focus,
-.form-group textarea:focus,
-.form-group select:focus {
-  border-color: #1565c0;
+.field input,
+.field textarea,
+.field select {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: #f8fafc;
+  font-size: 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+  border-color: #2563eb;
   background: #fff;
-  box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.15);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
   outline: none;
 }
 
-textarea {
-  min-height: 140px;
-  resize: vertical;
-}
-
-input[type="file"] {
-  background: #fff;
-  cursor: pointer;
-}
-
-input[type="file"]::file-selector-button {
-  background: #1565c0;
-  border: none;
-  color: #fff;
-  padding: 10px 16px;
-  border-radius: 10px;
-  margin-right: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-input[type="file"]::file-selector-button:hover {
-  background: #0f4a92;
-}
-
-.form-actions {
+.upload {
+  position: relative;
+  border: 1px dashed rgba(37, 99, 235, 0.35);
+  border-radius: 18px;
+  background: rgba(37, 99, 235, 0.08);
+  padding: 20px;
+  text-align: center;
+  color: #1d4ed8;
   display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-top: 8px;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.upload input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.upload strong {
+  font-size: 14px;
+}
+
+.upload span {
+  font-size: 12px;
+  color: #4b5563;
 }
 
 .btn {
   border: none;
-  border-radius: 12px;
-  padding: 12px 28px;
-  font-size: 15px;
+  border-radius: 999px;
+  padding: 12px 22px;
+  font-size: 14px;
   font-weight: 600;
-  letter-spacing: 0.3px;
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
-.btn:active {
-  transform: translateY(1px);
-}
-
-.btn-primary {
-  background: #43a047;
+.btn.primary {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: #fff;
-  box-shadow: 0 12px 20px rgba(67, 160, 71, 0.24);
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.22);
 }
 
-.btn-primary:hover {
-  background: #388e3c;
+.btn.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 28px rgba(37, 99, 235, 0.28);
 }
 
-.btn-secondary {
-  background: #e0e7ef;
-  color: #2f3a4f;
+.btn.ghost {
+  background: transparent;
+  color: #1d4ed8;
 }
 
-.btn-secondary:hover {
-  background: #c8d0da;
+.btn.ghost:hover {
+  color: #0f172a;
 }
 
-@media (max-width: 768px) {
-  .cadastro-container {
-    padding: 32px 24px;
+@media (max-width: 720px) {
+  .card {
+    padding: 28px;
   }
 
-  .cadastro-header h1 {
-    font-size: 26px;
-  }
-}
-
-@media (max-width: 520px) {
-  .form-actions {
-    width: 100%;
-    justify-content: stretch;
+  .card__header {
+    flex-direction: column;
+    align-items: stretch;
   }
 
-  .btn {
-    width: 100%;
-    text-align: center;
+  .grid.two {
+    grid-template-columns: 1fr;
+  }
+
+  .field--shrink {
+    max-width: none;
   }
 }
 </style>

@@ -215,10 +215,16 @@ function irParaFavoritos() {
   }
 }
 
-function abrirDetalhe(id) {
-  router.push({ name: "DetalheTarefa", params: { id } });
+function obterNomeRotaDetalhe(item) {
+  const base = (item?.tipoSlug || item?.tipo || "").toString().toLowerCase();
+  return base.includes("acao") ? "DetalheAcao" : "DetalheTarefa";
 }
 
+function abrirDetalhe(id) {
+  const registro = store.getById(id);
+  if (!registro) return;
+  router.push({ name: obterNomeRotaDetalhe(registro), params: { id } });
+}
 function editarDemanda(id) {
   router.push({ name: "EditarTarefa", params: { id } });
 }

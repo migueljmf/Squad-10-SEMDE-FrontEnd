@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <aside class="sidebar">
     <nav class="sidebar-nav">
       <ul>
@@ -62,13 +62,16 @@
 </template>
 
 <script setup>
-import { RouterLink, useRouter } from 'vue-router'
-import mdicon from 'mdi-vue/v3'
+import { RouterLink, useRouter } from "vue-router";
+import mdicon from "mdi-vue/v3";
+import { logout } from "../services/authService";
 
-const router = useRouter()
+const router = useRouter();
+
 const onLogout = () => {
-  router.push('/login')
-}
+  logout();
+  router.push("/login");
+};
 </script>
 
 <style scoped>
