@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="page">
     <form class="card" @submit.prevent="salvarAcao">
       <header class="card__header">
@@ -35,25 +35,22 @@
           </label>
         </div>
 
+        <EnderecoForm v-model="endereco" class="address-block" />
+
         <div class="grid two">
-          <label class="field">
-            <span>Local</span>
-            <input v-model="local" type="text" placeholder="Onde ocorrera?" />
-          </label>
           <label class="field">
             <span>Data</span>
             <input v-model="data" type="date" />
           </label>
+          <label class="field field--shrink">
+            <span>Status</span>
+            <select v-model="status">
+              <option value="Pendente">Pendente</option>
+              <option value="Em andamento">Em andamento</option>
+              <option value="Concluida">Concluida</option>
+            </select>
+          </label>
         </div>
-
-        <label class="field field--shrink">
-          <span>Status</span>
-          <select v-model="status">
-            <option value="Pendente">Pendente</option>
-            <option value="Em andamento">Em andamento</option>
-            <option value="Concluida">Concluida</option>
-          </select>
-        </label>
       </section>
     </form>
   </div>
@@ -62,6 +59,8 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import EnderecoForm from "../components/EnderecoForm.vue";
+import { criarEnderecoVazio, formatarEnderecoCurto } from "../utils/endereco";
 import { useDemandasStore } from "../stores/useDemandasStore";
 
 const router = useRouter();
@@ -71,23 +70,71 @@ const titulo = ref("");
 const descricao = ref("");
 const solicitante = ref("");
 const contato = ref("");
-const local = ref("");
+const endereco = ref(criarEnderecoVazio());
 const data = ref("");
 const status = ref("Pendente");
+const salvando = ref(false);
 
-function salvarAcao() {
-  store.addAcao({
-    titulo: titulo.value,
-    descricao: descricao.value,
-    solicitante: solicitante.value,
-    contato: contato.value,
-    local: local.value,
-    data: data.value,
-    status: status.value,
-  });
+async function salvarAcao() {
+  if (salvando.value) return;
+  salvando.value = true;
 
-  limparFormulario();
-  router.push("/gestao-demandas");
+  try {
+    const enderecoPayload = { ...endereco.value };
+    const resumoEndereco = formatarEnderecoCurto(enderecoPayload);
+    const descricaoLocal = resumoEndereco || enderecoPayload.logradouro || enderecoPayload.cep || "Nao informado";
+    const coordenadas = await buscarCoordenadas(descricaoLocal || enderecoPayload.cep);
+
+    store.addAcao({
+      titulo: titulo.value,
+      descricao: descricao.value,
+      solicitante: solicitante.value,
+      contato: contato.value,
+      endereco: enderecoPayload,
+      enderecoResumo: resumoEndereco,
+      local: descricaoLocal,
+      data: data.value,
+      status: status.value,
+      latitude: coordenadas?.lat ?? null,
+      longitude: coordenadas?.lng ?? null,
+    });
+
+    limparFormulario();
+    router.push("/gestao-demandas");
+  } finally {
+    salvando.value = false;
+  }
+}
+
+async function buscarCoordenadas(descricao) {
+  const consulta = descricao?.trim();
+  if (!consulta) return null;
+
+  try {
+    const url = new URL("https://nominatim.openstreetmap.org/search");
+    url.searchParams.set("format", "json");
+    url.searchParams.set("limit", "1");
+    url.searchParams.set("q", consulta);
+
+    const resposta = await fetch(url.toString(), {
+      headers: { Accept: "application/json" },
+    });
+
+    if (!resposta.ok) return null;
+    const resultado = await resposta.json();
+    if (!Array.isArray(resultado) || resultado.length === 0) return null;
+
+    const registro = resultado[0];
+    const lat = Number.parseFloat(registro.lat);
+    const lng = Number.parseFloat(registro.lon);
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+
+    return { lat, lng };
+  } catch (erro) {
+    console.warn("Falha ao geocodificar endereco:", erro);
+    return null;
+  }
 }
 
 function limparFormulario() {
@@ -95,7 +142,7 @@ function limparFormulario() {
   descricao.value = "";
   solicitante.value = "";
   contato.value = "";
-  local.value = "";
+  endereco.value = criarEnderecoVazio();
   data.value = "";
   status.value = "Pendente";
 }
@@ -116,15 +163,15 @@ function voltar() {
 }
 
 .card {
-  width: min(820px, 100%);
+  width: min(810px, 100%);
   background: #ffffff;
-  border-radius: 24px;
-  padding: 36px;
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1);
-  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 26px;
+  padding: 40px 44px;
+  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.1);
+  border: 1px solid rgba(148, 163, 184, 0.18);
   display: flex;
   flex-direction: column;
-  gap: 26px;
+  gap: 30px;
 }
 
 .card__header {
@@ -155,25 +202,25 @@ function voltar() {
 .group {
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 34px;
 }
 
 .grid.two {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 22px;
+  gap: 32px;
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   font-size: 13px;
   color: #475569;
 }
 
 .field--shrink {
-  max-width: 220px;
+  max-width: 330px;
 }
 
 .field input,
@@ -190,7 +237,14 @@ function voltar() {
 
 .field textarea {
   resize: vertical;
-  min-height: 120px;
+  min-height: 140px;
+}
+
+.address-block {
+  padding: 22px 2px;
+  background: #f8fbff;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 22px;
 }
 
 .field input:focus,
@@ -251,4 +305,8 @@ function voltar() {
   }
 }
 </style>
+
+
+
+
 

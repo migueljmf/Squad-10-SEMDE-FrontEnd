@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="page-wrapper">
     <div v-if="demanda" class="cadastro-container">
       <header class="cadastro-header">
@@ -29,8 +29,8 @@
 
         <div class="form-grid">
           <div class="form-group">
-            <label for="endereco">Endereco / Local</label>
-            <input id="endereco" v-model="endereco" type="text" placeholder="Onde sera executada?" />
+            <label>Endereco</label>
+            <EnderecoForm v-model="endereco" />
           </div>
 
           <div class="form-group">
@@ -97,6 +97,8 @@
 import { computed, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import mdicon from "mdi-vue/v3";
+import EnderecoForm from "../components/EnderecoForm.vue";
+import { criarEnderecoVazio, formatarEnderecoCurto } from "../utils/endereco";
 import { useDemandasStore } from "../stores/useDemandasStore";
 
 const route = useRoute();
@@ -109,7 +111,7 @@ const titulo = ref("");
 const descricao = ref("");
 const solicitante = ref("");
 const contato = ref("");
-const endereco = ref("");
+const endereco = ref(criarEnderecoVazio());
 const categoria = ref("");
 const data = ref("");
 const status = ref("Pendente");
@@ -124,7 +126,18 @@ watch(
     descricao.value = valor.descricao || "";
     solicitante.value = valor.solicitante || "";
     contato.value = valor.contato || "";
-    endereco.value = valor.endereco || valor.local || "";
+    const origemEndereco = [valor.endereco, valor.enderecoDetalhado].find(
+      (item) => item && typeof item === "object"
+    );
+    if (origemEndereco) {
+      endereco.value = { ...criarEnderecoVazio(), ...origemEndereco };
+    } else {
+      const textoEndereco =
+        typeof valor.endereco === "string" && valor.endereco
+          ? valor.endereco
+          : valor.local || "";
+      endereco.value = { ...criarEnderecoVazio(), logradouro: textoEndereco };
+    }
     categoria.value = valor.categoria || valor.tipo || "";
     data.value = valor.data || "";
     status.value = valor.status || "Pendente";
@@ -142,13 +155,18 @@ function salvarAlteracoes() {
     tipo: arquivo.type,
   }));
 
+  const enderecoPayload = { ...endereco.value };
+  const resumoEndereco = formatarEnderecoCurto(enderecoPayload);
+  const localDescricao = resumoEndereco || enderecoPayload.logradouro || enderecoPayload.cep || "Nao informado";
+
   const sucesso = store.updateDemanda(demanda.value.id, {
     titulo: titulo.value,
     descricao: descricao.value,
     solicitante: solicitante.value,
     contato: contato.value,
-    endereco: endereco.value,
-    local: endereco.value,
+    endereco: enderecoPayload,
+    enderecoResumo: resumoEndereco,
+    local: localDescricao,
     categoria: categoria.value,
     data: data.value,
     status: status.value,
@@ -371,3 +389,4 @@ textarea {
   }
 }
 </style>
+

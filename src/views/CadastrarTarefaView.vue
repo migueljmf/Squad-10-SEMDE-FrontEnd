@@ -151,15 +151,15 @@ function voltar() {
 }
 
 .card {
-  width: min(760px, 100%);
+  width: min(810px, 100%);
   background: #ffffff;
-  border-radius: 24px;
-  padding: 32px;
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1);
-  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 26px;
+  padding: 40px 44px;
+  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.1);
+  border: 1px solid rgba(148, 163, 184, 0.18);
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 32px;
 }
 
 .card__header {
@@ -171,15 +171,16 @@ function voltar() {
 
 .card__header h1 {
   margin: 0 0 8px;
-  font-size: 26px;
-  font-weight: 600;
+  font-size: 28px;
+  font-weight: 700;
   color: #0f172a;
 }
 
 .card__header p {
   margin: 0;
-  color: #55637a;
-  font-size: 14px;
+  color: #475569;
+  font-size: 15px;
+  line-height: 1.4;
 }
 
 .card__actions {
@@ -190,49 +191,50 @@ function voltar() {
 .group {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 40px; /* mais respiro entre blocos */
 }
 
 .grid.two {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
+  gap: 36px; /* mais espaço entre colunas */
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  font-size: 13px;
+  gap: 14px; /* mais espaço entre label e input */
+  font-size: 14px;
   color: #475569;
 }
 
 .field--shrink {
-  max-width: 220px;
+  max-width: 330px;
 }
 
 .field input,
 .field textarea,
 .field select {
   width: 100%;
-  padding: 12px 14px;
+  padding: 14px 16px; /* inputs mais confortáveis */
   border-radius: 14px;
   border: 1px solid rgba(148, 163, 184, 0.35);
   background: #f8fafc;
-  font-size: 14px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  font-size: 15px;
+  line-height: 1.5;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .field textarea {
   resize: vertical;
-  min-height: 120px;
+  min-height: 160px; /* textarea mais alto */
 }
 
 .field input:focus,
 .field textarea:focus,
 .field select:focus {
   border-color: #2563eb;
-  background: #fff;
+  background: #ffffff;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
   outline: none;
 }
@@ -241,13 +243,13 @@ function voltar() {
   position: relative;
   border: 1px dashed rgba(37, 99, 235, 0.35);
   border-radius: 18px;
-  background: rgba(37, 99, 235, 0.08);
-  padding: 20px;
+  background: #f9fbff; /* mais leve que o azul forte */
+  padding: 28px;
   text-align: center;
   color: #1d4ed8;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .upload input {
@@ -258,22 +260,22 @@ function voltar() {
 }
 
 .upload strong {
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .upload span {
-  font-size: 12px;
+  font-size: 13px;
   color: #4b5563;
 }
 
 .btn {
   border: none;
   border-radius: 999px;
-  padding: 12px 22px;
+  padding: 12px 24px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.2s ease;
 }
 
 .btn.primary {
@@ -290,10 +292,12 @@ function voltar() {
 .btn.ghost {
   background: transparent;
   color: #1d4ed8;
+  border: 1px solid #1d4ed8;
 }
 
 .btn.ghost:hover {
   color: #0f172a;
+  border-color: #0f172a;
 }
 
 @media (max-width: 720px) {
@@ -308,10 +312,12 @@ function voltar() {
 
   .grid.two {
     grid-template-columns: 1fr;
+    gap: 24px;
   }
 
   .field--shrink {
     max-width: none;
   }
 }
+
 </style>

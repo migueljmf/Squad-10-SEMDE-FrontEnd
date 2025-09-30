@@ -1,4 +1,5 @@
-import { ref, computed } from "vue";
+﻿import { ref, computed } from "vue";
+import { formatarEnderecoCurto, normalizarEnderecoObjeto, enderecoPossuiDados } from "../utils/endereco";
 
 const itens = ref([]);
 let nextId = 1;
@@ -23,6 +24,19 @@ function gerarDemandaBase(payload = {}) {
   const status = payload.status || "Pendente";
   const anexos = payload.anexos ? payload.anexos.map((item) => ({ ...item })) : [];
 
+  const enderecoDetalhado = normalizarEnderecoObjeto(payload.endereco ?? payload.enderecoDetalhado);
+  const possuiEnderecoDetalhado = enderecoDetalhado && enderecoPossuiDados(enderecoDetalhado);
+  const enderecoObjeto = possuiEnderecoDetalhado ? enderecoDetalhado : null;
+
+  const candidatosResumo = [
+    typeof payload.enderecoResumo === "string" ? payload.enderecoResumo.trim() : "",
+    typeof payload.local === "string" ? payload.local.trim() : "",
+    typeof payload.endereco === "string" ? payload.endereco.trim() : "",
+    enderecoObjeto ? formatarEnderecoCurto(enderecoObjeto) : "",
+  ];
+  const enderecoResumo = candidatosResumo.find((valor) => valor) || "";
+  const enderecoTexto = enderecoResumo || "Nao informado";
+
   return {
     id: payload.id ?? nextId++,
     createdAt: payload.createdAt ?? new Date().toISOString(),
@@ -33,11 +47,15 @@ function gerarDemandaBase(payload = {}) {
     descricaoResumida: descricaoCompleta.slice(0, 140),
     solicitante: payload.solicitante || "Nao informado",
     contato: payload.contato || payload.solicitante || "Nao informado",
-    endereco: payload.endereco || payload.local || "Nao informado",
-    local: payload.local || payload.endereco || "Nao informado",
+    endereco: enderecoObjeto ?? enderecoTexto,
+    enderecoDetalhado: enderecoObjeto,
+    enderecoResumo,
+    local: enderecoTexto,
     data: payload.data || "",
     status,
     anexos,
+    latitude: payload.latitude ?? null,
+    longitude: payload.longitude ?? null,
     statusSlug: normalizarStatus(status),
     tipoSlug: normalizarTipo(tipo),
     icon: payload.icon || (normalizarTipo(tipo) === "acao" ? "target" : "clipboard-text-outline"),
@@ -123,3 +141,6 @@ export function useDemandasStore() {
     getById,
   };
 }
+
+
+
