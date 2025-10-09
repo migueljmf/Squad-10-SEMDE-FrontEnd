@@ -53,21 +53,69 @@
     </transition>
 
     <section class="status-cards">
-      <div class="card pendente">
+      <div 
+        class="card pendente drop-zone-card"
+        :class="{ 
+          'drag-over': dragOverZone === 'pendente',
+          'filtro-ativo': filtroStatusAtivo === 'pendente'
+        }"
+        @click="toggleFiltroStatus('pendente')"
+        @dragover.prevent="dragOverZone = 'pendente'"
+        @dragleave="dragOverZone = null"
+        @drop="onDrop($event, 'pendente')"
+      >
         <span class="count-badge">{{ contagemStatus.pendente }}</span>
         <p class="card-title">Pendentes</p>
+        <div v-if="dragOverZone === 'pendente'" class="drop-hint">
+          Solte aqui para marcar como Pendente
+        </div>
       </div>
-      <div class="card andamento">
+      <div 
+        class="card andamento drop-zone-card"
+        :class="{ 
+          'drag-over': dragOverZone === 'em-andamento',
+          'filtro-ativo': filtroStatusAtivo === 'em-andamento'
+        }"
+        @click="toggleFiltroStatus('em-andamento')"
+        @dragover.prevent="dragOverZone = 'em-andamento'"
+        @dragleave="dragOverZone = null"
+        @drop="onDrop($event, 'em-andamento')"
+      >
         <span class="count-badge">{{ contagemStatus.andamento }}</span>
         <p class="card-title">Em andamento</p>
+        <div v-if="dragOverZone === 'em-andamento'" class="drop-hint">
+          Solte aqui para marcar como Em Andamento
+        </div>
       </div>
-      <div class="card concluido">
+      <div 
+        class="card concluido drop-zone-card"
+        :class="{ 
+          'drag-over': dragOverZone === 'concluida',
+          'filtro-ativo': filtroStatusAtivo === 'concluida'
+        }"
+        @click="toggleFiltroStatus('concluida')"
+        @dragover.prevent="dragOverZone = 'concluida'"
+        @dragleave="dragOverZone = null"
+        @drop="onDrop($event, 'concluida')"
+      >
         <span class="count-badge">{{ contagemStatus.concluido }}</span>
         <p class="card-title">Concluidas</p>
+        <div v-if="dragOverZone === 'concluida'" class="drop-hint">
+          Solte aqui para marcar como Concluída
+        </div>
       </div>
     </section>
 
-    <section class="demandas-list">
+    <div v-if="store.isLoading.value" class="loading-state">
+      <p>Carregando demandas...</p>
+    </div>
+
+    <div v-else-if="store.error.value" class="error-state">
+      <p>Erro ao carregar demandas: {{ store.error.value }}</p>
+      <button type="button" class="btn-retry" @click="recarregar">Tentar novamente</button>
+    </div>
+
+    <section v-else class="demandas-list">
       <p v-if="demandasFormatadas.length === 0" class="empty-state">
         Nenhuma demanda encontrada. Ajuste os filtros ou cadastre uma nova tarefa/acao.
       </p>
@@ -76,17 +124,33 @@
           v-for="demanda in demandasFormatadas"
           :key="demanda.id"
           class="demanda-card"
+          :draggable="true"
           role="button"
           tabindex="0"
+          @dragstart="onDragStart($event, demanda)"
+          @dragend="onDragEnd"
           @click="abrirDetalhe(demanda.id)"
           @keyup.enter="abrirDetalhe(demanda.id)"
         >
-          <span class="badge badge-type" :class="['type-' + demanda.tipoClass]">
-            {{ demanda.tipo }}
-          </span>
-          <span class="badge badge-status" :class="['status-' + demanda.statusClass]">
-            {{ demanda.status }}
-          </span>
+          <div class="badges-container">
+            <span class="badge badge-type" :class="['type-' + demanda.tipoClass]">
+              {{ demanda.tipo }}
+            </span>
+            <div class="badge-status-wrapper" @click.stop>
+              <select
+                :id="'status-' + demanda.id"
+                :value="demanda.statusClass"
+                class="badge badge-status-select"
+                :class="['status-' + demanda.statusClass]"
+                @change="atualizarStatus(demanda.id, $event.target.value)"
+              >
+                <option value="pendente">Pendente</option>
+                <option value="em-andamento">Em andamento</option>
+                <option value="concluida">Concluída</option>
+                <option value="cancelada">Cancelada</option>
+              </select>
+            </div>
+          </div>
 
           <h3 class="demanda-title">{{ demanda.titulo }}</h3>
           <p class="demanda-description">{{ demanda.descricaoResumo }}</p>
@@ -132,7 +196,7 @@
 </template>
 
 <script setup>
-import { computed, ref, nextTick, watch } from "vue";
+import { computed, ref, nextTick, watch, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import iconTask from "@/assets/fi-ss-pencil.svg?url";
 import iconSearch from "@/assets/Group.svg?url";
@@ -150,29 +214,34 @@ const store = useDemandasStore();
 const searchAtiva = ref(false);
 const termoBusca = ref("");
 const searchInput = ref(null);
-
-watch(
-  () => route.name,
-  (nomeAtual) => {
-    if (nomeAtual !== "GestaoDemandas") {
-      searchAtiva.value = false;
-      termoBusca.value = "";
-    }
-  }
-);
+const filtroStatusAtivo = ref(null);
 
 const estaNosFavoritos = computed(() => route.name === "FavoritosDemandas");
 
 const contagemStatus = computed(() => store.countsPorStatus.value);
 
 const demandasFiltradas = computed(() => {
+  let resultado = store.demandas.value;
+  
+  // Filtro por status
+  if (filtroStatusAtivo.value) {
+    resultado = resultado.filter((item) => {
+      const statusSlug = item.statusSlug || "pendente";
+      return statusSlug === filtroStatusAtivo.value;
+    });
+  }
+  
+  // Filtro por busca
   const query = termoBusca.value.trim().toLowerCase();
-  if (!query) return store.demandas.value;
-  return store.demandas.value.filter((item) => {
-    const titulo = item.titulo?.toLowerCase() || "";
-    const descricao = item.descricao?.toLowerCase() || "";
-    return titulo.includes(query) || descricao.includes(query);
-  });
+  if (query) {
+    resultado = resultado.filter((item) => {
+      const titulo = item.titulo?.toLowerCase() || "";
+      const descricao = item.descricao?.toLowerCase() || "";
+      return titulo.includes(query) || descricao.includes(query);
+    });
+  }
+  
+  return resultado;
 });
 
 const demandasFormatadas = computed(() =>
@@ -229,11 +298,15 @@ function editarDemanda(id) {
   router.push({ name: "EditarTarefa", params: { id } });
 }
 
-function removerDemanda(id) {
+async function removerDemanda(id) {
   const demanda = store.getById(id);
   const titulo = demanda?.titulo || "esta demanda";
   if (window.confirm(`Deseja realmente excluir ${titulo}?`)) {
-    store.removeDemanda(id);
+    try {
+      await store.removeDemanda(id);
+    } catch (err) {
+      window.alert("Erro ao excluir demanda. Tente novamente.");
+    }
   }
 }
 
@@ -254,6 +327,63 @@ function formatarData(valor) {
     return Number.isNaN(alternativa.getTime()) ? valor : alternativa.toLocaleDateString("pt-BR");
   }
   return data.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
+}
+
+const draggedDemanda = ref(null);
+const dragOverZone = ref(null);
+
+onMounted(async () => {
+  await store.fetchDemandas();
+});
+
+watch(
+  () => route.name,
+  (nomeAtual) => {
+    if (nomeAtual !== "GestaoDemandas") {
+      searchAtiva.value = false;
+      termoBusca.value = "";
+      filtroStatusAtivo.value = null; // Reset filtro de status ao mudar de rota
+    }
+  }
+);
+
+function onDragStart(event, demanda) {
+  draggedDemanda.value = demanda;
+  event.dataTransfer.effectAllowed = "move";
+  event.target.style.opacity = "0.5";
+}
+
+function onDragEnd(event) {
+  event.target.style.opacity = "1";
+  draggedDemanda.value = null;
+  dragOverZone.value = null;
+}
+
+async function onDrop(event, newStatus) {
+  event.preventDefault();
+  dragOverZone.value = null;
+
+  if (!draggedDemanda.value) return;
+
+  const demandaId = draggedDemanda.value.id;
+  await atualizarStatus(demandaId, newStatus);
+  draggedDemanda.value = null;
+}
+
+async function atualizarStatus(id, novoStatus) {
+  try {
+    await store.updateStatus(id, novoStatus);
+  } catch (err) {
+    window.alert("Erro ao atualizar status. Tente novamente.");
+  }
+}
+
+function toggleFiltroStatus(status) {
+  if (filtroStatusAtivo.value === status) {
+    filtroStatusAtivo.value = null; // Remove o filtro se clicar no mesmo
+  } else {
+    filtroStatusAtivo.value = status; // Ativa o filtro
+  }
 }
 </script>
 
@@ -408,6 +538,51 @@ function formatarData(valor) {
   display: flex;
   align-items: flex-end;
   padding: 24px 32px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 3px solid transparent;
+}
+
+.drop-zone-card {
+  border: 3px solid transparent;
+}
+
+.drop-zone-card.drag-over {
+  transform: scale(1.05);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+  border-style: dashed;
+}
+
+.drop-zone-card.pendente.drag-over {
+  border-color: #fba441;
+  background: #fff4e0;
+}
+
+.drop-zone-card.andamento.drag-over {
+  border-color: #1e88e5;
+  background: #e3f2fd;
+}
+
+.drop-zone-card.concluido.drag-over {
+  border-color: #43a047;
+  background: #e8f5e9;
+}
+
+.drop-hint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 14px;
+  font-weight: 600;
+  color: #374957;
+  text-align: center;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+  z-index: 10;
 }
 
 .card .count-badge {
@@ -479,11 +654,12 @@ function formatarData(valor) {
   position: relative;
   width: 100%;
   max-width: 1000px;
-  height: 191px;
+  min-height: 191px;
   border-radius: 20px;
   background-color: #f9f9f9;
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
-  overflow: hidden;
+  padding: 24px 24px 24px 24px;
+  overflow: visible;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -493,9 +669,17 @@ function formatarData(valor) {
   box-shadow: 0 12px 24px rgba(21, 101, 192, 0.16);
 }
 
-.badge {
+.badges-container {
   position: absolute;
   top: 22px;
+  right: 24px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  z-index: 10;
+}
+
+.badge {
   min-width: 135px;
   height: 37px;
   padding: 0 16px;
@@ -510,7 +694,6 @@ function formatarData(valor) {
 }
 
 .badge-type {
-  right: 186px;
   background-color: #a8ffb8;
   color: #000;
 }
@@ -519,119 +702,221 @@ function formatarData(valor) {
   background: #ce93d8;
 }
 
-.badge-status {
-  right: 12px;
+.badge-status-wrapper {
+  position: relative;
+}
+
+.badge-status-select {
+  min-width: 135px;
+  height: 37px;
+  padding: 0 32px 0 16px;
+  border: none;
+  border-radius: 50px;
+  font-family: "Poppins", sans-serif;
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 500;
+  cursor: pointer;
+  appearance: none;
+}
+
+.badge-status-select:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.badge-status-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+.badge-status-select.status-pendente {
   background-color: #fddc9c;
   color: #fba441;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='currentColor' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  transition: all 0.2s ease;
 }
 
-.badge-status.status-em-andamento,
-.badge-status.status-andamento {
+.badge-status-select.status-em-andamento,
+.badge-status-select.status-andamento {
   background: #90caf9;
   color: #1565c0;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='currentColor' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  transition: all 0.2s ease;
 }
 
-.badge-status.status-concluida,
-.badge-status.status-concluido {
+.badge-status-select.status-concluida,
+.badge-status-select.status-concluido {
   background: #c8e6c9;
   color: #2e7d32;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='currentColor' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  transition: all 0.2s ease;
+}
+
+.badge-status-select.status-cancelada {
+  background: #ffcdd2;
+  color: #c62828;
 }
 
 .demanda-title {
   position: absolute;
-  top: 30px;
+  top: 80px;
   left: 40px;
-  font-family: "Inter", sans-serif;
-  font-size: 32px;
-  font-weight: 700;
+  font-size: 24px;
+  font-weight: 600;
+  color: #000;
   margin: 0;
-  max-width: 60%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  max-width: calc(100% - 80px);
 }
 
 .demanda-description {
   position: absolute;
-  top: 84px;
+  top: 115px;
   left: 40px;
-  right: 220px;
-  font-family: "K2D", sans-serif;
-  font-size: 20px;
-  color: #525252;
+  font-size: 16px;
+  color: #555;
   margin: 0;
-  max-height: 60px;
+  max-width: calc(100% - 80px);
+  max-height: 40px;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .demanda-meta {
   position: absolute;
-  top: 134px;
+  bottom: 24px;
   left: 40px;
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: "Inter", sans-serif;
-  font-size: 16px;
-  color: #636c7a;
+  font-size: 14px;
+  color: #666;
 }
 
 .meta-icon {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
 }
 
 .meta-separator {
-  color: #9c9c9c;
+  color: #ccc;
 }
 
 .card-actions {
   position: absolute;
-  right: 20px;
-  bottom: 16px;
+  bottom: 24px;
+  right: 24px;
   display: flex;
   gap: 12px;
+  align-items: center;
 }
 
 .action-button {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border: none;
-  background: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border-radius: 50%;
+  background: #fff;
+  display: grid;
+  place-items: center;
   cursor: pointer;
-  transition: transform 0.2s ease;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .action-button:hover {
-  transform: scale(1.08);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.action-button.favorito.ativo {
+  background: #ffe0e0;
 }
 
 .action-icon {
-  width: 22px;
-  height: 22px;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  width: 20px;
+  height: 20px;
 }
 
-.action-button.favorito .action-icon {
-  opacity: 0.45;
+.loading-state,
+.error-state {
+  margin: 64px auto;
+  padding: 48px 24px;
+  text-align: center;
+  border-radius: 20px;
+  background: #f5f7fb;
+  max-width: 600px;
 }
 
-.action-button.favorito.ativo .action-icon {
-  opacity: 1;
-  filter: brightness(0) saturate(100%) invert(27%) sepia(83%) saturate(5923%) hue-rotate(345deg) brightness(96%) contrast(92%);
+.loading-state p {
+  margin: 0;
+  font-size: 18px;
+  color: #4a4f5a;
+  font-weight: 500;
+}
+
+.error-state p {
+  margin: 0 0 24px;
+  font-size: 18px;
+  color: #d32f2f;
+  font-weight: 500;
+}
+
+.btn-retry {
+  padding: 12px 32px;
+  border: none;
+  border-radius: 12px;
+  background: #1565c0;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.btn-retry:hover {
+  background: #0d47a1;
+  transform: translateY(-2px);
+}
+
+.demanda-card[draggable="true"] {
+  cursor: move;
+}
+
+.demanda-card[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+.card.filtro-ativo {
+  border-color: #374957;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  transform: scale(1.02);
+}
+
+.card.filtro-ativo::after {
+  content: "✓ Filtro ativo";
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374957;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 4px 8px;
+  border-radius: 6px;
 }
 
 @media (max-width: 1100px) {
-  .badge-type {
-    right: 50%;
-    transform: translateX(120%);
-  }
-
-  .badge-status {
-    right: 24px;
+  .badges-container {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
   }
 }
 
@@ -641,37 +926,49 @@ function formatarData(valor) {
     align-items: center;
   }
 
+  .card {
+    width: 100%;
+    max-width: 400px;
+  }
+
   .demanda-card {
-    height: auto;
-    padding: 120px 24px 80px;
+    min-height: auto;
+    padding: 80px 24px 80px 24px;
   }
 
-  .badge {
+  .badges-container {
     position: static;
-    margin-top: 16px;
+    flex-direction: row;
+    justify-content: flex-start;
+    margin-bottom: 16px;
   }
 
-  .demanda-title,
-  .demanda-description,
-  .demanda-meta,
+  .demanda-title {
+    position: static;
+    margin-bottom: 12px;
+  }
+
+  .demanda-description {
+    position: static;
+    margin-bottom: 16px;
+    max-height: none;
+  }
+
+  .demanda-meta {
+    position: static;
+    margin-bottom: 16px;
+  }
+
   .card-actions {
     position: static;
-    transform: none;
+    justify-content: flex-end;
   }
 
   .demanda-card {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 16px;
-  }
-
-  .demanda-description {
-    max-height: none;
-  }
-
-  .card-actions {
-    align-self: flex-end;
+    gap: 12px;
   }
 
   .action-button {
