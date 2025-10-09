@@ -1,6 +1,7 @@
 ﻿<template>
   <div class="acoes">
     <div class="acoes-content">
+<<<<<<< HEAD
       <header class="top-bar">
         <div class="top-text">
           <p class="section-label">Ações</p>
@@ -11,6 +12,13 @@
           <span>Nova Ação</span>
         </button>
       </header>
+=======
+      <div class="toolbar">
+        <button @click="$router.push('/cadastrar-acao')" class="nova-acao">
+          + Nova Acao
+        </button>
+      </div>
+>>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
 
       <div class="map-wrapper">
         <LeafletMap
@@ -27,7 +35,11 @@
           v-for="opcao in modos"
           :key="opcao.value"
           type="button"
+<<<<<<< HEAD
           class="map-mode-btn"
+=======
+          class="btn primary"
+>>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
           :class="{ active: opcao.value === modoVisualizacao }"
           @click="modoVisualizacao = opcao.value"
         >
@@ -109,12 +121,16 @@ function buildLabel(acao) {
   display: flex;
   align-items: center;
   justify-content: center;
+<<<<<<< HEAD
   padding: 48px 16px;
   background: #ffffff;
+=======
+>>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
 }
 
 .acoes-content {
   width: 100%;
+<<<<<<< HEAD
   max-width: 1140px;
   background: #ffffff;
   border-radius: 24px;
@@ -185,10 +201,21 @@ function buildLabel(acao) {
   background: rgba(255, 255, 255, 0.2);
   font-size: 18px;
   font-weight: 700;
+=======
+  max-width: 1120px;
+  padding: 0 24px 32px;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+>>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
 }
 
 .map-wrapper {
   width: 100%;
+<<<<<<< HEAD
   height: 440px;
   border-radius: 20px;
   overflow: hidden;
@@ -196,6 +223,12 @@ function buildLabel(acao) {
   box-shadow: 0 20px 46px rgba(11, 33, 78, 0.18);
   border: 1px solid rgba(19, 61, 137, 0.12);
   background: #f6f8ff;
+=======
+  height: 420px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+>>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
 }
 
 .map {
@@ -204,6 +237,7 @@ function buildLabel(acao) {
 }
 
 .map-buttons {
+<<<<<<< HEAD
   margin-top: 28px;
   display: flex;
   flex-wrap: wrap;
@@ -284,3 +318,62 @@ function buildLabel(acao) {
   }
 }
 </style>
+=======
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.map-buttons .btn.primary {
+  min-width: 180px;
+  justify-content: center;
+  background: rgba(37, 99, 235, 0.1);
+  color: #1d4ed8;
+  box-shadow: none;
+}
+
+.map-buttons .btn.primary.active {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff;
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.18);
+}
+
+.nova-acao {
+  background: #1565c0;
+  color: #fff;
+  border: none;
+  height: 44px;
+  min-width: 160px;
+  padding: 0 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
+}
+
+@media (max-width: 640px) {
+  .toolbar {
+    justify-content: stretch;
+  }
+
+  .nova-acao {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .map-buttons {
+    justify-content: center;
+  }
+
+  .map-buttons .btn.primary {
+    flex: 1 1 100%;
+  }
+}
+</style>
+
+
+>>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
