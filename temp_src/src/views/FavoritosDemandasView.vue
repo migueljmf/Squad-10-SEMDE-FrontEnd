@@ -1,75 +1,40 @@
-<template>
+﻿<template>
   <div class="gestao-demandas">
     <div class="header">
       <div class="title">
         <div class="title-icon">
-          <img :src="iconTask" alt="Gestao de Demandas" class="title-image" />
+          <img :src="iconStar" alt="Favoritos" class="title-image" />
         </div>
-        <h2>Gestao de Demandas</h2>
+        <h2>Favoritos</h2>
       </div>
-
-      <div class="top-actions">
-        <button
-          type="button"
-          class="top-icon-button"
-          :class="{ ativo: searchAtiva }"
-          aria-label="Pesquisar demandas"
-          @click="togglePesquisa"
-        >
-          <img :src="iconSearch" alt="Pesquisar" class="top-icon" />
-        </button>
-        <button
-          type="button"
-          class="top-icon-button"
-          :class="{ ativo: estaNosFavoritos }"
-          aria-label="Ver demandas favoritas"
-          @click="irParaFavoritos"
-        >
-          <img :src="iconStar" alt="Favoritos" class="top-icon" />
-        </button>
-      </div>
+      <button type="button" class="btn-voltar" @click="voltar">
+        <span class="btn-voltar-arrow">&larr;</span>
+        <span>Voltar</span>
+      </button>
     </div>
 
-    <transition name="fade-slide">
-      <div v-if="searchAtiva" class="search-bar">
-        <img :src="iconSearch" alt="Buscar" class="search-icon" />
-        <input
-          ref="searchInput"
-          v-model="termoBusca"
-          type="search"
-          placeholder="Buscar por titulo ou descricao"
-          aria-label="Campo de busca"
-        />
-        <button
-          v-if="termoBusca"
-          type="button"
-          class="search-clear"
-          aria-label="Limpar busca"
-          @click="limparBusca"
-        >
-          &times;
-        </button>
-      </div>
-    </transition>
-
-    <section class="status-cards">
-      <div class="card pendente">
-        <span class="count-badge">{{ contagemStatus.pendente }}</span>
-        <p class="card-title">Pendentes</p>
-      </div>
-      <div class="card andamento">
-        <span class="count-badge">{{ contagemStatus.andamento }}</span>
-        <p class="card-title">Em andamento</p>
-      </div>
-      <div class="card concluido">
-        <span class="count-badge">{{ contagemStatus.concluido }}</span>
-        <p class="card-title">Concluidas</p>
-      </div>
-    </section>
+    <div class="search-bar">
+      <img :src="iconSearch" alt="Buscar" class="search-icon" />
+      <input
+        v-model="termoBusca"
+        type="search"
+        placeholder="Buscar favoritos"
+        aria-label="Buscar favoritos"
+      />
+      <button
+        v-if="termoBusca"
+        type="button"
+        class="search-clear"
+        aria-label="Limpar busca"
+        @click="limparBusca"
+      >
+        &times;
+      </button>
+    </div>
 
     <section class="demandas-list">
       <p v-if="demandasFormatadas.length === 0" class="empty-state">
-        Nenhuma demanda encontrada. Ajuste os filtros ou cadastre uma nova tarefa/acao.
+        Nenhuma demanda favoritada ate o momento.
       </p>
       <template v-else>
         <article
@@ -99,30 +64,14 @@
           </div>
 
           <div class="card-actions">
-            <button
-              type="button"
-              class="action-button"
-              aria-label="Editar"
-              @click.stop="editarDemanda(demanda.id)"
-            >
+            <button type="button" class="action-button" aria-label="Editar" @click.stop="editarDemanda(demanda.id)">
               <img :src="iconPencil" alt="Editar" class="action-icon" />
             </button>
-            <button
-              type="button"
-              class="action-button"
-              aria-label="Excluir"
-              @click.stop="removerDemanda(demanda.id)"
-            >
+            <button type="button" class="action-button" aria-label="Excluir" @click.stop="removerDemanda(demanda.id)">
               <img :src="iconTrash" alt="Excluir" class="action-icon" />
             </button>
-            <button
-              type="button"
-              class="action-button favorito"
-              :class="{ ativo: demanda.isFavorito }"
-              aria-label="Favoritar"
-              @click.stop="toggleFavorito(demanda.id)"
-            >
-              <img :src="iconHeart" alt="Favoritar" class="action-icon" />
+            <button type="button" class="action-button favorito ativo" aria-label="Desfavoritar" @click.stop="toggleFavorito(demanda.id)">
+              <img :src="iconHeart" alt="Desfavoritar" class="action-icon" />
             </button>
           </div>
         </article>
@@ -132,11 +81,10 @@
 </template>
 
 <script setup>
-import { computed, ref, nextTick, watch } from "vue";
-import { useRouter, useRoute } from "vue-router";
-import iconTask from "@/assets/fi-ss-pencil.svg?url";
-import iconSearch from "@/assets/Group.svg?url";
+import { computed, ref } from "vue";
+import { useRouter } from "vue-router";
 import iconStar from "@/assets/star.svg?url";
+import iconSearch from "@/assets/Group.svg?url";
 import iconPencil from "@/assets/fi-ss-pencil.svg?url";
 import iconTrash from "@/assets/fi-ss-trash.svg?url";
 import iconHeart from "@/assets/fi-ss-heart.svg?url";
@@ -144,87 +92,38 @@ import iconMarker from "@/assets/fi-ss-marker.svg?url";
 import { useDemandasStore } from "../stores/useDemandasStore";
 
 const router = useRouter();
-const route = useRoute();
 const store = useDemandasStore();
 
-const searchAtiva = ref(false);
 const termoBusca = ref("");
-const searchInput = ref(null);
 
-watch(
-  () => route.name,
-  (nomeAtual) => {
-    if (nomeAtual !== "GestaoDemandas") {
-      searchAtiva.value = false;
-      termoBusca.value = "";
-    }
-  }
-);
-
-const estaNosFavoritos = computed(() => route.name === "FavoritosDemandas");
-
-const contagemStatus = computed(() => store.countsPorStatus.value);
-
-const demandasFiltradas = computed(() => {
+const demandasFormatadas = computed(() => {
   const query = termoBusca.value.trim().toLowerCase();
-  if (!query) return store.demandas.value;
-  return store.demandas.value.filter((item) => {
-    const titulo = item.titulo?.toLowerCase() || "";
-    const descricao = item.descricao?.toLowerCase() || "";
-    return titulo.includes(query) || descricao.includes(query);
-  });
+  return store.favoritos.value
+    .filter((item) => {
+      if (!query) return true;
+      const titulo = item.titulo?.toLowerCase() || "";
+      const descricao = item.descricao?.toLowerCase() || "";
+      return titulo.includes(query) || descricao.includes(query);
+    })
+    .map((item) => {
+      const resumoBase = item.descricaoResumida && item.descricaoResumida.length > 0 ? item.descricaoResumida : item.descricao || "";
+      const precisaReticencias = (item.descricao || "").length > resumoBase.length;
+      return {
+        ...item,
+        tipoClass: item.tipoSlug || "tarefa",
+        statusClass: item.statusSlug || "pendente",
+        descricaoResumo: resumoBase ? `${resumoBase}${precisaReticencias ? "..." : ""}` : "Sem descricao",
+        dataFormatada: formatarData(item.data),
+        categoria: item.categoria || item.tipo,
+      };
+    });
 });
 
-const demandasFormatadas = computed(() =>
-  demandasFiltradas.value.map((item) => {
-    const resumoBase = item.descricaoResumida && item.descricaoResumida.length > 0 ? item.descricaoResumida : item.descricao || "";
-    const precisaReticencias = (item.descricao || "").length > resumoBase.length;
-    return {
-      ...item,
-      tipoClass: item.tipoSlug || "tarefa",
-      statusClass: item.statusSlug || "pendente",
-      descricaoResumo: resumoBase ? `${resumoBase}${precisaReticencias ? "..." : ""}` : "Sem descricao",
-      dataFormatada: formatarData(item.data),
-      categoria: item.categoria || item.tipo,
-    };
-  })
-);
-
-function togglePesquisa() {
-  if (route.name !== "GestaoDemandas") {
-    router.push({ name: "GestaoDemandas" }).then(() => {
-      searchAtiva.value = true;
-      nextTick(() => searchInput.value?.focus());
-    });
-    return;
-  }
-
-  searchAtiva.value = !searchAtiva.value;
-  if (searchAtiva.value) {
-    nextTick(() => searchInput.value?.focus());
-  } else {
-    termoBusca.value = "";
-  }
-}
-
-function irParaFavoritos() {
-  if (route.name === "FavoritosDemandas") {
-    router.push({ name: "GestaoDemandas" });
-  } else {
-    router.push({ name: "FavoritosDemandas" });
-  }
-}
-
-function obterNomeRotaDetalhe(item) {
-  const base = (item?.tipoSlug || item?.tipo || "").toString().toLowerCase();
-  return base.includes("acao") ? "DetalheAcao" : "DetalheTarefa";
-}
 
 function abrirDetalhe(id) {
-  const registro = store.getById(id);
-  if (!registro) return;
-  router.push({ name: obterNomeRotaDetalhe(registro), params: { id } });
+  router.push({ name: "DetalheTarefa", params: { id } });
 }
+
 function editarDemanda(id) {
   router.push({ name: "EditarTarefa", params: { id } });
 }
@@ -241,9 +140,12 @@ function toggleFavorito(id) {
   store.toggleFavorito(id);
 }
 
+function voltar() {
+  router.back();
+}
+
 function limparBusca() {
   termoBusca.value = "";
-  nextTick(() => searchInput.value?.focus());
 }
 
 function formatarData(valor) {
@@ -286,7 +188,7 @@ function formatarData(valor) {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #1565c0 0%, #163b66 100%);
+  background: linear-gradient(135deg, #ffcc33 0%, #ff9800 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -297,50 +199,34 @@ function formatarData(valor) {
   height: 24px;
 }
 
-.top-actions {
+.btn-voltar {
   display: flex;
   align-items: center;
-  gap: 12px;
-}
-
-.top-icon-button {
-  width: 44px;
-  height: 44px;
+  gap: 8px;
   border: none;
-  border-radius: 50%;
-  background: #f7f8fd;
-  display: grid;
-  place-items: center;
+  background: #1565c0;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  box-shadow: 0 12px 24px rgba(21, 101, 192, 0.24);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.top-icon-button:hover,
-.top-icon-button.ativo {
+.btn-voltar:hover {
   transform: translateY(-2px);
-  background: #eef3ff;
-  box-shadow: 0 10px 18px rgba(21, 101, 192, 0.12);
+  box-shadow: 0 16px 28px rgba(21, 101, 192, 0.3);
 }
 
-.top-icon-button:focus-visible {
+.btn-voltar:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.25);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.65);
 }
 
-.top-icon {
-  width: 24px;
-  height: 24px;
-}
-
-.fade-slide-enter-active,
-.fade-slide-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-.fade-slide-enter-from,
-.fade-slide-leave-to {
-  opacity: 0;
-  transform: translateY(-8px);
+.btn-voltar-arrow {
+  font-size: 18px;
+  line-height: 1;
 }
 
 .search-bar {
@@ -381,9 +267,9 @@ function formatarData(valor) {
   background: rgba(21, 101, 192, 0.12);
   color: #0f4a92;
   font-size: 18px;
-  line-height: 1;
   display: grid;
   place-items: center;
+  line-height: 1;
   cursor: pointer;
 }
 
@@ -391,70 +277,6 @@ function formatarData(valor) {
   background: rgba(21, 101, 192, 0.2);
 }
 
-.status-cards {
-  display: flex;
-  gap: 20px;
-  margin: 0 auto 48px;
-  max-width: 1000px;
-  width: 100%;
-}
-
-.card {
-  width: 306px;
-  height: 184px;
-  border-radius: 16px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
-  position: relative;
-  display: flex;
-  align-items: flex-end;
-  padding: 24px 32px;
-}
-
-.card .count-badge {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  min-width: 44px;
-  min-height: 44px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  font-weight: 600;
-  font-size: 18px;
-}
-
-.card .card-title {
-  font-size: 22px;
-  font-weight: 600;
-  margin: 0;
-}
-
-.card.pendente {
-  background: #fddc9c;
-}
-
-.card.pendente .count-badge {
-  background: #fba441;
-  color: #374957;
-}
-
-.card.andamento {
-  background: #c5e1fa;
-}
-
-.card.andamento .count-badge {
-  background: #1e88e5;
-  color: #fff;
-}
-
-.card.concluido {
-  background: #c8e6c9;
-}
-
-.card.concluido .count-badge {
-  background: #43a047;
-  color: #fff;
-}
 
 .demandas-list {
   display: flex;
@@ -509,14 +331,15 @@ function formatarData(valor) {
   font-weight: 500;
 }
 
+
 .badge-type {
   right: 186px;
-  background-color: #a8ffb8;
-  color: #000;
+  background-color: #ffd54f;
+  color: #2f2f2f;
 }
 
 .badge-type.type-acao {
-  background: #ce93d8;
+  background: #ffab91;
 }
 
 .badge-status {
@@ -612,14 +435,10 @@ function formatarData(valor) {
 .action-icon {
   width: 22px;
   height: 22px;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition: opacity 0.2s ease;
 }
 
 .action-button.favorito .action-icon {
-  opacity: 0.45;
-}
-
-.action-button.favorito.ativo .action-icon {
   opacity: 1;
   filter: brightness(0) saturate(100%) invert(27%) sepia(83%) saturate(5923%) hue-rotate(345deg) brightness(96%) contrast(92%);
 }
@@ -636,11 +455,6 @@ function formatarData(valor) {
 }
 
 @media (max-width: 768px) {
-  .status-cards {
-    flex-direction: column;
-    align-items: center;
-  }
-
   .demanda-card {
     height: auto;
     padding: 120px 24px 80px;
@@ -680,3 +494,4 @@ function formatarData(valor) {
   }
 }
 </style>
+
