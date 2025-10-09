@@ -53,23 +53,6 @@
     </transition>
 
     <section class="status-cards">
-<<<<<<< HEAD
-      <div class="card pendente">
-        <span class="count-badge">{{ contagemStatus.pendente }}</span>
-        <p class="card-title">Pendentes</p>
-      </div>
-      <div class="card andamento">
-        <span class="count-badge">{{ contagemStatus.andamento }}</span>
-        <p class="card-title">Em andamento</p>
-      </div>
-      <div class="card concluido">
-        <span class="count-badge">{{ contagemStatus.concluido }}</span>
-        <p class="card-title">Concluidas</p>
-      </div>
-    </section>
-
-    <section class="demandas-list">
-=======
       <div 
         class="card pendente drop-zone-card"
         :class="{ 
@@ -133,7 +116,6 @@
     </div>
 
     <section v-else class="demandas-list">
->>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
       <p v-if="demandasFormatadas.length === 0" class="empty-state">
         Nenhuma demanda encontrada. Ajuste os filtros ou cadastre uma nova tarefa/acao.
       </p>
@@ -142,19 +124,6 @@
           v-for="demanda in demandasFormatadas"
           :key="demanda.id"
           class="demanda-card"
-<<<<<<< HEAD
-          role="button"
-          tabindex="0"
-          @click="abrirDetalhe(demanda.id)"
-          @keyup.enter="abrirDetalhe(demanda.id)"
-        >
-          <span class="badge badge-type" :class="['type-' + demanda.tipoClass]">
-            {{ demanda.tipo }}
-          </span>
-          <span class="badge badge-status" :class="['status-' + demanda.statusClass]">
-            {{ demanda.status }}
-          </span>
-=======
           :draggable="true"
           role="button"
           tabindex="0"
@@ -182,7 +151,6 @@
               </select>
             </div>
           </div>
->>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
 
           <h3 class="demanda-title">{{ demanda.titulo }}</h3>
           <p class="demanda-description">{{ demanda.descricaoResumo }}</p>
@@ -228,11 +196,7 @@
 </template>
 
 <script setup>
-<<<<<<< HEAD
-import { computed, ref, nextTick, watch } from "vue";
-=======
 import { computed, ref, nextTick, watch, onMounted } from "vue";
->>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
 import { useRouter, useRoute } from "vue-router";
 import iconTask from "@/assets/fi-ss-pencil.svg?url";
 import iconSearch from "@/assets/Group.svg?url";
@@ -250,35 +214,13 @@ const store = useDemandasStore();
 const searchAtiva = ref(false);
 const termoBusca = ref("");
 const searchInput = ref(null);
-<<<<<<< HEAD
-
-watch(
-  () => route.name,
-  (nomeAtual) => {
-    if (nomeAtual !== "GestaoDemandas") {
-      searchAtiva.value = false;
-      termoBusca.value = "";
-    }
-  }
-);
-=======
 const filtroStatusAtivo = ref(null);
->>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
 
 const estaNosFavoritos = computed(() => route.name === "FavoritosDemandas");
 
 const contagemStatus = computed(() => store.countsPorStatus.value);
 
 const demandasFiltradas = computed(() => {
-<<<<<<< HEAD
-  const query = termoBusca.value.trim().toLowerCase();
-  if (!query) return store.demandas.value;
-  return store.demandas.value.filter((item) => {
-    const titulo = item.titulo?.toLowerCase() || "";
-    const descricao = item.descricao?.toLowerCase() || "";
-    return titulo.includes(query) || descricao.includes(query);
-  });
-=======
   let resultado = store.demandas.value;
   
   // Filtro por status
@@ -300,7 +242,6 @@ const demandasFiltradas = computed(() => {
   }
   
   return resultado;
->>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
 });
 
 const demandasFormatadas = computed(() =>
@@ -357,13 +298,6 @@ function editarDemanda(id) {
   router.push({ name: "EditarTarefa", params: { id } });
 }
 
-<<<<<<< HEAD
-function removerDemanda(id) {
-  const demanda = store.getById(id);
-  const titulo = demanda?.titulo || "esta demanda";
-  if (window.confirm(`Deseja realmente excluir ${titulo}?`)) {
-    store.removeDemanda(id);
-=======
 async function removerDemanda(id) {
   const demanda = store.getById(id);
   const titulo = demanda?.titulo || "esta demanda";
@@ -373,7 +307,6 @@ async function removerDemanda(id) {
     } catch (err) {
       window.alert("Erro ao excluir demanda. Tente novamente.");
     }
->>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
   }
 }
 
@@ -395,8 +328,6 @@ function formatarData(valor) {
   }
   return data.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
 }
-<<<<<<< HEAD
-=======
 
 const draggedDemanda = ref(null);
 const dragOverZone = ref(null);
@@ -454,7 +385,6 @@ function toggleFiltroStatus(status) {
     filtroStatusAtivo.value = status; // Ativa o filtro
   }
 }
->>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
 </script>
 
 <style scoped>
@@ -608,8 +538,6 @@ function toggleFiltroStatus(status) {
   display: flex;
   align-items: flex-end;
   padding: 24px 32px;
-<<<<<<< HEAD
-=======
   transition: all 0.3s ease;
   cursor: pointer;
   border: 3px solid transparent;
@@ -655,7 +583,6 @@ function toggleFiltroStatus(status) {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   pointer-events: none;
   z-index: 10;
->>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
 }
 
 .card .count-badge {
@@ -727,20 +654,12 @@ function toggleFiltroStatus(status) {
   position: relative;
   width: 100%;
   max-width: 1000px;
-<<<<<<< HEAD
-  height: 191px;
-  border-radius: 20px;
-  background-color: #f9f9f9;
-  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
-  overflow: hidden;
-=======
   min-height: 191px;
   border-radius: 20px;
   background-color: #f9f9f9;
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
   padding: 24px 24px 24px 24px;
   overflow: visible;
->>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -750,11 +669,6 @@ function toggleFiltroStatus(status) {
   box-shadow: 0 12px 24px rgba(21, 101, 192, 0.16);
 }
 
-<<<<<<< HEAD
-.badge {
-  position: absolute;
-  top: 22px;
-=======
 .badges-container {
   position: absolute;
   top: 22px;
@@ -766,7 +680,6 @@ function toggleFiltroStatus(status) {
 }
 
 .badge {
->>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
   min-width: 135px;
   height: 37px;
   padding: 0 16px;
@@ -781,10 +694,6 @@ function toggleFiltroStatus(status) {
 }
 
 .badge-type {
-<<<<<<< HEAD
-  right: 186px;
-=======
->>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
   background-color: #a8ffb8;
   color: #000;
 }
@@ -793,24 +702,6 @@ function toggleFiltroStatus(status) {
   background: #ce93d8;
 }
 
-<<<<<<< HEAD
-.badge-status {
-  right: 12px;
-  background-color: #fddc9c;
-  color: #fba441;
-}
-
-.badge-status.status-em-andamento,
-.badge-status.status-andamento {
-  background: #90caf9;
-  color: #1565c0;
-}
-
-.badge-status.status-concluida,
-.badge-status.status-concluido {
-  background: #c8e6c9;
-  color: #2e7d32;
-=======
 .badge-status-wrapper {
   position: relative;
 }
@@ -871,23 +762,10 @@ function toggleFiltroStatus(status) {
 .badge-status-select.status-cancelada {
   background: #ffcdd2;
   color: #c62828;
->>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
 }
 
 .demanda-title {
   position: absolute;
-<<<<<<< HEAD
-  top: 30px;
-  left: 40px;
-  font-family: "Inter", sans-serif;
-  font-size: 32px;
-  font-weight: 700;
-  margin: 0;
-  max-width: 60%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-=======
   top: 80px;
   left: 40px;
   font-size: 24px;
@@ -895,22 +773,10 @@ function toggleFiltroStatus(status) {
   color: #000;
   margin: 0;
   max-width: calc(100% - 80px);
->>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
 }
 
 .demanda-description {
   position: absolute;
-<<<<<<< HEAD
-  top: 84px;
-  left: 40px;
-  right: 220px;
-  font-family: "K2D", sans-serif;
-  font-size: 20px;
-  color: #525252;
-  margin: 0;
-  max-height: 60px;
-  overflow: hidden;
-=======
   top: 115px;
   left: 40px;
   font-size: 16px;
@@ -920,34 +786,15 @@ function toggleFiltroStatus(status) {
   max-height: 40px;
   overflow: hidden;
   text-overflow: ellipsis;
->>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
 }
 
 .demanda-meta {
   position: absolute;
-<<<<<<< HEAD
-  top: 134px;
-=======
   bottom: 24px;
->>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
   left: 40px;
   display: flex;
   align-items: center;
   gap: 8px;
-<<<<<<< HEAD
-  font-family: "Inter", sans-serif;
-  font-size: 16px;
-  color: #636c7a;
-}
-
-.meta-icon {
-  width: 18px;
-  height: 18px;
-}
-
-.meta-separator {
-  color: #9c9c9c;
-=======
   font-size: 14px;
   color: #666;
 }
@@ -959,58 +806,10 @@ function toggleFiltroStatus(status) {
 
 .meta-separator {
   color: #ccc;
->>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
 }
 
 .card-actions {
   position: absolute;
-<<<<<<< HEAD
-  right: 20px;
-  bottom: 16px;
-  display: flex;
-  gap: 12px;
-}
-
-.action-button {
-  width: 44px;
-  height: 44px;
-  border: none;
-  background: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.action-button:hover {
-  transform: scale(1.08);
-}
-
-.action-icon {
-  width: 22px;
-  height: 22px;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-.action-button.favorito .action-icon {
-  opacity: 0.45;
-}
-
-.action-button.favorito.ativo .action-icon {
-  opacity: 1;
-  filter: brightness(0) saturate(100%) invert(27%) sepia(83%) saturate(5923%) hue-rotate(345deg) brightness(96%) contrast(92%);
-}
-
-@media (max-width: 1100px) {
-  .badge-type {
-    right: 50%;
-    transform: translateX(120%);
-  }
-
-  .badge-status {
-    right: 24px;
-=======
   bottom: 24px;
   right: 24px;
   display: flex;
@@ -1118,7 +917,6 @@ function toggleFiltroStatus(status) {
     flex-direction: column;
     align-items: flex-end;
     gap: 8px;
->>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
   }
 }
 
@@ -1128,24 +926,6 @@ function toggleFiltroStatus(status) {
     align-items: center;
   }
 
-<<<<<<< HEAD
-  .demanda-card {
-    height: auto;
-    padding: 120px 24px 80px;
-  }
-
-  .badge {
-    position: static;
-    margin-top: 16px;
-  }
-
-  .demanda-title,
-  .demanda-description,
-  .demanda-meta,
-  .card-actions {
-    position: static;
-    transform: none;
-=======
   .card {
     width: 100%;
     max-width: 400px;
@@ -1182,26 +962,13 @@ function toggleFiltroStatus(status) {
   .card-actions {
     position: static;
     justify-content: flex-end;
->>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
   }
 
   .demanda-card {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-<<<<<<< HEAD
-    gap: 16px;
-  }
-
-  .demanda-description {
-    max-height: none;
-  }
-
-  .card-actions {
-    align-self: flex-end;
-=======
     gap: 12px;
->>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
   }
 
   .action-button {

@@ -1,7 +1,6 @@
 <template>
   <div class="tarefas">
     <div class="tarefas-content">
-<<<<<<< HEAD
       <header class="top-bar">
         <div class="top-text">
           <p class="section-label">Tarefas</p>
@@ -34,23 +33,12 @@
         >
           {{ opcao.label }}
         </button>
-=======
-      <div class="toolbar">
-        <button @click="$router.push('/cadastrar-tarefa')" class="nova-tarefa">
-          + Nova Tarefa
-        </button>
-      </div>
-
-      <div class="map-wrapper">
-        <LeafletMap class="map" :center="[-23.5505, -46.6333]" :zoom="12" />
->>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-<<<<<<< HEAD
 import { computed, ref } from 'vue'
 import LeafletMap from '@/components/LeafletMap.vue'
 import { useDemandasStore } from '@/stores/useDemandasStore'
@@ -113,31 +101,20 @@ function buildLabel(tarefa) {
   if (tarefa.status) linhas.push(`Status: ${tarefa.status}`)
   return linhas.join('<br />')
 }
-=======
-import LeafletMap from '@/components/LeafletMap.vue'
->>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
 </script>
 
 <style scoped>
 .tarefas {
-<<<<<<< HEAD
   min-height: calc(100vh - 96px);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 48px 16px;
   background: #ffffff;
-=======
-  min-height: calc(100vh - 96px); /* abaixo do header */
-  display: flex;
-  align-items: center; /* centraliza verticalmente */
-  justify-content: center; /* centraliza horizontalmente */
->>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
 }
 
 .tarefas-content {
   width: 100%;
-<<<<<<< HEAD
   max-width: 1140px;
   background: #ffffff;
   border-radius: 24px;
@@ -208,21 +185,10 @@ import LeafletMap from '@/components/LeafletMap.vue'
   background: rgba(255, 255, 255, 0.2);
   font-size: 18px;
   font-weight: 700;
-=======
-  max-width: 1120px;
-  padding: 0 24px;
-}
-
-.toolbar {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 12px;
->>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
 }
 
 .map-wrapper {
   width: 100%;
-<<<<<<< HEAD
   height: 440px;
   border-radius: 20px;
   overflow: hidden;
@@ -230,19 +196,12 @@ import LeafletMap from '@/components/LeafletMap.vue'
   box-shadow: 0 20px 46px rgba(11, 33, 78, 0.18);
   border: 1px solid rgba(19, 61, 137, 0.12);
   background: #f6f8ff;
-=======
-  height: 420px;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 6px 14px rgba(0,0,0,0.08);
->>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
 }
 
 .map {
   width: 100%;
   height: 100%;
 }
-<<<<<<< HEAD
 
 .map-buttons {
   margin-top: 28px;
@@ -323,26 +282,5 @@ import LeafletMap from '@/components/LeafletMap.vue'
     flex: 1 1 100%;
     text-align: center;
   }
-=======
-.nova-tarefa {
-  background: #1565c0;
-  color: #fff;
-  border: none;
-  height: 44px;
-  min-width: 160px;
-  padding: 0 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  box-shadow: 0 6px 14px rgba(0,0,0,0.18);
-}
-
-@media (max-width: 640px) {
-  .toolbar { justify-content: stretch; }
-  .nova-tarefa { width: 100%; min-width: 0; }
->>>>>>> 43ddee921fdf20cbd3fb65151433476bd77d9f71
 }
 </style>
