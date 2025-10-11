@@ -111,6 +111,7 @@ function buildLabel(acao) {
   justify-content: center;
   padding: 48px 16px;
   background: #ffffff;
+  font-family: "Poppins", sans-serif;
 }
 
 .acoes-content {

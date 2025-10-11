@@ -160,6 +160,7 @@ function voltar() {
   display: flex;
   justify-content: center;
   box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
 }
 
 .card {

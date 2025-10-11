@@ -111,6 +111,7 @@ function buildLabel(tarefa) {
   justify-content: center;
   padding: 48px 16px;
   background: #ffffff;
+  font-family: "Poppins", sans-serif;
 }
 
 .tarefas-content {

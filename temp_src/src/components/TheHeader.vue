@@ -50,6 +50,7 @@ const defaultAvatar =
   left: 0;
   z-index: 1000;
   margin: 0;
+  font-family: "Poppins", sans-serif;
 }
 
 .title {
