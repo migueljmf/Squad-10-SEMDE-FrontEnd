@@ -4,7 +4,7 @@
       <ul>
         <li>
           <RouterLink to="/inicio">
-            <mdicon name="home" :size="24" />
+            <mdicon name="home":size="24" />
             <span>In&iacute;cio</span>
           </RouterLink>
         </li>
@@ -63,7 +63,6 @@
 
 <script setup>
 import { RouterLink, useRouter } from "vue-router";
-import mdicon from "mdi-vue/v3";
 import { logout } from "../services/authService";
 
 const router = useRouter();
