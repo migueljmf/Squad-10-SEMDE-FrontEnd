@@ -22,39 +22,46 @@ function normalizarTipo(tipo) {
 }
 
 function mapApiToInternal(apiData) {
-  const tipo = apiData.type || "Tarefa"
-  const status = mapApiStatus(apiData.status)
+  const tipo = "Tarefa" // já que não vem mais do backend
+  const status = mapApiStatus(apiData.status) // mantém, se a função existir
+  
 
   return {
-    id: apiData.id || nextId++,
-    createdAt: apiData.createdAt || apiData.date || new Date().toISOString(),
+    id: apiData.id,
+    createdAt: apiData.createdAt || new Date().toISOString(),
     tipo,
-    categoria: apiData.categories?.[0]?.name || tipo,
-    titulo: apiData.title || "Sem titulo",
+    categoria:  apiData.categories?.[0]?.name || tipo,
+    titulo: apiData.title || "Sem título",
     descricao: apiData.description || "",
-    descricaoResumida: (apiData.description || "").slice(0, 140),
-    solicitante: apiData.advisorName || "Nao informado",
-    contato: apiData.contactName || apiData.advisorName || "Nao informado",
-    endereco: apiData.addressName || "Nao informado",
+    descricaoResumida: (apiData.description || "").slice(0, 105),
+    solicitante: "Não informado", // se quiser, pode substituir depois pelo nome do advisor
+    contato: "Não informado",
+    endereco: "Não informado",
     enderecoDetalhado: null,
-    enderecoResumo: apiData.addressName || "",
-    local: apiData.addressName || "Nao informado",
-    data: apiData.date ? new Date(apiData.date).toISOString().split("T")[0] : "",
+    enderecoResumo: "",
+    local: "Não informado",
+    data: apiData.date
+      ? new Date(apiData.date).toISOString().split("T")[0]
+      : "",
     status,
     anexos: [],
     latitude: null,
     longitude: null,
     statusSlug: normalizarStatus(status),
     tipoSlug: normalizarTipo(tipo),
-    icon: normalizarTipo(tipo) === "acao" ? "target" : "clipboard-text-outline",
-    isFavorito: apiData.isFavorite || false,
-    // Keep original API IDs for updates
+    icon:
+      normalizarTipo(tipo) === "acao"
+        ? "target"
+        : "clipboard-text-outline",
+
+    // IDs originais da API
     advisorId: apiData.advisorId,
     contactId: apiData.contactId,
-    addressId: apiData.addressId,
     priority: apiData.priority,
   }
 }
+
+
 
 function mapApiStatus(apiStatus) {
   const statusMap = {
@@ -121,7 +128,7 @@ function gerarDemandaBase(payload = {}) {
     categoria: payload.categoria || tipo,
     titulo: payload.titulo || "Sem titulo",
     descricao: descricaoCompleta,
-    descricaoResumida: descricaoCompleta.slice(0, 140),
+    descricaoResumida: descricaoCompleta.slice(0,140),
     solicitante: payload.solicitante || "Nao informado",
     contato: payload.contato || payload.solicitante || "Nao informado",
     endereco: enderecoObjeto ?? enderecoTexto,
@@ -136,7 +143,7 @@ function gerarDemandaBase(payload = {}) {
     statusSlug: normalizarStatus(status),
     tipoSlug: normalizarTipo(tipo),
     icon: payload.icon || (normalizarTipo(tipo) === "acao" ? "target" : "clipboard-text-outline"),
-    isFavorito: payload.isFavorito ?? false,
+  // isFavorito removed
     // Keep API-specific fields
     advisorId: payload.advisorId,
     contactId: payload.contactId,
@@ -150,7 +157,7 @@ export function useDemandasStore() {
     [...itens.value].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),
   )
 
-  const favoritosOrdenados = computed(() => demandasOrdenadas.value.filter((item) => item.isFavorito))
+  // favoritos removed
 
   const contagemStatus = computed(() =>
     itens.value.reduce(
@@ -174,7 +181,7 @@ export function useDemandasStore() {
       console.log("[v0] API response:", apiData)
 
       // Map API data to internal format
-      itens.value = Array.isArray(apiData) ? apiData.map(mapApiToInternal) : []
+      itens.value = Array.isArray(apiData?.data) ? apiData.data.map(mapApiToInternal) : []
 
       console.log("[v0] Mapped demands:", itens.value)
     } catch (err) {
@@ -225,7 +232,6 @@ export function useDemandasStore() {
         ...dados,
         id: atual.id,
         createdAt: atual.createdAt,
-        isFavorito: dados.isFavorito ?? atual.isFavorito,
       })
 
       const apiPayload = mapInternalToApi(updated)
@@ -247,14 +253,14 @@ export function useDemandasStore() {
         pendente: "PENDENTE",
         "em-andamento": "EM_ANDAMENTO",
         andamento: "EM_ANDAMENTO",
-        concluida: "CONCLUIDA",
-        concluido: "CONCLUIDA",
-        cancelada: "CANCELADA",
+        concluida: "CONCLUIDO",
+        concluido: "CONCLUIDO",
+        cancelado: "CANCELADO",
       }
 
       const apiStatus = statusMap[newStatus.toLowerCase().replace(/\s+/g, "-")] || "PENDENTE"
       const response = await demandasApi.updateStatus(id, apiStatus)
-      itens.value[index] = mapApiToInternal(response)
+      itens.value[index] = mapApiToInternal(response.data)
       return true
     } catch (err) {
       console.error("[v0] Error updating status:", err)
@@ -273,18 +279,12 @@ export function useDemandasStore() {
     }
   }
 
-  const toggleFavorito = (id) => {
-    const item = itens.value.find((registro) => registro.id === id || registro.id === Number(id))
-    if (!item) return
-    item.isFavorito = !item.isFavorito
-    // Optionally sync with API if favorites are stored there
-  }
+  // toggleFavorito removed
 
   const getById = (id) => itens.value.find((item) => item.id === id || item.id === Number(id))
 
   return {
     demandas: demandasOrdenadas,
-    favoritos: favoritosOrdenados,
     countsPorStatus: contagemStatus,
     isLoading: computed(() => isLoading.value),
     error: computed(() => error.value),
@@ -295,7 +295,6 @@ export function useDemandasStore() {
     updateDemanda,
     updateStatus,
     removeDemanda,
-    toggleFavorito,
     getById,
   }
 }

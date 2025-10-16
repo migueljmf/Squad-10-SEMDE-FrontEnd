@@ -18,93 +18,23 @@
         >
           <img :src="iconSearch" alt="Pesquisar" class="top-icon" />
         </button>
-        <button
-          type="button"
-          class="top-icon-button"
-          :class="{ ativo: estaNosFavoritos }"
-          aria-label="Ver demandas favoritas"
-          @click="irParaFavoritos"
-        >
-          <img :src="iconStar" alt="Favoritos" class="top-icon" />
-        </button>
       </div>
     </div>
 
-    <transition name="fade-slide">
-      <div v-if="searchAtiva" class="search-bar">
-        <img :src="iconSearch" alt="Buscar" class="search-icon" />
-        <input
-          ref="searchInput"
-          v-model="termoBusca"
-          type="search"
-          placeholder="Buscar por titulo ou descricao"
-          aria-label="Campo de busca"
-        />
-        <button
-          v-if="termoBusca"
-          type="button"
-          class="search-clear"
-          aria-label="Limpar busca"
-          @click="limparBusca"
-        >
-          &times;
-        </button>
-      </div>
-    </transition>
+    <SearchBar
+      :visible="searchAtiva"
+      :icon="iconSearch"
+      v-model="termoBusca"
+      @clear="limparBusca"
+      ref="searchInput"
+    />
 
-    <section class="status-cards">
-      <div 
-        class="card pendente drop-zone-card"
-        :class="{ 
-          'drag-over': dragOverZone === 'pendente',
-          'filtro-ativo': filtroStatusAtivo === 'pendente'
-        }"
-        @click="toggleFiltroStatus('pendente')"
-        @dragover.prevent="dragOverZone = 'pendente'"
-        @dragleave="dragOverZone = null"
-        @drop="onDrop($event, 'pendente')"
-      >
-        <span class="count-badge">{{ contagemStatus.pendente }}</span>
-        <p class="card-title">Pendentes</p>
-        <div v-if="dragOverZone === 'pendente'" class="drop-hint">
-          Solte aqui para marcar como Pendente
-        </div>
-      </div>
-      <div 
-        class="card andamento drop-zone-card"
-        :class="{ 
-          'drag-over': dragOverZone === 'em-andamento',
-          'filtro-ativo': filtroStatusAtivo === 'em-andamento'
-        }"
-        @click="toggleFiltroStatus('em-andamento')"
-        @dragover.prevent="dragOverZone = 'em-andamento'"
-        @dragleave="dragOverZone = null"
-        @drop="onDrop($event, 'em-andamento')"
-      >
-        <span class="count-badge">{{ contagemStatus.andamento }}</span>
-        <p class="card-title">Em andamento</p>
-        <div v-if="dragOverZone === 'em-andamento'" class="drop-hint">
-          Solte aqui para marcar como Em Andamento
-        </div>
-      </div>
-      <div 
-        class="card concluido drop-zone-card"
-        :class="{ 
-          'drag-over': dragOverZone === 'concluida',
-          'filtro-ativo': filtroStatusAtivo === 'concluida'
-        }"
-        @click="toggleFiltroStatus('concluida')"
-        @dragover.prevent="dragOverZone = 'concluida'"
-        @dragleave="dragOverZone = null"
-        @drop="onDrop($event, 'concluida')"
-      >
-        <span class="count-badge">{{ contagemStatus.concluido }}</span>
-        <p class="card-title">Concluidas</p>
-        <div v-if="dragOverZone === 'concluida'" class="drop-hint">
-          Solte aqui para marcar como Concluída
-        </div>
-      </div>
-    </section>
+    <StatusCards
+      :counts="contagemStatus"
+      :filtro="filtroStatusAtivo"
+      @toggle="toggleFiltroStatus"
+      @drop="onDrop"
+    />
 
     <div v-if="store.isLoading.value" class="loading-state">
       <p>Carregando demandas...</p>
@@ -120,76 +50,20 @@
         Nenhuma demanda encontrada. Ajuste os filtros ou cadastre uma nova tarefa/acao.
       </p>
       <template v-else>
-        <article
+        <DemandaCard
           v-for="demanda in demandasFormatadas"
           :key="demanda.id"
-          class="demanda-card"
-          :draggable="true"
-          role="button"
-          tabindex="0"
-          @dragstart="onDragStart($event, demanda)"
+          :demanda="demanda"
+          :iconPencil="iconPencil"
+          :iconTrash="iconTrash"
+          :iconMarker="iconMarker"
+          @dragstart="onDragStart"
           @dragend="onDragEnd"
-          @click="abrirDetalhe(demanda.id)"
-          @keyup.enter="abrirDetalhe(demanda.id)"
-        >
-          <div class="badges-container">
-            <span class="badge badge-type" :class="['type-' + demanda.tipoClass]">
-              {{ demanda.tipo }}
-            </span>
-            <div class="badge-status-wrapper" @click.stop>
-              <select
-                :id="'status-' + demanda.id"
-                :value="demanda.statusClass"
-                class="badge badge-status-select"
-                :class="['status-' + demanda.statusClass]"
-                @change="atualizarStatus(demanda.id, $event.target.value)"
-              >
-                <option value="pendente">Pendente</option>
-                <option value="em-andamento">Em andamento</option>
-                <option value="concluida">Concluída</option>
-                <option value="cancelada">Cancelada</option>
-              </select>
-            </div>
-          </div>
-
-          <h3 class="demanda-title">{{ demanda.titulo }}</h3>
-          <p class="demanda-description">{{ demanda.descricaoResumo }}</p>
-
-          <div class="demanda-meta">
-            <img :src="iconMarker" alt="Local" class="meta-icon" />
-            <span>{{ demanda.categoria }}</span>
-            <span class="meta-separator">|</span>
-            <span>{{ demanda.dataFormatada }}</span>
-          </div>
-
-          <div class="card-actions">
-            <button
-              type="button"
-              class="action-button"
-              aria-label="Editar"
-              @click.stop="editarDemanda(demanda.id)"
-            >
-              <img :src="iconPencil" alt="Editar" class="action-icon" />
-            </button>
-            <button
-              type="button"
-              class="action-button"
-              aria-label="Excluir"
-              @click.stop="removerDemanda(demanda.id)"
-            >
-              <img :src="iconTrash" alt="Excluir" class="action-icon" />
-            </button>
-            <button
-              type="button"
-              class="action-button favorito"
-              :class="{ ativo: demanda.isFavorito }"
-              aria-label="Favoritar"
-              @click.stop="toggleFavorito(demanda.id)"
-            >
-              <img :src="iconHeart" alt="Favoritar" class="action-icon" />
-            </button>
-          </div>
-        </article>
+          @abrir="abrirDetalhe"
+          @editar="editarDemanda"
+          @remover="removerDemanda"
+          @atualizar="atualizarStatus"
+        />
       </template>
     </section>
   </div>
@@ -198,12 +72,13 @@
 <script setup>
 import { computed, ref, nextTick, watch, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import SearchBar from "@/components/GestaoDemandas/SearchBar.vue";
+import StatusCards from "@/components/GestaoDemandas/StatusCards.vue";
+import DemandaCard from "@/components/GestaoDemandas/DemandaCard.vue";
 import iconTask from "@/assets/fi-ss-pencil.svg?url";
 import iconSearch from "@/assets/Group.svg?url";
-import iconStar from "@/assets/star.svg?url";
 import iconPencil from "@/assets/fi-ss-pencil.svg?url";
 import iconTrash from "@/assets/fi-ss-trash.svg?url";
-import iconHeart from "@/assets/fi-ss-heart.svg?url";
 import iconMarker from "@/assets/fi-ss-marker.svg?url";
 import { useDemandasStore } from "../stores/useDemandasStore";
 
@@ -216,7 +91,7 @@ const termoBusca = ref("");
 const searchInput = ref(null);
 const filtroStatusAtivo = ref(null);
 
-const estaNosFavoritos = computed(() => route.name === "FavoritosDemandas");
+// favoritos removed
 
 const contagemStatus = computed(() => store.countsPorStatus.value);
 
@@ -276,13 +151,7 @@ function togglePesquisa() {
   }
 }
 
-function irParaFavoritos() {
-  if (route.name === "FavoritosDemandas") {
-    router.push({ name: "GestaoDemandas" });
-  } else {
-    router.push({ name: "FavoritosDemandas" });
-  }
-}
+// irParaFavoritos removed
 
 function obterNomeRotaDetalhe(item) {
   const base = (item?.tipoSlug || item?.tipo || "").toString().toLowerCase();
@@ -310,9 +179,6 @@ async function removerDemanda(id) {
   }
 }
 
-function toggleFavorito(id) {
-  store.toggleFavorito(id);
-}
 
 function limparBusca() {
   termoBusca.value = "";
@@ -658,7 +524,7 @@ function toggleFiltroStatus(status) {
   border-radius: 20px;
   background-color: #f9f9f9;
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
-  padding: 24px 24px 24px 24px;
+  padding: 24px 0px 24px 0px;
   overflow: visible;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;

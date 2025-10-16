@@ -14,7 +14,6 @@ import PerfilUsuarioView from "../views/PerfilUsuarioView.vue";
 import DetalheTarefaView from "../views/DetalheTarefaView.vue";
 import DetalheAcaoView from "../views/DetalheAcaoView.vue";
 import EditarTarefaView from "../views/EditarTarefaView.vue";
-import FavoritosDemandasView from "../views/FavoritosDemandasView.vue";
 import FinanceiroView from "../views/FinanceiroView.vue";
 
 const routes = [
@@ -98,12 +97,7 @@ const routes = [
     // meta: { requiresAuth: true, role: "ADMIN" } 
   },
 
-  { 
-    path: "/gestao-demandas/favoritos", 
-    name: "FavoritosDemandas", 
-    component: FavoritosDemandasView,
-    // meta: { requiresAuth: true } 
-  },
+  // Favoritos route removed
   { 
     path: "/financeiro", 
     name: "Financeiro", 

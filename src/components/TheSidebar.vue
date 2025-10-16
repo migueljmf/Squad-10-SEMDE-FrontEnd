@@ -77,7 +77,7 @@ const onLogout = () => {
 .sidebar {
   background-color: #1565C0;
   color: #ffffff;
-  width: 260px;
+  width: 264px;
   height: 100vh;
   display: flex;
   flex-direction: column;
