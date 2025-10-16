@@ -16,6 +16,7 @@ import DetalheAcaoView from "../views/DetalheAcaoView.vue";
 import EditarTarefaView from "../views/EditarTarefaView.vue";
 import FavoritosDemandasView from "../views/FavoritosDemandasView.vue";
 import FinanceiroView from "../views/FinanceiroView.vue";
+import EleicoesView from '../views/EleicoesView.vue'; 
 
 const routes = [
   { path: "/", redirect: "/inicio" },
@@ -29,86 +30,80 @@ const routes = [
   },
 
   {
-    path: "/dashboard", 
-    name: "Dashboard", 
+    path: "/dashboard",
+    name: "Dashboard",
     component: DashboardView
   },
 
-  { 
-    path: "/gestao-demandas", 
-    name: "GestaoDemandas", 
-    component: GestaoDemandasView,
-    // meta: { requiresAuth: true, role: "ADMIN" } 
+  {
+    path: "/gestao-demandas",
+    name: "GestaoDemandas",
+    component: GestaoDemandasView, 
   },
 
-  { 
-    path: "/acoes", 
-    name: "Acoes", 
+  {
+    path: "/acoes",
+    name: "Acoes",
     component: AcoesView,
-    // meta: { requiresAuth: true } 
   },
 
-  { 
-    path: "/cadastrar-acao", 
-    name: "CadastrarAcao", 
-    component: CadastrarAcaoView,
-    // meta: { requiresAuth: true, role: "ADMIN" } 
+  {
+    path: "/cadastrar-acao",
+    name: "CadastrarAcao",
+    component: CadastrarAcaoView, 
   },
 
-  { 
-    path: "/tarefas", 
-    name: "Tarefas", 
-    component: TarefasView,
-    // meta: { requiresAuth: true } 
+  {
+    path: "/tarefas",
+    name: "Tarefas",
+    component: TarefasView, 
   },
 
-  { 
-    path: "/cadastrar-tarefa", 
-    name: "CadastrarTarefa", 
-    component: CadastrarTarefaView,
-    // meta: { requiresAuth: true } 
+  {
+    path: "/cadastrar-tarefa",
+    name: "CadastrarTarefa",
+    component: CadastrarTarefaView, 
   },
 
-  // Rotas adicionadas
-  { 
-    path: "/perfil", 
-    name: "PerfilUsuario", 
+  {
+    path: "/perfil",
+    name: "PerfilUsuario",
     component: PerfilUsuarioView,
-    // meta: { requiresAuth: true } 
   },
 
-  { 
-    path: "/detalhe-tarefa/:id", 
-    name: "DetalheTarefa", 
+  {
+    path: "/detalhe-tarefa/:id",
+    name: "DetalheTarefa",
     component: DetalheTarefaView,
-    // meta: { requiresAuth: true } 
   },
 
-  { 
-    path: "/detalhe-acao/:id", 
-    name: "DetalheAcao", 
-    component: DetalheAcaoView,
-    // meta: { requiresAuth: true } 
+  {
+    path: "/detalhe-acao/:id",
+    name: "DetalheAcao",
+    component: DetalheAcaoView, 
   },
 
-  { 
-    path: "/editar-tarefa/:id", 
-    name: "EditarTarefa", 
-    component: EditarTarefaView,
-    // meta: { requiresAuth: true, role: "ADMIN" } 
+  {
+    path: "/editar-tarefa/:id",
+    name: "EditarTarefa",
+    component: EditarTarefaView, 
   },
 
-  { 
-    path: "/gestao-demandas/favoritos", 
-    name: "FavoritosDemandas", 
+  {
+    path: "/gestao-demandas/favoritos",
+    name: "FavoritosDemandas",
     component: FavoritosDemandasView,
-    // meta: { requiresAuth: true } 
   },
-  { 
-    path: "/financeiro", 
-    name: "Financeiro", 
+  {
+    path: "/financeiro",
+    name: "Financeiro",
     component: FinanceiroView,
-    // meta: { requiresAuth: true } 
+  },
+
+  {
+    path: "/eleicoes",
+    name: "Eleicoes",
+    component: EleicoesView,
   },
 ];
 
@@ -123,11 +118,10 @@ router.beforeEach((to, from, next) => {
   }
 
   if (to.meta.role && !hasRole(to.meta.role)) {
-    return next("/login"); 
+    return next("/login");
   }
 
   next();
 });
 
 export default router;
-
