@@ -39,9 +39,10 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import LeafletMap from '@/components/LeafletMap.vue'
 import { useDemandasStore } from '@/stores/useDemandasStore'
+import { demandasApi } from '@/services/demandasApi'
 
 const DEFAULT_CENTER = [-23.5505, -46.6333]
 const DEFAULT_ZOOM = 12
@@ -58,15 +59,37 @@ const tarefas = computed(() =>
   store.demandas.value.filter((item) => item.tipoSlug === 'tarefa')
 )
 
-const mapMarkers = computed(() =>
-  tarefas.value
+const externalMarkers = ref([])
+
+const mapMarkers = computed(() => {
+  // prefer coordinates from the new endpoint when available
+  if (externalMarkers.value && externalMarkers.value.length) {
+    return externalMarkers.value
+      .map((t) => ({
+        lat: toNumber(t.contact?.address?.latitude),
+        lng: toNumber(t.contact?.address?.longitude),
+        label: `<strong>${t.title || 'Sem titulo'}</strong>`,
+      }))
+      .filter((m) => Number.isFinite(m.lat) && Number.isFinite(m.lng))
+  }
+
+  return tarefas.value
     .map((tarefa) => ({
       lat: toNumber(tarefa.latitude),
       lng: toNumber(tarefa.longitude),
       label: buildLabel(tarefa),
     }))
     .filter((item) => Number.isFinite(item.lat) && Number.isFinite(item.lng))
-)
+})
+
+onMounted(async () => {
+  try {
+    externalMarkers.value = await demandasApi.getTaskCoordinates()
+  } catch (err) {
+    console.warn('Nao foi possivel carregar coordenadas externas:', err)
+    externalMarkers.value = []
+  }
+})
 
 const mapCenter = computed(() => {
   if (mapMarkers.value.length === 0) return DEFAULT_CENTER

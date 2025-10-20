@@ -146,9 +146,15 @@
 
 <script setup>
 import { computed } from "vue";
+import { onMounted } from 'vue'
 import { useDemandasStore } from "../stores/useDemandasStore";
 
+
 const store = useDemandasStore();
+
+onMounted(async () => {
+  await store.fetchDemandas();
+});
 
 const statusCounts = computed(() => store.countsPorStatus.value);
 
