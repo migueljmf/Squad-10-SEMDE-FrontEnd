@@ -79,20 +79,26 @@
           <span>Formação</span>
           <select v-model="contactEducation">
             <option value="">Selecione</option>
-            <option value="ENSINO_FUNDAMENTAL">Ensino fundamental</option>
-            <option value="ENSINO_MEDIO">Ensino médio</option>
+            <option value="FUNDAMENTAL_INCOMPLETO">Fundamental incompleto</option>
+            <option value="FUNDAMENTAL_COMPLETO">Fundamental completo</option>
+            <option value="MEDIO_INCOMPLETO">Médio incompleto</option>
+            <option value="MEDIO_COMPLETO">Médio completo</option>
             <option value="SUPERIOR_INCOMPLETO">Superior incompleto</option>
             <option value="SUPERIOR_COMPLETO">Superior completo</option>
+            <option value="POS_GRADUACAO">Pós-graduação</option>
+            <option value="MESTRADO">Mestrado</option>
+            <option value="DOUTORADO">Doutorado</option>
           </select>
+
         </label>
       </section>
 
       <!-- ENDEREÇO -->
       <section class="group">
         <h2>Endereço</h2>
-          <label class="field" style="width:100%">
-            <EnderecoForm v-model="enderecoObj" />
-          </label>
+        <label class="field" style="width:100%">
+          <EnderecoForm v-model="enderecoObj" />
+        </label>
       </section>
     </form>
   </div>
@@ -105,6 +111,7 @@ import { useDemandasStore } from "../stores/useDemandasStore";
 import EnderecoForm from "@/components/EnderecoForm.vue";
 import { categoriesApi } from "../services/categoriesApi";
 import { addressApi } from "../services/addressApi";
+import { citiesApi } from "../services/citiesApi";
 import { contactsApi } from "../services/contactsApi";
 import { demandasApi } from "../services/demandasApi";
 
@@ -152,11 +159,28 @@ async function salvarTarefa() {
   if (!token) return router.push('/login')
 
   try {
+
+    //0) resolver cityId: preferir cityId já selecionado no formulário, senão buscar apenas o id pelo nome
+    let resolvedCityId = enderecoObj.value.cityId || null
+    if (!resolvedCityId && enderecoObj.value.cidade) {
+      try {
+        const cities = await citiesApi.search(enderecoObj.value.cidade)
+        if (Array.isArray(cities) && cities.length) {
+          const first = cities[0]
+          resolvedCityId = first.id || first.cityId || first.value || null
+        } else if (cities && (cities.id || cities.cityId)) {
+          resolvedCityId = cities.id || cities.cityId
+        }
+      } catch (err) {
+        console.warn('Nao foi possivel resolver cityId a partir do nome:', err)
+      }
+    }
+
     // 1) criar endereco
     const addressPayload = {
       street: enderecoObj.value.logradouro,
       district: enderecoObj.value.bairro,
-      cityId: enderecoObj.value.cityId || enderecoObj.value.cidade || null,
+      cityId: resolvedCityId,
       number: enderecoObj.value.numero,
       latitude: enderecoObj.value.latitude,
       longitude: enderecoObj.value.longitude,
@@ -260,19 +284,21 @@ onMounted(async () => {
 .group {
   display: flex;
   flex-direction: column;
-  gap: 40px; /* mais respiro entre blocos */
+  gap: 40px;
+  /* mais respiro entre blocos */
 }
 
 .grid.two {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 36px; /* mais espaço entre colunas */
+  gap: 36px;
+  /* mais espaço entre colunas */
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 6px; 
+  gap: 6px;
   font-size: 14px;
   color: #475569;
 }
@@ -284,7 +310,8 @@ onMounted(async () => {
 .field input,
 .field textarea,
 .field select {
-  padding: 12px 14px; /* inputs mais confortáveis */
+  padding: 12px 14px;
+  /* inputs mais confortáveis */
   width: calc(100%-28px);
   height: 20px;
   border-radius: 12px;
@@ -293,13 +320,15 @@ onMounted(async () => {
   font-size: 14px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
+
 .field select {
   height: 46px;
 }
 
 .field textarea {
   resize: vertical;
-  min-height: 160px; /* textarea mais alto */
+  min-height: 160px;
+  /* textarea mais alto */
 }
 
 .field input:focus,
@@ -362,5 +391,4 @@ onMounted(async () => {
     max-width: none;
   }
 }
-
 </style>

@@ -24,13 +24,9 @@
         <span>Bairro</span>
         <input v-model="form.bairro" type="text" placeholder="Bairro" />
       </label>
-      <label class="field" style="position:relative">
+      <label class="field">
         <span>Cidade</span>
-        <input class="autocomplete-input" v-model="form.cidade" @input="onCityInput" type="text" placeholder="Cidade" autocomplete="off" />
-        <input v-if="form.cityId" type="hidden" :value="form.cityId" />
-        <ul v-if="citySuggestions.length" class="suggestions city-suggestions">
-          <li v-for="c in citySuggestions" :key="c.id" @click="selectCity(c)">{{ c.name || c.label }}</li>
-        </ul>
+        <input v-model="form.cidade" type="text" placeholder="Cidade" />
       </label>
     </div>
   </div>
@@ -39,7 +35,6 @@
 <script setup>
 import { reactive, watch, ref } from "vue";
 import { criarEnderecoVazio } from "../utils/endereco";
-import { citiesApi } from "../services/citiesApi"
 
 const props = defineProps({
   modelValue: {
@@ -52,16 +47,17 @@ const emit = defineEmits(["update:modelValue"]);
 
 const form = reactive({ ...criarEnderecoVazio(), ...props.modelValue });
   const suggestions = ref([])
-const queryLogradouro = ref(form.logradouro || "")
+
+const queryLogradouro = form.logradouro || ref(form.logradouro);
 let queryTimer = null
-  const citySuggestions = ref([])
-  let cityTimer = null
 
 watch(
   () => props.modelValue,
   (valor) => {
     if (!valor || typeof valor !== "object") return;
     Object.assign(form, criarEnderecoVazio(), valor);
+    // keep the visible street query in sync when parent updates the model
+    queryLogradouro.value = form.logradouro || ""
   }
 );
 
@@ -135,32 +131,6 @@ function selectSuggestion(s) {
   form.longitude = item.lon
   // emitimos o update do form (watch já faz isso)
 }
-
-  // busca cidades na API do backend
-  async function fetchCitySuggestions(q) {
-    if (!q || q.length < 2) {
-      citySuggestions.value = []
-      return
-    }
-    try {
-      citySuggestions.value = await citiesApi.search(q)
-    } catch (e) {
-      console.error('Erro ao buscar cidades', e)
-      citySuggestions.value = []
-    }
-  }
-
-  function onCityInput(e) {
-    const q = e.target.value
-    if (cityTimer) clearTimeout(cityTimer)
-    cityTimer = setTimeout(() => fetchCitySuggestions(q), 300)
-  }
-
-  function selectCity(city) {
-    form.cidade = city.name || city.label || form.cidade
-    form.cityId = city.id || city.cityId || null
-    citySuggestions.value = []
-  }
 </script>
 
 <style scoped>
@@ -239,8 +209,5 @@ function selectSuggestion(s) {
 .suggestions li:hover { background: #f1f5f9 }
 
 
-.city-suggestions {
-  left: 8px;
-  right: 8px;
-}
+/* city suggestions removed - reliant on street autocomplete */
 </style>

@@ -41,11 +41,8 @@ export const demandasApi = {
   // Update existing demand
   async update(id, demandData) {
     try {
-      // const response = await api.put(`/demands/${id}`, demandData)
-      // return response.data
-
-      // const { demandasMock } = await import("./demandasMock")
-      // return await demandasMock.update(id, demandData)
+      const response = await api.put(`/task/${id}`, demandData)
+      return response.data?.data || response.data
     } catch (error) {
       console.error("[v0] Error updating demand:", error)
       throw error
@@ -55,11 +52,8 @@ export const demandasApi = {
   // Delete demand
   async delete(id) {
     try {
-      // await api.delete(`/demands/${id}`)
-      // return true
-
-      // const { demandasMock } = await import("./demandasMock")
-      // return await demandasMock.delete(id)
+      await api.delete(`/task/${id}`)
+      return true
     } catch (error) {
       console.error("[v0] Error deleting demand:", error)
       throw error

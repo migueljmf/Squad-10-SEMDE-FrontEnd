@@ -10,4 +10,13 @@ export const contactsApi = {
       throw e
     }
   },
+  async update(id, contact) {
+    try {
+      const res = await api.put(`/contact/${id}`, contact)
+      return res.data?.data || res.data
+    } catch (e) {
+      console.error('[v0] Error updating contact', e)
+      throw e
+    }
+  },
 }
