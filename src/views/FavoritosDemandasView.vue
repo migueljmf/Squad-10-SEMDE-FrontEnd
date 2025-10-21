@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="gestao-demandas">
     <div class="header">
       <div class="title">
@@ -161,8 +161,6 @@ function formatarData(valor) {
 
 <style scoped>
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=K2D:wght@400&display=swap");
 
 .gestao-demandas {
   padding: 20px 24px 48px;
@@ -364,7 +362,7 @@ function formatarData(valor) {
   position: absolute;
   top: 30px;
   left: 40px;
-  font-family: "Inter", sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 32px;
   font-weight: 700;
   margin: 0;
@@ -379,7 +377,7 @@ function formatarData(valor) {
   top: 84px;
   left: 40px;
   right: 220px;
-  font-family: "K2D", sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 20px;
   color: #525252;
   margin: 0;
@@ -394,7 +392,7 @@ function formatarData(valor) {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: "Inter", sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 16px;
   color: #636c7a;
 }

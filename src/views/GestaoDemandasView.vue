@@ -1,25 +1,24 @@
 <template>
   <div class="gestao-demandas">
-    <div class="header">
-      <div class="title">
-        <div class="title-icon">
-          <img :src="iconTask" alt="Gestao de Demandas" class="title-image" />
-        </div>
-        <h2>Gestao de Demandas</h2>
-      </div>
-
-      <div class="top-actions">
+    <PageHero
+      title="Gestao de Demandas"
+      description="Organize o fluxo de demandas, filtre por status e priorize o que requer acao imediata."
+      highlight-label="Demandas monitoradas"
+      :highlight-value="totalDemandasFormatado"
+      :highlight-subtext="totalDemandasSubtexto"
+    >
+      <template #extra>
         <button
           type="button"
-          class="top-icon-button"
+          class="gestao-hero-button"
           :class="{ ativo: searchAtiva }"
-          aria-label="Pesquisar demandas"
           @click="togglePesquisa"
         >
-          <img :src="iconSearch" alt="Pesquisar" class="top-icon" />
+          <img :src="iconSearch" alt="Pesquisar" class="gestao-hero-icon" />
+          <span>{{ searchAtiva ? "Fechar busca" : "Pesquisar demandas" }}</span>
         </button>
-      </div>
-    </div>
+      </template>
+    </PageHero>
 
     <SearchBar
       :visible="searchAtiva"
@@ -72,10 +71,10 @@
 <script setup>
 import { computed, ref, nextTick, watch, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import PageHero from "@/components/PageHero.vue";
 import SearchBar from "@/components/GestaoDemandas/SearchBar.vue";
 import StatusCards from "@/components/GestaoDemandas/StatusCards.vue";
 import DemandaCard from "@/components/GestaoDemandas/DemandaCard.vue";
-import iconTask from "@/assets/fi-ss-pencil.svg?url";
 import iconSearch from "@/assets/Group.svg?url";
 import iconPencil from "@/assets/fi-ss-pencil.svg?url";
 import iconTrash from "@/assets/fi-ss-trash.svg?url";
@@ -94,6 +93,16 @@ const filtroStatusAtivo = ref(null);
 // favoritos removed
 
 const contagemStatus = computed(() => store.countsPorStatus.value);
+const totalDemandas = computed(() => store.demandas.value.length);
+const totalDemandasFormatado = computed(() =>
+  totalDemandas.value.toLocaleString("pt-BR")
+);
+const totalDemandasSubtexto = computed(() => {
+  if (totalDemandas.value === 0) return "Nenhuma demanda cadastrada";
+  const pendentes = contagemStatus.value?.pendente || 0;
+  if (pendentes === 0) return "Todas acompanhadas sem pendencias";
+  return `${pendentes} pendente${pendentes === 1 ? "" : "s"} no momento`;
+});
 
 const demandasFiltradas = computed(() => {
   let resultado = store.demandas.value;
@@ -255,77 +264,53 @@ function toggleFiltroStatus(status) {
 
 <style scoped>
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=K2D:wght@400&display=swap");
 
 .gestao-demandas {
-  padding: 20px 24px 48px;
+  padding: 48px 32px 56px;
   font-family: "Poppins", sans-serif;
-  color: #000;
-  background: #fff;
-}
-
-.header {
+  color: #0f172a;
+  background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 32px;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.gestao-hero-button {
+  display: inline-flex;
   align-items: center;
-  margin-bottom: 24px;
-}
-
-.title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.title-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #1565c0 0%, #163b66 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.title-image {
-  width: 24px;
-  height: 24px;
-}
-
-.top-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.top-icon-button {
-  width: 44px;
-  height: 44px;
+  gap: 10px;
+  padding: 12px 22px;
+  border-radius: 14px;
   border: none;
-  border-radius: 50%;
-  background: #f7f8fd;
-  display: grid;
-  place-items: center;
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
-.top-icon-button:hover,
-.top-icon-button.ativo {
+.gestao-hero-button:hover {
   transform: translateY(-2px);
-  background: #eef3ff;
-  box-shadow: 0 10px 18px rgba(21, 101, 192, 0.12);
+  box-shadow: 0 16px 26px rgba(15, 47, 112, 0.28);
 }
 
-.top-icon-button:focus-visible {
+.gestao-hero-button.ativo {
+  background: rgba(255, 255, 255, 0.28);
+  box-shadow: 0 18px 32px rgba(15, 47, 112, 0.32);
+}
+
+.gestao-hero-button:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.25);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.45);
 }
 
-.top-icon {
-  width: 24px;
-  height: 24px;
+.gestao-hero-icon {
+  width: 20px;
+  height: 20px;
 }
 
 .fade-slide-enter-active,
@@ -787,6 +772,15 @@ function toggleFiltroStatus(status) {
 }
 
 @media (max-width: 768px) {
+  .gestao-demandas {
+    padding: 32px 20px 40px;
+  }
+
+  .gestao-hero-button {
+    width: 100%;
+    justify-content: center;
+  }
+
   .status-cards {
     flex-direction: column;
     align-items: center;

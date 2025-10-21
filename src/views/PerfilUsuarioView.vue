@@ -43,7 +43,7 @@ const profile = {
   phone: "(11) 99876-5432",
   position: "Coordenadora Municipal",
   photo:
-    "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%231565c0'/><stop offset='100%' stop-color='%235998df'/></linearGradient></defs><circle cx='80' cy='80' r='80' fill='url(%23grad)'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='Poppins, Arial, sans-serif' font-size='56' fill='white'>MC</text><text x='50%' y='72%' dominant-baseline='middle' text-anchor='middle' font-family='Poppins, Arial, sans-serif' font-size='18' fill='rgba(255,255,255,0.8)'>Perfil</text></svg>",
+    "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%231565c0'/><stop offset='100%' stop-color='%235998df'/></linearGradient></defs><circle cx='80' cy='80' r='80' fill='url(%23grad)'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='Poppins' font-size='56' fill='white'>MC</text><text x='50%' y='72%' dominant-baseline='middle' text-anchor='middle' font-family='Poppins' font-size='18' fill='rgba(255,255,255,0.8)'>Perfil</text></svg>",
 };
 </script>
 
@@ -51,7 +51,7 @@ const profile = {
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
 
 .profile-page {
-  min-height: calc(100vh - 96px);
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;

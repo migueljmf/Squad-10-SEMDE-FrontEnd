@@ -1,17 +1,21 @@
 <template>
   <div class="tarefas">
-    <div class="tarefas-content">
-      <header class="top-bar">
-        <div class="top-text">
-          <p class="section-label">Tarefas</p>
-          <h1 class="section-title">Mapa de Tarefas</h1>
-        </div>
+    <PageHero
+      title="Mapa de Tarefas"
+      description="Observe onde as tarefas estao ocorrendo e ajuste a visualizacao para analisar concentracoes, bairros ou pontos individuais."
+      highlight-label="Tarefas mapeadas"
+      :highlight-value="totalTarefasFormatado"
+      :highlight-subtext="totalTarefasSubtexto"
+    >
+      <template #extra>
         <button @click="$router.push('/cadastrar-tarefa')" class="nova-tarefa">
           <span class="nova-tarefa-icone">+</span>
           <span>Nova Tarefa</span>
         </button>
-      </header>
+      </template>
+    </PageHero>
 
+    <div class="tarefas-content">
       <div class="map-wrapper">
         <LeafletMap
           class="map"
@@ -39,24 +43,34 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
-import LeafletMap from '@/components/LeafletMap.vue'
-import { useDemandasStore } from '@/stores/useDemandasStore'
+import { computed, ref } from "vue";
+import PageHero from "@/components/PageHero.vue";
+import LeafletMap from "@/components/LeafletMap.vue";
+import { useDemandasStore } from "@/stores/useDemandasStore";
 
-const DEFAULT_CENTER = [-23.5505, -46.6333]
-const DEFAULT_ZOOM = 12
+const DEFAULT_CENTER = [-23.5505, -46.6333];
+const DEFAULT_ZOOM = 12;
 
-const store = useDemandasStore()
-const modoVisualizacao = ref('points')
+const store = useDemandasStore();
+const modoVisualizacao = ref("points");
 const modos = [
-  { value: 'points', label: 'PONTOS INDIVIDUAIS' },
-  { value: 'clusters', label: 'CONTADORES POR BAIRRO' },
-  { value: 'heat', label: 'MAPA DE CALOR' },
-]
+  { value: "points", label: "PONTOS INDIVIDUAIS" },
+  { value: "clusters", label: "CONTADORES POR BAIRRO" },
+  { value: "heat", label: "MAPA DE CALOR" },
+];
 
 const tarefas = computed(() =>
-  store.demandas.value.filter((item) => item.tipoSlug === 'tarefa')
-)
+  store.demandas.value.filter((item) => item.tipoSlug === "tarefa")
+);
+
+const totalTarefas = computed(() => tarefas.value.length);
+const totalTarefasFormatado = computed(() =>
+  totalTarefas.value.toLocaleString("pt-BR")
+);
+const totalTarefasSubtexto = computed(() => {
+  if (totalTarefas.value === 0) return "Nenhuma tarefa cadastrada";
+  return totalTarefas.value === 1 ? "Tarefa ativa no mapa" : "Tarefas ativas no mapa";
+});
 
 const mapMarkers = computed(() =>
   tarefas.value
@@ -66,10 +80,10 @@ const mapMarkers = computed(() =>
       label: buildLabel(tarefa),
     }))
     .filter((item) => Number.isFinite(item.lat) && Number.isFinite(item.lng))
-)
+);
 
 const mapCenter = computed(() => {
-  if (mapMarkers.value.length === 0) return DEFAULT_CENTER
+  if (mapMarkers.value.length === 0) return DEFAULT_CENTER;
 
   const { latTotal, lngTotal } = mapMarkers.value.reduce(
     (acc, marker) => ({
@@ -77,81 +91,57 @@ const mapCenter = computed(() => {
       lngTotal: acc.lngTotal + marker.lng,
     }),
     { latTotal: 0, lngTotal: 0 }
-  )
+  );
 
-  return [latTotal / mapMarkers.value.length, lngTotal / mapMarkers.value.length]
-})
+  return [latTotal / mapMarkers.value.length, lngTotal / mapMarkers.value.length];
+});
 
 const mapZoom = computed(() => {
-  if (mapMarkers.value.length === 1) return 14
-  return DEFAULT_ZOOM
-})
+  if (mapMarkers.value.length === 1) return 14;
+  return DEFAULT_ZOOM;
+});
 
 function toNumber(value) {
-  if (value == null) return null
-  const parsed = typeof value === 'string' ? Number.parseFloat(value) : value
-  return Number.isFinite(parsed) ? parsed : null
+  if (value == null) return null;
+  const parsed = typeof value === "string" ? Number.parseFloat(value) : value;
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
 function buildLabel(tarefa) {
-  const linhas = []
-  if (tarefa.titulo) linhas.push(`<strong>${tarefa.titulo}</strong>`)
-  if (tarefa.local && tarefa.local !== 'Nao informado') linhas.push(tarefa.local)
-  if (tarefa.data) linhas.push(`Data: ${tarefa.data}`)
-  if (tarefa.status) linhas.push(`Status: ${tarefa.status}`)
-  return linhas.join('<br />')
+  const linhas = [];
+  if (tarefa.titulo) linhas.push(`<strong>${tarefa.titulo}</strong>`);
+  if (tarefa.local && tarefa.local !== "Nao informado") linhas.push(tarefa.local);
+  if (tarefa.data) linhas.push(`Data: ${tarefa.data}`);
+  if (tarefa.status) linhas.push(`Status: ${tarefa.status}`);
+  return linhas.join("<br />");
 }
 </script>
 
 <style scoped>
 .tarefas {
-  min-height: calc(100vh - 96px);
+  min-height: 100vh;
+  padding: 48px 32px 56px;
+  background: linear-gradient(180deg, #f8fbff 0%, #f1f5f9 45%, #ffffff 100%);
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 48px 16px;
-  background: #ffffff;
+  flex-direction: column;
+  gap: 32px;
+  box-sizing: border-box;
   font-family: "Poppins", sans-serif;
 }
 
 .tarefas-content {
   width: 100%;
   max-width: 1140px;
+  margin: 0 auto;
   background: #ffffff;
   border-radius: 24px;
   padding: 40px 48px 48px;
   box-shadow: 0 18px 50px rgba(15, 35, 95, 0.12);
   border: 1px solid rgba(20, 56, 126, 0.08);
   color: #1b2a4b;
-}
-
-.top-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  margin-bottom: 24px;
-}
-
-.top-text {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-}
-
-.section-label {
-  margin: 0;
-  font-size: 14px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: #3b6fd1;
-}
-
-.section-title {
-  margin: 0;
-  font-size: 32px;
-  font-weight: 700;
-  color: #0f1f3d;
+  gap: 28px;
 }
 
 .nova-tarefa {
@@ -205,7 +195,6 @@ function buildLabel(tarefa) {
 }
 
 .map-buttons {
-  margin-top: 28px;
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
@@ -239,15 +228,11 @@ function buildLabel(tarefa) {
 
 @media (max-width: 1024px) {
   .tarefas {
-    padding: 32px 16px;
+    padding: 32px 24px 40px;
   }
 
   .tarefas-content {
     padding: 32px 28px 36px;
-  }
-
-  .section-title {
-    font-size: 28px;
   }
 
   .map-wrapper {
@@ -257,17 +242,12 @@ function buildLabel(tarefa) {
 
 @media (max-width: 640px) {
   .tarefas {
-    padding: 24px 12px 36px;
+    padding: 24px 16px 36px;
   }
 
   .tarefas-content {
     padding: 28px 20px 32px;
     border-radius: 18px;
-  }
-
-  .top-bar {
-    flex-direction: column;
-    align-items: stretch;
   }
 
   .nova-tarefa {

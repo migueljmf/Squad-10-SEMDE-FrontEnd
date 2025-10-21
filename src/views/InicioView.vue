@@ -63,7 +63,7 @@ body{
 }
 
 .app-name {
-  font-family: 'Inter', sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 48px;
   font-weight: 800;
   color: #000;
@@ -71,7 +71,7 @@ body{
 }
 
 .app-description {
-  font-family: 'Inter', sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 16px;
   line-height: 28px;
   color: #555;
