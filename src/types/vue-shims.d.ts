@@ -90,7 +90,7 @@ export {};
 	type __VLS_ResolveEmits<
 		Comp,
 		Emits,
-		TypeEmits = {},
+		TypeEmits = Comp extends { __typeEmits?: infer T } ? unknown extends T ? {} : import('vue').ShortEmitsToObject<T> : {},
 		NormalizedEmits = __VLS_NormalizeEmits<Emits> extends infer E ? string extends keyof E ? {} : E : never,
 	> = __VLS_SpreadMerge<NormalizedEmits, TypeEmits>;
 	type __VLS_ResolveDirectives<T> = {

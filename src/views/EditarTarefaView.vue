@@ -157,7 +157,7 @@ function salvarAlteracoes() {
 
   const enderecoPayload = { ...endereco.value };
   const resumoEndereco = formatarEnderecoCurto(enderecoPayload);
-  const localDescricao = resumoEndereco || enderecoPayload.logradouro || enderecoPayload.cep || "Nao informado";
+  const localDescricao = resumoEndereco || enderecoPayload.logradouro || "Nao informado";
 
   const sucesso = store.updateDemanda(demanda.value.id, {
     titulo: titulo.value,

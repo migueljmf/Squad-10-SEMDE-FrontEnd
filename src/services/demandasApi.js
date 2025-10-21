@@ -30,11 +30,8 @@ export const demandasApi = {
   // Create new demand
   async create(demandData) {
     try {
-      // const response = await api.post("/demands", demandData)
-      // return response.data
-
-      // const { demandasMock } = await import("./demandasMock")
-      // return await demandasMock.create(demandData)
+      const response = await api.post('/task', demandData)
+      return response.data?.data || response.data
     } catch (error) {
       console.error("[v0] Error creating demand:", error)
       throw error
