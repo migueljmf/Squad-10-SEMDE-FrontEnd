@@ -2,10 +2,10 @@
   <div class="tarefas">
     <PageHero
       title="Mapa de Tarefas"
-      description="Observe onde as tarefas estao ocorrendo e ajuste a visualizacao para analisar concentracoes, bairros ou pontos individuais."
-      highlight-label="Tarefas mapeadas"
+      description="Visualize onde estao as atividades em andamento e escolha como prefere analisar o territorio."
+      highlight-label="Tarefas registradas"
       :highlight-value="totalTarefasFormatado"
-      :highlight-subtext="totalTarefasSubtexto"
+      :highlight-subtext="tarefasHighlightSubtexto"
     >
       <template #extra>
         <button @click="$router.push('/cadastrar-tarefa')" class="nova-tarefa">
@@ -43,10 +43,11 @@
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
+import { computed, ref, onMounted } from "vue";
 import PageHero from "@/components/PageHero.vue";
 import LeafletMap from "@/components/LeafletMap.vue";
 import { useDemandasStore } from "@/stores/useDemandasStore";
+import { demandasApi } from "@/services/demandasApi";
 
 const DEFAULT_CENTER = [-23.5505, -46.6333];
 const DEFAULT_ZOOM = 12;
@@ -67,23 +68,52 @@ const totalTarefas = computed(() => tarefas.value.length);
 const totalTarefasFormatado = computed(() =>
   totalTarefas.value.toLocaleString("pt-BR")
 );
-const totalTarefasSubtexto = computed(() => {
-  if (totalTarefas.value === 0) return "Nenhuma tarefa cadastrada";
-  return totalTarefas.value === 1 ? "Tarefa ativa no mapa" : "Tarefas ativas no mapa";
-});
 
-const mapMarkers = computed(() =>
-  tarefas.value
+const externalMarkers = ref([]);
+
+const mapMarkers = computed(() => {
+  // prefer coordinates from the new endpoint when available
+  if (externalMarkers.value && externalMarkers.value.length) {
+    return externalMarkers.value
+      .map((t) => ({
+        lat: toNumber(t.contact?.address?.latitude),
+        lng: toNumber(t.contact?.address?.longitude),
+        label: `<strong>${t.title || "Sem titulo"}</strong>`,
+      }))
+      .filter((m) => Number.isFinite(m.lat) && Number.isFinite(m.lng))
+  }
+
+  return tarefas.value
     .map((tarefa) => ({
       lat: toNumber(tarefa.latitude),
       lng: toNumber(tarefa.longitude),
       label: buildLabel(tarefa),
     }))
     .filter((item) => Number.isFinite(item.lat) && Number.isFinite(item.lng))
+});
+
+const tarefasComLocalizacao = computed(() => mapMarkers.value.length);
+const tarefasComLocalizacaoFormatado = computed(() =>
+  tarefasComLocalizacao.value.toLocaleString("pt-BR")
 );
+const tarefasHighlightSubtexto = computed(() => {
+  if (tarefasComLocalizacao.value === 0) {
+    return "Defina coordenadas para exibir as tarefas no mapa.";
+  }
+  return `${tarefasComLocalizacaoFormatado.value} com localizacao georreferenciada`;
+});
+
+onMounted(async () => {
+  try {
+    externalMarkers.value = await demandasApi.getTaskCoordinates()
+  } catch (err) {
+    console.warn('Nao foi possivel carregar coordenadas externas:', err)
+    externalMarkers.value = []
+  }
+})
 
 const mapCenter = computed(() => {
-  if (mapMarkers.value.length === 0) return DEFAULT_CENTER;
+  if (mapMarkers.value.length === 0) return DEFAULT_CENTER
 
   const { latTotal, lngTotal } = mapMarkers.value.reduce(
     (acc, marker) => ({
@@ -91,29 +121,29 @@ const mapCenter = computed(() => {
       lngTotal: acc.lngTotal + marker.lng,
     }),
     { latTotal: 0, lngTotal: 0 }
-  );
+  )
 
-  return [latTotal / mapMarkers.value.length, lngTotal / mapMarkers.value.length];
-});
+  return [latTotal / mapMarkers.value.length, lngTotal / mapMarkers.value.length]
+})
 
 const mapZoom = computed(() => {
-  if (mapMarkers.value.length === 1) return 14;
-  return DEFAULT_ZOOM;
-});
+  if (mapMarkers.value.length === 1) return 14
+  return DEFAULT_ZOOM
+})
 
 function toNumber(value) {
-  if (value == null) return null;
-  const parsed = typeof value === "string" ? Number.parseFloat(value) : value;
-  return Number.isFinite(parsed) ? parsed : null;
+  if (value == null) return null
+  const parsed = typeof value === 'string' ? Number.parseFloat(value) : value
+  return Number.isFinite(parsed) ? parsed : null
 }
 
 function buildLabel(tarefa) {
-  const linhas = [];
-  if (tarefa.titulo) linhas.push(`<strong>${tarefa.titulo}</strong>`);
-  if (tarefa.local && tarefa.local !== "Nao informado") linhas.push(tarefa.local);
-  if (tarefa.data) linhas.push(`Data: ${tarefa.data}`);
-  if (tarefa.status) linhas.push(`Status: ${tarefa.status}`);
-  return linhas.join("<br />");
+  const linhas = []
+  if (tarefa.titulo) linhas.push(`<strong>${tarefa.titulo}</strong>`)
+  if (tarefa.local && tarefa.local !== 'Nao informado') linhas.push(tarefa.local)
+  if (tarefa.data) linhas.push(`Data: ${tarefa.data}`)
+  if (tarefa.status) linhas.push(`Status: ${tarefa.status}`)
+  return linhas.join('<br />')
 }
 </script>
 
@@ -195,6 +225,7 @@ function buildLabel(tarefa) {
 }
 
 .map-buttons {
+  margin-top: 28px;
   display: flex;
   flex-wrap: wrap;
   gap: 16px;

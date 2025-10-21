@@ -12,7 +12,7 @@ const MODE_HEAT = 'heat'
 const MODE_GROUPED = 'clusters'
 
 const props = defineProps({
-  center: { type: Array, default: () => [-23.5505, -46.6333] },
+  center: { type: Array, default: () => [-10.947247, -37.073082] },
   zoom: { type: Number, default: 12 },
   markers: { type: Array, default: () => [] },
   mode: { type: String, default: MODE_POINTS },

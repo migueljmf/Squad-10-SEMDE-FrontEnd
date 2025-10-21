@@ -12,52 +12,89 @@
       </header>
 
       <div class="detalhe-body">
-        <div class="info-grid">
-          <div class="info-item">
-            <span class="info-label">Tipo</span>
-            <span class="info-value">{{ demanda.tipo }}</span>
+        <!-- Section: Dados da Tarefa -->
+        <div class="detalhe-section">
+          <h2>Dados da Tarefa</h2>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Tipo</span>
+              <span class="info-value">{{ demanda.tipo }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Categoria</span>
+              <span class="info-value">{{ demanda.categoria }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Prioridade</span>
+              <span class="info-value">{{ demanda.priority || demanda.prioridade || '-' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Equipe</span>
+              <span class="info-value">{{ demanda.team || '-' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Data</span>
+              <span class="info-value">{{ demanda.dataFormatada }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Status</span>
+              <span class="info-value">{{ demanda.status }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Categorias</span>
+              <span class="info-value">{{ demanda.categoriasTexto || '-' }}</span>
+            </div>
           </div>
-          <div class="info-item">
-            <span class="info-label">Categoria</span>
-            <span class="info-value">{{ demanda.categoria }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Solicitante</span>
-            <span class="info-value">{{ demanda.solicitante }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Contato</span>
-            <span class="info-value">{{ demanda.contato }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Local</span>
-            <span class="info-value">{{ demanda.local }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Data</span>
-            <span class="info-value">{{ demanda.dataFormatada }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Status</span>
-            <span class="info-value">{{ demanda.status }}</span>
+          <div class="info-item" style="margin-top:16px;">
+            <span class="info-label">Descrição</span>
+            <p class="info-value">{{ demanda.descricao || 'Sem descricao adicional.' }}</p>
           </div>
         </div>
 
+        <!-- Section: Dados do Contato -->
         <div class="detalhe-section">
-          <h2>Descricao completa</h2>
-          <p>{{ demanda.descricao || 'Sem descricao adicional.' }}</p>
+          <h2>Dados do Contato</h2>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Nome</span>
+              <span class="info-value">{{ demanda.contato || '-' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Email</span>
+              <span class="info-value">{{ demanda.contatoEmail || '-' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Telefone</span>
+              <span class="info-value">{{ demanda.contatoTelefone || '-' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Data de nascimento</span>
+              <span class="info-value">{{ demanda.contatoDataNascimento || '-' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Formação</span>
+              <span class="info-value">{{ demanda.contatoFormacao || '-' }}</span>
+            </div>
+          </div>
         </div>
 
+        <!-- Section: Endereço -->
         <div class="detalhe-section">
-          <h2>Anexos</h2>
-          <ul v-if="anexos.length" class="anexos-list">
-            <li v-for="arquivo in anexos" :key="arquivo.nome" class="anexo-item">
-              <mdicon name="paperclip" :size="18" />
-              <span class="anexo-nome">{{ arquivo.nome }}</span>
-              <small class="anexo-tamanho" v-if="arquivo.tamanho">{{ formatarTamanho(arquivo.tamanho) }}</small>
-            </li>
-          </ul>
-          <p v-else class="anexos-empty">Nenhum anexo enviado.</p>
+          <h2>Endereço</h2>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Rua</span>
+              <span class="info-value">{{ demanda.enderecoRua || '-' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Bairro</span>
+              <span class="info-value">{{ demanda.enderecoBairro || '-' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Número</span>
+              <span class="info-value">{{ demanda.enderecoNumero || '-' }}</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -75,27 +112,78 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import mdicon from "mdi-vue/v3";
 import { useDemandasStore } from "../stores/useDemandasStore";
+import { demandasApi } from "../services/demandasApi";
 
 const route = useRoute();
 const router = useRouter();
 const store = useDemandasStore();
 
+const apiDemanda = ref(null)
+
 const demanda = computed(() => {
-  const registro = store.getById(route.params.id);
-  if (!registro) {
-    return null;
+  // Prefer API-fetched detail when available
+  const fromApi = apiDemanda.value
+  if (fromApi) {
+    const registro = fromApi
+    return {
+      id: registro.id,
+      titulo: registro.title || registro.titulo,
+      descricao: registro.description || registro.descricao,
+      data: registro.date ? new Date(registro.date).toISOString().split('T')[0] : registro.data,
+      dataFormatada: formatarData(registro.date || registro.data),
+      status: mapStatus(registro.status) || registro.status,
+      statusClass: mapStatus(registro.status)?.toLowerCase() || registro.statusSlug || 'pendente',
+      tipo: 'Tarefa',
+      categoria: registro.categories?.[0]?.name || registro.categoria || 'Tarefa',
+      solicitante: registro.advisor?.userId || registro.solicitante || 'Nao informado',
+      contato: registro.contact?.name || registro.contato || 'Nao informado',
+      contatoEmail: registro.contact?.email || null,
+      contatoTelefone: registro.contact?.phone || null,
+      contatoDataNascimento: registro.contact?.dateOfBirth ? new Date(registro.contact.dateOfBirth).toLocaleDateString('pt-BR') : null,
+      contatoFormacao: registro.contact?.education || null,
+      local: registro.contact?.address ? formatarEnderecoResumo(registro.contact.address) : registro.local || 'Nao informado',
+      enderecoCompleto: registro.contact?.address ? `${registro.contact.address.street || ''}${registro.contact.address.number ? ', ' + registro.contact.address.number : ''}${registro.contact.address.district ? ' - ' + registro.contact.address.district : ''}` : null,
+      enderecoRua: registro.contact?.address?.street || null,
+      enderecoBairro: registro.contact?.address?.district || null,
+      enderecoNumero: registro.contact?.address?.number || null,
+      localFull: registro.contact?.address ? `${registro.contact.address.street || ''}${registro.contact.address.number ? ', ' + registro.contact.address.number : ''}${registro.contact.address.district ? ', ' + registro.contact.address.district : ''}` : (registro.local || null),
+      priority: registro.priority || null,
+      team: registro.advisor.team || null,
+      advisorId: registro.advisorId || registro.advisor?.id || null,
+      categoriasTexto: registro.categories ? registro.categories.map((c) => c.name).join(', ') : null,
+      anexos: registro.attachments || registro.anexos || [],
+    }
   }
+
+  const registroStore = store.getById(route.params.id)
+  if (!registroStore) return null
   return {
-    ...registro,
-    statusClass: registro.statusSlug || "pendente",
-    dataFormatada: formatarData(registro.data),
-    categoria: registro.categoria || registro.tipo,
-  };
-});
+    ...registroStore,
+    statusClass: registroStore.statusSlug || 'pendente',
+    dataFormatada: formatarData(registroStore.data),
+    categoria: registroStore.categoria || registroStore.tipo,
+  }
+})
+
+function mapStatus(apiStatus) {
+  const statusMap = {
+    PENDENTE: 'Pendente',
+    EM_ANDAMENTO: 'Em andamento',
+    CONCLUIDA: 'Concluida',
+    CANCELADA: 'Cancelada'
+  }
+  return statusMap[apiStatus] || apiStatus
+}
+
+function formatarEnderecoResumo(address) {
+  if (!address) return 'Nao informado'
+  const parts = [address.street, address.number, address.district, address.city].filter(Boolean)
+  return parts.join(', ')
+}
 
 const anexos = computed(() => demanda.value?.anexos || []);
 
@@ -112,6 +200,19 @@ const tituloCabecalho = computed(() => {
 function voltar() {
   router.push("/gestao-demandas");
 }
+
+onMounted(async () => {
+  const id = route.params.id
+  if (!id) return
+  try {
+    const response = await demandasApi.getById(id)
+    // response may be { message, data: {...} } or the object directly
+    apiDemanda.value = response?.data || response
+  } catch (err) {
+    // fallback: store value is already used by computed
+    console.warn('Nao foi possivel buscar detalhe via API, usando dados locais se existirem', err)
+  }
+})
 
 function formatarData(valor) {
   if (!valor) return "Data nao informada";
@@ -140,7 +241,7 @@ function formatarTamanho(bytes) {
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
 
 .detalhe-page {
-  min-height: 100vh;
+  min-height: calc(100vh - 96px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -236,6 +337,7 @@ function formatarTamanho(bytes) {
 }
 
 .info-value {
+  text-align: justify;
   font-size: 17px;
   font-weight: 500;
   color: #18263a;
@@ -364,6 +466,3 @@ function formatarTamanho(bytes) {
   }
 }
 </style>
-
-
-

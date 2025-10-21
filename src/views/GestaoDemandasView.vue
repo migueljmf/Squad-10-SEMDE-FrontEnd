@@ -6,26 +6,6 @@
       highlight-label="Demandas monitoradas"
       :highlight-value="totalDemandasFormatado"
       :highlight-subtext="totalDemandasSubtexto"
-    >
-      <template #extra>
-        <button
-          type="button"
-          class="gestao-hero-button"
-          :class="{ ativo: searchAtiva }"
-          @click="togglePesquisa"
-        >
-          <img :src="iconSearch" alt="Pesquisar" class="gestao-hero-icon" />
-          <span>{{ searchAtiva ? "Fechar busca" : "Pesquisar demandas" }}</span>
-        </button>
-      </template>
-    </PageHero>
-
-    <SearchBar
-      :visible="searchAtiva"
-      :icon="iconSearch"
-      v-model="termoBusca"
-      @clear="limparBusca"
-      ref="searchInput"
     />
 
     <StatusCards
@@ -69,25 +49,19 @@
 </template>
 
 <script setup>
-import { computed, ref, nextTick, watch, onMounted } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { computed, ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import PageHero from "@/components/PageHero.vue";
-import SearchBar from "@/components/GestaoDemandas/SearchBar.vue";
 import StatusCards from "@/components/GestaoDemandas/StatusCards.vue";
 import DemandaCard from "@/components/GestaoDemandas/DemandaCard.vue";
-import iconSearch from "@/assets/Group.svg?url";
 import iconPencil from "@/assets/fi-ss-pencil.svg?url";
 import iconTrash from "@/assets/fi-ss-trash.svg?url";
 import iconMarker from "@/assets/fi-ss-marker.svg?url";
 import { useDemandasStore } from "../stores/useDemandasStore";
 
 const router = useRouter();
-const route = useRoute();
 const store = useDemandasStore();
 
-const searchAtiva = ref(false);
-const termoBusca = ref("");
-const searchInput = ref(null);
 const filtroStatusAtivo = ref(null);
 
 // favoritos removed
@@ -114,17 +88,6 @@ const demandasFiltradas = computed(() => {
       return statusSlug === filtroStatusAtivo.value;
     });
   }
-  
-  // Filtro por busca
-  const query = termoBusca.value.trim().toLowerCase();
-  if (query) {
-    resultado = resultado.filter((item) => {
-      const titulo = item.titulo?.toLowerCase() || "";
-      const descricao = item.descricao?.toLowerCase() || "";
-      return titulo.includes(query) || descricao.includes(query);
-    });
-  }
-  
   return resultado;
 });
 
@@ -142,23 +105,6 @@ const demandasFormatadas = computed(() =>
     };
   })
 );
-
-function togglePesquisa() {
-  if (route.name !== "GestaoDemandas") {
-    router.push({ name: "GestaoDemandas" }).then(() => {
-      searchAtiva.value = true;
-      nextTick(() => searchInput.value?.focus());
-    });
-    return;
-  }
-
-  searchAtiva.value = !searchAtiva.value;
-  if (searchAtiva.value) {
-    nextTick(() => searchInput.value?.focus());
-  } else {
-    termoBusca.value = "";
-  }
-}
 
 // irParaFavoritos removed
 
@@ -189,11 +135,6 @@ async function removerDemanda(id) {
 }
 
 
-function limparBusca() {
-  termoBusca.value = "";
-  nextTick(() => searchInput.value?.focus());
-}
-
 function formatarData(valor) {
   if (!valor) return "Data nao informada";
   const data = new Date(`${valor}T00:00:00`);
@@ -210,17 +151,6 @@ const dragOverZone = ref(null);
 onMounted(async () => {
   await store.fetchDemandas();
 });
-
-watch(
-  () => route.name,
-  (nomeAtual) => {
-    if (nomeAtual !== "GestaoDemandas") {
-      searchAtiva.value = false;
-      termoBusca.value = "";
-      filtroStatusAtivo.value = null; // Reset filtro de status ao mudar de rota
-    }
-  }
-);
 
 function onDragStart(event, demanda) {
   draggedDemanda.value = demanda;
@@ -277,42 +207,6 @@ function toggleFiltroStatus(status) {
   box-sizing: border-box;
 }
 
-.gestao-hero-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 22px;
-  border-radius: 14px;
-  border: none;
-  background: rgba(255, 255, 255, 0.18);
-  color: #ffffff;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-}
-
-.gestao-hero-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 26px rgba(15, 47, 112, 0.28);
-}
-
-.gestao-hero-button.ativo {
-  background: rgba(255, 255, 255, 0.28);
-  box-shadow: 0 18px 32px rgba(15, 47, 112, 0.32);
-}
-
-.gestao-hero-button:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.45);
-}
-
-.gestao-hero-icon {
-  width: 20px;
-  height: 20px;
-}
-
 .fade-slide-enter-active,
 .fade-slide-leave-active {
   transition: opacity 0.2s ease, transform 0.2s ease;
@@ -322,54 +216,6 @@ function toggleFiltroStatus(status) {
 .fade-slide-leave-to {
   opacity: 0;
   transform: translateY(-8px);
-}
-
-.search-bar {
-  width: min(480px, 100%);
-  background: #f7f8fd;
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  box-shadow: inset 0 0 0 1px rgba(21, 101, 192, 0.08);
-  margin-bottom: 32px;
-}
-
-.search-icon {
-  width: 20px;
-  height: 20px;
-}
-
-.search-bar input {
-  flex: 1;
-  border: none;
-  background: transparent;
-  font-size: 15px;
-  color: #23303f;
-  outline: none;
-}
-
-.search-bar input::placeholder {
-  color: #8b95a5;
-}
-
-.search-clear {
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(21, 101, 192, 0.12);
-  color: #0f4a92;
-  font-size: 18px;
-  line-height: 1;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-}
-
-.search-clear:hover {
-  background: rgba(21, 101, 192, 0.2);
 }
 
 .status-cards {

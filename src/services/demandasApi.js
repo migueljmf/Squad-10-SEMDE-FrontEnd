@@ -19,14 +19,11 @@ export const demandasApi = {
   // Fetch single demand by ID
   async getById(id) {
     try {
-      // const response = await api.get(`/demands/${id}`)
-      // return response.data
-
-      // const { demandasMock } = await import("./demandasMock")
-      // return await demandasMock.getById(id)
+      const response = await api.get(`/task/${id}`)
+      // backend might respond { message, data: { ... } } or directly the object
+      return response.data?.data || response.data
     } catch (error) {
       console.error("[v0] Error fetching demand:", error)
-      throw error
     }
   },
 
@@ -83,6 +80,18 @@ export const demandasApi = {
     } catch (error) {
       console.error("[v0] Error updating demand status:", error)
       throw error
+    }
+  },
+  
+  // Fetch task coordinates (new endpoint)
+  async getTaskCoordinates() {
+    try {
+      const response = await api.get('/task/cordinates')
+      // backend may return { message, data: [...] } or directly an array
+      if (Array.isArray(response.data)) return response.data
+      return response.data?.data || []
+    } catch (error) {
+      console.error('[v0] Error fetching task coordinates:', error)
     }
   },
 }
