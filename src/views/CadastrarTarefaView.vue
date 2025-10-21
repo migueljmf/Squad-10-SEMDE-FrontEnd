@@ -47,25 +47,22 @@
           </label>
         </div>
 
+        <EnderecoForm v-model="endereco" class="address-block" />
+
         <div class="grid two">
-          <label class="field">
-            <span>Endereco / local</span>
-            <input v-model="endereco" type="text" placeholder="Onde sera executada?" />
-          </label>
           <label class="field">
             <span>Data prevista</span>
             <input v-model="data" type="date" />
           </label>
+          <label class="field field--shrink">
+            <span>Status</span>
+            <select v-model="status">
+              <option value="Pendente">Pendente</option>
+              <option value="Em andamento">Em andamento</option>
+              <option value="Concluida">Concluida</option>
+            </select>
+          </label>
         </div>
-
-        <label class="field field--shrink">
-          <span>Status</span>
-          <select v-model="status">
-            <option value="Pendente">Pendente</option>
-            <option value="Em andamento">Em andamento</option>
-            <option value="Concluida">Concluida</option>
-          </select>
-        </label>
       </section>
 
       <section class="group">
@@ -83,6 +80,8 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import EnderecoForm from "../components/EnderecoForm.vue";
+import { criarEnderecoVazio, formatarEnderecoCurto } from "../utils/endereco";
 import { useDemandasStore } from "../stores/useDemandasStore";
 
 const router = useRouter();
@@ -92,18 +91,19 @@ const titulo = ref("");
 const descricao = ref("");
 const solicitante = ref("");
 const contato = ref("");
-const endereco = ref("");
+const endereco = ref(criarEnderecoVazio());
 const categoria = ref("");
 const data = ref("");
 const status = ref("Pendente");
 const anexoInput = ref(null);
+const salvando = ref(false);
 
 function limparFormulario() {
   titulo.value = "";
   descricao.value = "";
   solicitante.value = "";
   contato.value = "";
-  endereco.value = "";
+  endereco.value = criarEnderecoVazio();
   categoria.value = "";
   data.value = "";
   status.value = "Pendente";
@@ -112,27 +112,79 @@ function limparFormulario() {
   }
 }
 
-function salvarTarefa() {
-  const anexos = Array.from(anexoInput.value?.files || []).map((arquivo) => ({
-    nome: arquivo.name,
-    tamanho: arquivo.size,
-    tipo: arquivo.type,
-  }));
+async function salvarTarefa() {
+  if (salvando.value) return;
+  salvando.value = true;
 
-  store.addTarefa({
-    titulo: titulo.value,
-    descricao: descricao.value,
-    solicitante: solicitante.value,
-    contato: contato.value,
-    endereco: endereco.value,
-    categoria: categoria.value,
-    data: data.value,
-    status: status.value,
-    anexos,
-  });
+  try {
+    const anexos = Array.from(anexoInput.value?.files || []).map((arquivo) => ({
+      nome: arquivo.name,
+      tamanho: arquivo.size,
+      tipo: arquivo.type,
+    }));
 
-  limparFormulario();
-  router.push("/gestao-demandas");
+    const enderecoPayload = { ...endereco.value };
+    const resumoEndereco = formatarEnderecoCurto(enderecoPayload);
+    const descricaoLocal =
+      resumoEndereco ||
+      enderecoPayload.logradouro ||
+      enderecoPayload.cep ||
+      "Nao informado";
+
+    const coordenadas = await buscarCoordenadas(descricaoLocal || enderecoPayload.cep);
+
+    await store.addTarefa({
+      titulo: titulo.value,
+      descricao: descricao.value,
+      solicitante: solicitante.value,
+      contato: contato.value,
+      endereco: enderecoPayload,
+      enderecoResumo: resumoEndereco,
+      local: descricaoLocal,
+      categoria: categoria.value,
+      data: data.value,
+      status: status.value,
+      latitude: coordenadas?.lat ?? null,
+      longitude: coordenadas?.lng ?? null,
+      anexos,
+    });
+
+    limparFormulario();
+    router.push("/gestao-demandas");
+  } finally {
+    salvando.value = false;
+  }
+}
+
+async function buscarCoordenadas(descricao) {
+  const consulta = descricao?.trim();
+  if (!consulta) return null;
+
+  try {
+    const url = new URL("https://nominatim.openstreetmap.org/search");
+    url.searchParams.set("format", "json");
+    url.searchParams.set("limit", "1");
+    url.searchParams.set("q", consulta);
+
+    const resposta = await fetch(url.toString(), {
+      headers: { Accept: "application/json" },
+    });
+
+    if (!resposta.ok) return null;
+    const resultado = await resposta.json();
+    if (!Array.isArray(resultado) || resultado.length === 0) return null;
+
+    const registro = resultado[0];
+    const lat = Number.parseFloat(registro.lat);
+    const lng = Number.parseFloat(registro.lon);
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+
+    return { lat, lng };
+  } catch (err) {
+    console.warn("Nao foi possivel obter coordenadas:", err);
+    return null;
+  }
 }
 
 function voltar() {
@@ -231,6 +283,13 @@ function voltar() {
   min-height: 160px; /* textarea mais alto */
 }
 
+.address-block {
+  padding: 22px 2px;
+  background: #f8fbff;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 22px;
+}
+
 .field input:focus,
 .field textarea:focus,
 .field select:focus {
@@ -293,12 +352,10 @@ function voltar() {
 .btn.ghost {
   background: transparent;
   color: #1d4ed8;
-  border: 1px solid #1d4ed8;
 }
 
 .btn.ghost:hover {
   color: #0f172a;
-  border-color: #0f172a;
 }
 
 @media (max-width: 720px) {
