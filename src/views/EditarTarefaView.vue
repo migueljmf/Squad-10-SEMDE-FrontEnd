@@ -140,17 +140,29 @@ const categorias = ref([])
 function mapAddressToForm(addrObj) {
   if (!addrObj) return criarEnderecoVazio()
   return {
-    logradouro: addrObj.logradouro || addrObj.street || addrObj.road || addrObj.name || addrObj.label || addrObj.display_name || addrObj.endereco || '',
-    numero: addrObj.numero || addrObj.number || addrObj.house_number || '',
-    complemento: addrObj.complemento || addrObj.complement || '',
-    bairro: addrObj.bairro || addrObj.district || addrObj.suburb || addrObj.neighbourhood || '',
-    cidade: addrObj.cidade || addrObj.city || addrObj.town || addrObj.village || addrObj.county || addrObj.municipio || '',
-    uf: (addrObj.uf || addrObj.state || addrObj.estado || '').toString().slice(0,2).toUpperCase(),
-    referencia: addrObj.referencia || addrObj.reference || '',
-    latitude: addrObj.latitude || addrObj.lat || null,
-    longitude: addrObj.longitude || addrObj.lon || null,
+    logradouro: addrObj.street || '',
+    numero: addrObj.number || '',
+    complemento: addrObj.complement || '',
+    bairro: addrObj.district || '',
+    cidadeId: addrObj.cityId || '',
+    uf: addrObj.uf || "",
+    latitude: addrObj.latitude || null,
+    longitude: addrObj.longitude || null,
   }
 }
+
+function mapFormAddress(address){
+  if (!address) return criarEnderecoVazio()
+  return {
+    street: address.logradouro || '',
+    number: address.numero || '',
+    district: address.bairro || '',
+    cityId: address.cidadeId || '',
+    latitude: address.latitude || null,
+    longitude: address.longitude || null,
+  }
+}
+
 
 onMounted(async () => {
   try {
@@ -212,6 +224,7 @@ onMounted(async () => {
         complemento: addrObj.complemento || addrObj.complement || '',
         bairro: addrObj.district || '',
         cidade: city.name || '',
+        cidadeId:addrObj.cityId || '',
         uf: addrObj.uf || "",
         latitude: addrObj.latitude || null,
         longitude: addrObj.longitude ||null,
@@ -236,13 +249,14 @@ onMounted(async () => {
 async function salvarAlteracoes() {
   const id = route.params.id
   if (!id) return
-
+  
   try {
     // 1) endereco: update or create (capture response and map back to form)
     let addressId = enderecoObj.value.addressId || enderecoObj.value.id || null
     let addressResult = null
+    console.log('Salvando endereco:', mapFormAddress(enderecoObj.value))
     if (addressId) {
-      addressResult = await addressApi.update(addressId, enderecoObj.value)
+      addressResult = await addressApi.update(addressId,mapFormAddress(enderecoObj.value))
       // if API returned updated address, map to form
       if (addressResult) {
         enderecoObj.value = { ...criarEnderecoVazio(), ...mapAddressToForm(addressResult) }
@@ -274,7 +288,6 @@ async function salvarAlteracoes() {
       date: data.value ? new Date(data.value).toISOString() : null,
       priority: priority.value,
       contactId: cid,
-      addressId,
       categoryIds: categoria.value ? [categoria.value] : [],
     }
     await demandasApi.update(id, payload)
