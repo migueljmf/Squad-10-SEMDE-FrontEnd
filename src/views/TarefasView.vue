@@ -64,7 +64,11 @@ const tarefas = computed(() =>
   store.demandas.value.filter((item) => item.tipoSlug === "tarefa")
 );
 
-const externalMarkers = ref([])
+const totalTarefas = computed(() => tarefas.value.length);
+const totalTarefasFormatado = computed(() =>
+  totalTarefas.value.toLocaleString("pt-BR")
+);
+const externalMarkers = ref([]);
 
 const mapMarkers = computed(() => {
   // prefer coordinates from the new endpoint when available
@@ -73,7 +77,7 @@ const mapMarkers = computed(() => {
       .map((t) => ({
         lat: toNumber(t.contact?.address?.latitude),
         lng: toNumber(t.contact?.address?.longitude),
-        label: `<strong>${t.title || 'Sem titulo'}</strong>`,
+        label: `<strong>${t.title || "Sem titulo"}</strong>`,
       }))
       .filter((m) => Number.isFinite(m.lat) && Number.isFinite(m.lng))
   }
@@ -85,8 +89,18 @@ const mapMarkers = computed(() => {
       label: buildLabel(tarefa),
     }))
     .filter((item) => Number.isFinite(item.lat) && Number.isFinite(item.lng))
-})
+});
 
+const tarefasComLocalizacao = computed(() => mapMarkers.value.length);
+const tarefasComLocalizacaoFormatado = computed(() =>
+  tarefasComLocalizacao.value.toLocaleString("pt-BR")
+);
+const tarefasHighlightSubtexto = computed(() => {
+  if (tarefasComLocalizacao.value === 0) {
+    return "Defina coordenadas para exibir as tarefas no mapa.";
+  }
+  return `com localização georreferenciada`;
+});
 onMounted(async () => {
   try {
     externalMarkers.value = await demandasApi.getTaskCoordinates()

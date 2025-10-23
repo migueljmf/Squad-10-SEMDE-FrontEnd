@@ -56,7 +56,6 @@ function atualizar(id, novo) { emit('atualizar', id, novo); }
 .demanda-card {
     position: relative;
     width: 100%;
-    max-width: 1000px;
     min-height: 191px;
     border-radius: 20px;
     background-color: #f9f9f9;

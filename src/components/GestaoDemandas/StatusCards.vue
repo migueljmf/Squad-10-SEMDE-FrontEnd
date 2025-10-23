@@ -26,6 +26,18 @@
       <p class="card-title">Concluidas</p>
       <div v-if="dragOver === 'concluida'" class="drop-hint">Solte aqui para marcar como Concluída</div>
     </div>
+    <div class="card cancelado drop-zone-card"
+  :class="{ 'drag-over': dragOver === 'cancelada', 'filtro-ativo': filtro === 'cancelado' }"
+  @click="$emit('toggle', 'cancelado')"
+  @dragover.prevent="handleDragOver('cancelada')"
+  @dragleave="handleDragLeave"
+  @drop="handleDrop($event, 'cancelado')">
+  
+  <span class="count-badge">{{ counts.cancelado }}</span>
+  <p class="card-title">Canceladas</p>
+  <div v-if="dragOver === 'cancelada'" class="drop-hint">Solte aqui para marcar como Cancelada</div>
+</div>
+
   </section>
 </template>
 
@@ -50,7 +62,7 @@ function handleDrop(event, zone) {
   display: flex;
   gap: 20px;
   margin: 0 auto 48px;
-  max-width: 1000px;
+  max-width: 1300px;
   width: 100%;
 }
 
@@ -91,6 +103,11 @@ function handleDrop(event, zone) {
 .drop-zone-card.concluido.drag-over {
   border-color: #43a047;
   background: #e8f5e9;
+}
+
+.drop-zone-card.cancelado.drag-over {
+  border-color: #e53935;
+  background: #ffebee;
 }
 
 .drop-hint {
@@ -135,7 +152,7 @@ function handleDrop(event, zone) {
 
 .card.pendente .count-badge {
   background: #fba441;
-  color: #374957;
+  color: #fff;
 }
 
 .card.andamento {
@@ -149,8 +166,19 @@ function handleDrop(event, zone) {
 
 .card.concluido {
   background: #c8e6c9;
+
+}
+.card.cancelado {
+  background: #ffcdd2;
 }
 
+.card.cancelado {
+  background: #ffcdd2;
+}
+.card.cancelado .count-badge {
+  background: #e53935;
+  color: #fff;
+}
 .card.concluido .count-badge {
   background: #43a047;
   color: #fff;
