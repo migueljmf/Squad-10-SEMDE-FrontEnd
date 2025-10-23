@@ -86,3 +86,17 @@ export const demandasApi = {
     }
   },
 }
+
+  
+  // Fetch task coordinates (new endpoint)
+  async getTaskCoordinates() {
+    try {
+      const response = await api.get('/task/cordinates')
+      // backend may return { message, data: [...] } or directly an array
+      if (Array.isArray(response.data)) return response.data
+      return response.data?.data || []
+    } catch (error) {
+      console.error('[v0] Error fetching task coordinates:', error)
+    }
+  },
+}

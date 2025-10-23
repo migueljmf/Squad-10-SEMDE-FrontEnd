@@ -83,7 +83,7 @@ const onLogout = () => {
   flex-direction: column;
   padding: 20px 15px;
   box-sizing: border-box;
-  font-family: 'Inter', sans-serif;
+  font-family: "Poppins", sans-serif;
   position: fixed;
   left: 0;
   top: 0;

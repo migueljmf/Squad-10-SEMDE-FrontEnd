@@ -64,6 +64,8 @@
           </label>
         </div>
 
+        <EnderecoForm v-model="endereco" class="address-block" />
+
         <div class="grid two">
           <label class="field">
             <span>Telefone</span>
@@ -107,6 +109,8 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import EnderecoForm from "../components/EnderecoForm.vue";
+import { criarEnderecoVazio, formatarEnderecoCurto } from "../utils/endereco";
 import { useDemandasStore } from "../stores/useDemandasStore";
 import EnderecoForm from "@/components/EnderecoForm.vue";
 import { categoriesApi } from "../services/categoriesApi";
@@ -364,12 +368,10 @@ onMounted(async () => {
 .btn.ghost {
   background: transparent;
   color: #1d4ed8;
-  border: 1px solid #1d4ed8;
 }
 
 .btn.ghost:hover {
   color: #0f172a;
-  border-color: #0f172a;
 }
 
 @media (max-width: 720px) {

@@ -1,16 +1,20 @@
 <template>
   <div class="dashboard">
-    <header class="dashboard-header">
-      <div>
-        <h1>Visao Geral</h1>
-        <p>Acompanhe indicadores chave com base nas demandas registradas no sistema.</p>
-      </div>
-      <div class="header-actions">
-        <button type="button" class="header-btn">
-          Exportar relatorio
-        </button>
-      </div>
-    </header>
+    <PageHero
+      title="Visao Geral"
+      description="Acompanhe os principais indicadores e acompanhe a evolucao das demandas do mandato."
+      highlight-label="Demandas monitoradas"
+      :highlight-value="totalDemandasFormatado"
+      highlight-subtext="Atualizado em tempo real com base nos registros mais recentes."
+    >
+      <template #extra>
+        <div class="hero-actions">
+          <button type="button" class="hero-btn">
+            Exportar relatorio
+          </button>
+        </div>
+      </template>
+    </PageHero>
 
     <section class="summary-grid">
       <article
@@ -146,7 +150,8 @@
 
 <script setup>
 import { computed } from "vue";
-import { onMounted } from 'vue'
+import { onMounted } from "vue";
+import PageHero from "@/components/PageHero.vue";
 import { useDemandasStore } from "../stores/useDemandasStore";
 
 
@@ -156,9 +161,16 @@ onMounted(async () => {
   await store.fetchDemandas();
 });
 
+onMounted(async () => {
+  await store.fetchDemandas();
+});
+
 const statusCounts = computed(() => store.countsPorStatus.value);
 
 const totalDemandas = computed(() => store.demandas.value.length);
+const totalDemandasFormatado = computed(() =>
+  totalDemandas.value.toLocaleString("pt-BR")
+);
 
 const totalPendentes = computed(() => statusCounts.value.pendente || 0);
 
@@ -415,42 +427,23 @@ const atividadesRecentes = computed(() =>
 
 <style scoped>
 .dashboard {
-  padding: 112px 40px 56px;
+  padding: 56px 40px 56px;
   min-height: calc(100vh - 96px);
   background: linear-gradient(180deg, #f8fbff 0%, #f1f5f9 45%, #ffffff 100%);
   display: flex;
   flex-direction: column;
   gap: 32px;
   box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
 }
 
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-}
-
-.dashboard-header h1 {
-  margin: 0;
-  font-size: 30px;
-  font-weight: 600;
-  color: #0f172a;
-}
-
-.dashboard-header p {
-  margin: 6px 0 0;
-  color: #475569;
-  font-size: 15px;
-  max-width: 520px;
-}
-
-.header-actions {
+.hero-actions {
   display: flex;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
-.header-btn {
+.hero-btn {
   border: none;
   padding: 12px 28px;
   background: linear-gradient(135deg, #2563eb, #1e40af);
@@ -462,7 +455,7 @@ const atividadesRecentes = computed(() =>
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
-.header-btn:hover {
+.hero-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 18px 32px rgba(37, 99, 235, 0.28);
 }
@@ -825,21 +818,7 @@ const atividadesRecentes = computed(() =>
 
 @media (max-width: 768px) {
   .dashboard {
-    padding: 104px 20px 40px;
-  }
-
-  .dashboard-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .header-actions {
-    width: 100%;
-  }
-
-  .header-btn {
-    width: 100%;
-    text-align: center;
+    padding: 72px 20px 40px;
   }
 
   .chart-card {

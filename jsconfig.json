@@ -7,11 +7,11 @@
     "paths": {
       "@/*": ["src/*"]
     },
-    "ignoreDeprecations": "6.0",
     "jsx": "preserve",
     "allowJs": true,
     "checkJs": false,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "ignoreDeprecations": "5.0"
   },
   "include": ["src/**/*.js", "src/**/*.vue"],
   "vueCompilerOptions": {

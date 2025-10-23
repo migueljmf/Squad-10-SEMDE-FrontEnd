@@ -1,32 +1,11 @@
 <template>
   <div class="gestao-demandas">
-    <div class="header">
-      <div class="title">
-        <div class="title-icon">
-          <img :src="iconTask" alt="Gestao de Demandas" class="title-image" />
-        </div>
-        <h2>Gestao de Demandas</h2>
-      </div>
-
-      <div class="top-actions">
-        <button
-          type="button"
-          class="top-icon-button"
-          :class="{ ativo: searchAtiva }"
-          aria-label="Pesquisar demandas"
-          @click="togglePesquisa"
-        >
-          <img :src="iconSearch" alt="Pesquisar" class="top-icon" />
-        </button>
-      </div>
-    </div>
-
-    <SearchBar
-      :visible="searchAtiva"
-      :icon="iconSearch"
-      v-model="termoBusca"
-      @clear="limparBusca"
-      ref="searchInput"
+    <PageHero
+      title="Gestao de Demandas"
+      description="Organize o fluxo de demandas, filtre por status e priorize o que requer acao imediata."
+      highlight-label="Demandas monitoradas"
+      :highlight-value="totalDemandasFormatado"
+      :highlight-subtext="totalDemandasSubtexto"
     />
 
     <StatusCards
@@ -70,30 +49,34 @@
 </template>
 
 <script setup>
-import { computed, ref, nextTick, watch, onMounted } from "vue";
-import { useRouter, useRoute } from "vue-router";
-import SearchBar from "@/components/GestaoDemandas/SearchBar.vue";
+import { computed, ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import PageHero from "@/components/PageHero.vue";
 import StatusCards from "@/components/GestaoDemandas/StatusCards.vue";
 import DemandaCard from "@/components/GestaoDemandas/DemandaCard.vue";
-import iconTask from "@/assets/fi-ss-pencil.svg?url";
-import iconSearch from "@/assets/Group.svg?url";
 import iconPencil from "@/assets/fi-ss-pencil.svg?url";
 import iconTrash from "@/assets/fi-ss-trash.svg?url";
 import iconMarker from "@/assets/fi-ss-marker.svg?url";
 import { useDemandasStore } from "../stores/useDemandasStore";
 
 const router = useRouter();
-const route = useRoute();
 const store = useDemandasStore();
 
-const searchAtiva = ref(false);
-const termoBusca = ref("");
-const searchInput = ref(null);
 const filtroStatusAtivo = ref(null);
 
 // favoritos removed
 
 const contagemStatus = computed(() => store.countsPorStatus.value);
+const totalDemandas = computed(() => store.demandas.value.length);
+const totalDemandasFormatado = computed(() =>
+  totalDemandas.value.toLocaleString("pt-BR")
+);
+const totalDemandasSubtexto = computed(() => {
+  if (totalDemandas.value === 0) return "Nenhuma demanda cadastrada";
+  const pendentes = contagemStatus.value?.pendente || 0;
+  if (pendentes === 0) return "Todas acompanhadas sem pendencias";
+  return `${pendentes} pendente${pendentes === 1 ? "" : "s"} no momento`;
+});
 
 const demandasFiltradas = computed(() => {
   let resultado = store.demandas.value;
@@ -105,17 +88,6 @@ const demandasFiltradas = computed(() => {
       return statusSlug === filtroStatusAtivo.value;
     });
   }
-  
-  // Filtro por busca
-  const query = termoBusca.value.trim().toLowerCase();
-  if (query) {
-    resultado = resultado.filter((item) => {
-      const titulo = item.titulo?.toLowerCase() || "";
-      const descricao = item.descricao?.toLowerCase() || "";
-      return titulo.includes(query) || descricao.includes(query);
-    });
-  }
-  
   return resultado;
 });
 
@@ -133,23 +105,6 @@ const demandasFormatadas = computed(() =>
     };
   })
 );
-
-function togglePesquisa() {
-  if (route.name !== "GestaoDemandas") {
-    router.push({ name: "GestaoDemandas" }).then(() => {
-      searchAtiva.value = true;
-      nextTick(() => searchInput.value?.focus());
-    });
-    return;
-  }
-
-  searchAtiva.value = !searchAtiva.value;
-  if (searchAtiva.value) {
-    nextTick(() => searchInput.value?.focus());
-  } else {
-    termoBusca.value = "";
-  }
-}
 
 // irParaFavoritos removed
 
@@ -180,11 +135,6 @@ async function removerDemanda(id) {
 }
 
 
-function limparBusca() {
-  termoBusca.value = "";
-  nextTick(() => searchInput.value?.focus());
-}
-
 function formatarData(valor) {
   if (!valor) return "Data nao informada";
   const data = new Date(`${valor}T00:00:00`);
@@ -201,17 +151,6 @@ const dragOverZone = ref(null);
 onMounted(async () => {
   await store.fetchDemandas();
 });
-
-watch(
-  () => route.name,
-  (nomeAtual) => {
-    if (nomeAtual !== "GestaoDemandas") {
-      searchAtiva.value = false;
-      termoBusca.value = "";
-      filtroStatusAtivo.value = null; // Reset filtro de status ao mudar de rota
-    }
-  }
-);
 
 function onDragStart(event, demanda) {
   draggedDemanda.value = demanda;
@@ -255,77 +194,17 @@ function toggleFiltroStatus(status) {
 
 <style scoped>
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=K2D:wght@400&display=swap");
 
 .gestao-demandas {
-  padding: 20px 24px 48px;
+  padding: 48px 32px 56px;
   font-family: "Poppins", sans-serif;
-  color: #000;
-  background: #fff;
-}
-
-.header {
+  color: #0f172a;
+  background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.title-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #1565c0 0%, #163b66 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.title-image {
-  width: 24px;
-  height: 24px;
-}
-
-.top-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.top-icon-button {
-  width: 44px;
-  height: 44px;
-  border: none;
-  border-radius: 50%;
-  background: #f7f8fd;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-}
-
-.top-icon-button:hover,
-.top-icon-button.ativo {
-  transform: translateY(-2px);
-  background: #eef3ff;
-  box-shadow: 0 10px 18px rgba(21, 101, 192, 0.12);
-}
-
-.top-icon-button:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.25);
-}
-
-.top-icon {
-  width: 24px;
-  height: 24px;
+  flex-direction: column;
+  gap: 32px;
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
 .fade-slide-enter-active,
@@ -337,54 +216,6 @@ function toggleFiltroStatus(status) {
 .fade-slide-leave-to {
   opacity: 0;
   transform: translateY(-8px);
-}
-
-.search-bar {
-  width: min(480px, 100%);
-  background: #f7f8fd;
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  box-shadow: inset 0 0 0 1px rgba(21, 101, 192, 0.08);
-  margin-bottom: 32px;
-}
-
-.search-icon {
-  width: 20px;
-  height: 20px;
-}
-
-.search-bar input {
-  flex: 1;
-  border: none;
-  background: transparent;
-  font-size: 15px;
-  color: #23303f;
-  outline: none;
-}
-
-.search-bar input::placeholder {
-  color: #8b95a5;
-}
-
-.search-clear {
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(21, 101, 192, 0.12);
-  color: #0f4a92;
-  font-size: 18px;
-  line-height: 1;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-}
-
-.search-clear:hover {
-  background: rgba(21, 101, 192, 0.2);
 }
 
 .status-cards {
@@ -787,6 +618,15 @@ function toggleFiltroStatus(status) {
 }
 
 @media (max-width: 768px) {
+  .gestao-demandas {
+    padding: 32px 20px 40px;
+  }
+
+  .gestao-hero-button {
+    width: 100%;
+    justify-content: center;
+  }
+
   .status-cards {
     flex-direction: column;
     align-items: center;
