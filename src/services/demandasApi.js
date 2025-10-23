@@ -85,7 +85,6 @@ export const demandasApi = {
       console.error('[v0] Error fetching task coordinates:', error)
     }
   },
-}
 
   
   // Fetch task coordinates (new endpoint)

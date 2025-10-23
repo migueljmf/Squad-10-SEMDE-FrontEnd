@@ -64,7 +64,7 @@
           </label>
         </div>
 
-        <EnderecoForm v-model="endereco" class="address-block" />
+        <!-- <EnderecoForm v-model="endereco" class="address-block" /> -->
 
         <div class="grid two">
           <label class="field">
@@ -112,7 +112,6 @@ import { useRouter } from "vue-router";
 import EnderecoForm from "../components/EnderecoForm.vue";
 import { criarEnderecoVazio, formatarEnderecoCurto } from "../utils/endereco";
 import { useDemandasStore } from "../stores/useDemandasStore";
-import EnderecoForm from "@/components/EnderecoForm.vue";
 import { categoriesApi } from "../services/categoriesApi";
 import { addressApi } from "../services/addressApi";
 import { citiesApi } from "../services/citiesApi";
