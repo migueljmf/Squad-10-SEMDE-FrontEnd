@@ -21,6 +21,7 @@ import ConfiguracoesView from "../views/ConfiguracoesView.vue";
 import ConfiguracoesSenhaView from "../views/ConfiguracoesSenhaView.vue";
 import ConfiguracoesCadastroView from "../views/ConfiguracoesCadastroView.vue";
 import ConfiguracoesUsuariosView from "../views/ConfiguracoesUsuariosView.vue";
+import AgenteIAView from "../views/AgenteIAView.vue";
 
 const routes = [
   { path: "/", redirect: "/inicio" },
@@ -125,6 +126,12 @@ const routes = [
     path: "/configuracoes/usuarios",
     name: "ConfiguracoesUsuarios",
     component: ConfiguracoesUsuariosView,
+  },
+
+  {
+    path: "/agente-ia",
+    name: "AgenteIA",
+    component: AgenteIAView,
   },
 ];
 

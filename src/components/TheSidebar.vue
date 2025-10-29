@@ -50,6 +50,12 @@
             <span>Configura&ccedil;&otilde;es</span>
           </RouterLink>
         </li>
+        <li>
+          <RouterLink to="/agente-ia">
+            <mdicon name="robot" :size="24" />
+            <span>Agente IA</span>
+          </RouterLink>
+        </li>
       </ul>
     </nav>
     <div class="sidebar-logout">
