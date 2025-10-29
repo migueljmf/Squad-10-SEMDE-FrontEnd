@@ -119,6 +119,8 @@ const cards = [
   cursor: pointer;
   transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   box-shadow: 0 14px 32px rgba(36, 84, 255, 0.28);
+  display: inline-flex;
+  align-items: center;
 }
 
 .configuracoes-card__button:hover {
