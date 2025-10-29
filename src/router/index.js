@@ -18,6 +18,9 @@ import EditarTarefaView from "../views/EditarTarefaView.vue";
 import FinanceiroView from "../views/FinanceiroView.vue";
 import EleicoesView from '../views/EleicoesView.vue'; 
 import ConfiguracoesView from "../views/ConfiguracoesView.vue";
+import ConfiguracoesSenhaView from "../views/ConfiguracoesSenhaView.vue";
+import ConfiguracoesCadastroView from "../views/ConfiguracoesCadastroView.vue";
+import ConfiguracoesUsuariosView from "../views/ConfiguracoesUsuariosView.vue";
 
 const routes = [
   { path: "/", redirect: "/inicio" },
@@ -107,6 +110,21 @@ const routes = [
     path: "/configuracoes",
     name: "Configuracoes",
     component: ConfiguracoesView,
+  },
+  {
+    path: "/configuracoes/senha",
+    name: "ConfiguracoesSenha",
+    component: ConfiguracoesSenhaView,
+  },
+  {
+    path: "/configuracoes/cadastro",
+    name: "ConfiguracoesCadastro",
+    component: ConfiguracoesCadastroView,
+  },
+  {
+    path: "/configuracoes/usuarios",
+    name: "ConfiguracoesUsuarios",
+    component: ConfiguracoesUsuariosView,
   },
 ];
 
