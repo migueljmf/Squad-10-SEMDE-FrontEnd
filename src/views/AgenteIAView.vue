@@ -52,22 +52,42 @@
 <script setup>
 import { ref } from "vue";
 
+
 const currentMessage = ref("");
 const messages = ref([]);
 
-function handleSend() {
+import  api  from "../services/api.js";
+async function handleSend() {
   const text = currentMessage.value.trim();
   if (!text) return;
 
+  // adiciona a mensagem do usuário na conversa
   messages.value.push({ role: "user", text });
 
-  // Placeholder de resposta - substitua com integração real de IA conforme necessário.
-  const simulatedResponse =
-    "Estou processando sua solicitação. Em breve, esta área pode ser integrada a um serviço de IA real.";
+  try {
+    // faz a requisição GET enviando o texto do usuário
+    const response = await api.get(`/ai/ask?q=${encodeURIComponent(text)}`);
 
-  messages.value.push({ role: "assistant", text: simulatedResponse });
+    // pega a resposta amigável do backend
+    const resposta = response.data.resposta;
+
+    // adiciona a resposta da IA na conversa
+    messages.value.push({
+      role: "assistant",
+      text: resposta || "Não foi possível gerar uma resposta.",
+    });
+  } catch (error) {
+    console.error("Erro ao consultar IA:", error);
+    messages.value.push({
+      role: "assistant",
+      text: "Desculpe, ocorreu um erro ao tentar responder sua pergunta.",
+    });
+  }
+
+  // limpa o campo de entrada
   currentMessage.value = "";
 }
+
 </script>
 
 <style scoped>
