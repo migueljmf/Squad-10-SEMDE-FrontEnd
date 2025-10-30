@@ -22,7 +22,7 @@
             </div>
             <div class="form-group">
               <label for="email">E-mail institucional</label>
-              <input id="email" type="email" placeholder="nome@mandatuum.com" />
+              <input id="email" type="email" placeholder="nome@mandattum.com" />
             </div>
           </div>
 

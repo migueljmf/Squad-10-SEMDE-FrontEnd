@@ -57,7 +57,7 @@ const usuarios = [
   {
     nome: "Ana Pereira",
     area: "Coordenação",
-    email: "ana.pereira@mandatuum.com",
+    email: "ana.pereira@mandattum.com",
     papel: "Administrador",
     status: "Ativo",
     statusClasse: "ativo",
@@ -65,7 +65,7 @@ const usuarios = [
   {
     nome: "Lucas Andrade",
     area: "Financeiro",
-    email: "lucas.andrade@mandatuum.com",
+    email: "lucas.andrade@mandattum.com",
     papel: "Financeiro",
     status: "Ativo",
     statusClasse: "ativo",
@@ -73,7 +73,7 @@ const usuarios = [
   {
     nome: "Renata Silva",
     area: "Comunicação",
-    email: "renata.silva@mandatuum.com",
+    email: "renata.silva@mandattum.com",
     papel: "Editor",
     status: "Convite pendente",
     statusClasse: "pendente",

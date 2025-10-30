@@ -3,9 +3,9 @@
     <div class="content-area">
       <div class="main-area">
         <div class="text-section">
-          <h2 class="app-name">Mandatuum</h2>
+          <h2 class="app-name">Mandattum</h2>
           <p class="app-description">
-            O Mandatuum é um sistema de gestão política em desenvolvimento, com foco em
+            O Mandattum é um sistema de gestão política em desenvolvimento, com foco em
             otimizar a organização, a comunicação e as campanhas eleitorais. Ele
             inclui funcionalidades como análise de dados, criação de tarefas e
             acompanhamento de ações, ajudando a equipe a gerenciar de forma
@@ -13,7 +13,7 @@
           </p>
         </div>
         <div class="image-placeholder">
-          <img src="../assets/img/Mandatuum.png" alt="">
+          <img src="../assets/img/Mandattum.png" alt="">
         </div>
       </div>
     </div>
