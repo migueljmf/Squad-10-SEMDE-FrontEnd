@@ -166,10 +166,11 @@ export function useDemandasStore() {
         if (slug.includes("pendente")) acc.pendente += 1
         else if (slug.includes("andamento")) acc.andamento += 1
         else if (slug.includes("concl")) acc.concluido += 1
+        else if (slug.includes("cancel")) acc.cancelado += 1
         else acc.outros += 1
         return acc
       },
-      { pendente: 0, andamento: 0, concluido: 0, outros: 0 },
+      { pendente: 0, andamento: 0, concluido: 0,cancelado: 0, outros: 0 },
     ),
   )
 

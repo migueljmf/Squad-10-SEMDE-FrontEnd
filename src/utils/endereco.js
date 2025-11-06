@@ -1,6 +1,5 @@
 ﻿export function criarEnderecoVazio() {
   return {
-    cep: "",
     logradouro: "",
     numero: "",
     complemento: "",
@@ -49,7 +48,7 @@ export function normalizarEnderecoObjeto(valor) {
 
 export function enderecoPossuiDados(endereco) {
   if (!endereco) return false;
-  return ["cep", "logradouro", "numero", "complemento", "bairro", "cidade", "uf", "referencia"].some((chave) => {
+  return ["logradouro", "numero", "complemento", "bairro", "cidade", "uf", "referencia"].some((chave) => {
     const valor = endereco[chave];
     return typeof valor === "string" ? valor.trim().length > 0 : valor !== null && valor !== undefined;
   });

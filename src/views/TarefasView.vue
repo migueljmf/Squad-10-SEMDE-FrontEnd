@@ -68,7 +68,6 @@ const totalTarefas = computed(() => tarefas.value.length);
 const totalTarefasFormatado = computed(() =>
   totalTarefas.value.toLocaleString("pt-BR")
 );
-
 const externalMarkers = ref([]);
 
 const mapMarkers = computed(() => {
@@ -100,9 +99,8 @@ const tarefasHighlightSubtexto = computed(() => {
   if (tarefasComLocalizacao.value === 0) {
     return "Defina coordenadas para exibir as tarefas no mapa.";
   }
-  return `${tarefasComLocalizacaoFormatado.value} com localizacao georreferenciada`;
+  return `com localização georreferenciada`;
 });
-
 onMounted(async () => {
   try {
     externalMarkers.value = await demandasApi.getTaskCoordinates()

@@ -30,11 +30,8 @@ export const demandasApi = {
   // Create new demand
   async create(demandData) {
     try {
-      // const response = await api.post("/demands", demandData)
-      // return response.data
-
-      // const { demandasMock } = await import("./demandasMock")
-      // return await demandasMock.create(demandData)
+      const response = await api.post('/task', demandData)
+      return response.data?.data || response.data
     } catch (error) {
       console.error("[v0] Error creating demand:", error)
       throw error
@@ -44,11 +41,8 @@ export const demandasApi = {
   // Update existing demand
   async update(id, demandData) {
     try {
-      // const response = await api.put(`/demands/${id}`, demandData)
-      // return response.data
-
-      // const { demandasMock } = await import("./demandasMock")
-      // return await demandasMock.update(id, demandData)
+      const response = await api.put(`/task/${id}`, demandData)
+      return response.data?.data || response.data
     } catch (error) {
       console.error("[v0] Error updating demand:", error)
       throw error
@@ -58,11 +52,8 @@ export const demandasApi = {
   // Delete demand
   async delete(id) {
     try {
-      // await api.delete(`/demands/${id}`)
-      // return true
-
-      // const { demandasMock } = await import("./demandasMock")
-      // return await demandasMock.delete(id)
+      await api.delete(`/task/${id}`)
+      return true
     } catch (error) {
       console.error("[v0] Error deleting demand:", error)
       throw error
@@ -82,6 +73,19 @@ export const demandasApi = {
       throw error
     }
   },
+  
+  // Fetch task coordinates (new endpoint)
+  async getTaskCoordinates() {
+    try {
+      const response = await api.get('/task/cordinates')
+      // backend may return { message, data: [...] } or directly an array
+      if (Array.isArray(response.data)) return response.data
+      return response.data?.data || []
+    } catch (error) {
+      console.error('[v0] Error fetching task coordinates:', error)
+    }
+  },
+
   
   // Fetch task coordinates (new endpoint)
   async getTaskCoordinates() {

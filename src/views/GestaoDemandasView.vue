@@ -222,7 +222,7 @@ function toggleFiltroStatus(status) {
   display: flex;
   gap: 20px;
   margin: 0 auto 48px;
-  max-width: 1000px;
+  max-width: 1300px;
   width: 100%;
 }
 
@@ -332,7 +332,7 @@ function toggleFiltroStatus(status) {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  max-width: 1000px;
+  max-width: 1300px;
   margin: 0 auto;
   width: 100%;
 }
@@ -350,7 +350,7 @@ function toggleFiltroStatus(status) {
 .demanda-card {
   position: relative;
   width: 100%;
-  max-width: 1000px;
+  max-width: 1300px;
   min-height: 191px;
   border-radius: 20px;
   background-color: #f9f9f9;

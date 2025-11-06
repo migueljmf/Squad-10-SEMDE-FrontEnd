@@ -161,6 +161,10 @@ onMounted(async () => {
   await store.fetchDemandas();
 });
 
+onMounted(async () => {
+  await store.fetchDemandas();
+});
+
 const statusCounts = computed(() => store.countsPorStatus.value);
 
 const totalDemandas = computed(() => store.demandas.value.length);

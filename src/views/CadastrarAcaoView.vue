@@ -82,8 +82,8 @@ async function salvarAcao() {
   try {
     const enderecoPayload = { ...endereco.value };
     const resumoEndereco = formatarEnderecoCurto(enderecoPayload);
-    const descricaoLocal = resumoEndereco || enderecoPayload.logradouro || enderecoPayload.cep || "Nao informado";
-    const coordenadas = await buscarCoordenadas(descricaoLocal || enderecoPayload.cep);
+  const descricaoLocal = resumoEndereco || enderecoPayload.logradouro || "Nao informado";
+  const coordenadas = await buscarCoordenadas(descricaoLocal);
 
     store.addAcao({
       titulo: titulo.value,
