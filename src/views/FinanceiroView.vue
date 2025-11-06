@@ -32,12 +32,9 @@
 
           <label class="field">
             <span>Categoria</span>
-            <select>
+            <select v-model="categoria">
               <option value="">Selecione</option>
-              <option value="alimentacao">Alimentacao</option>
-              <option value="transporte">Transporte</option>
-              <option value="lazer">Lazer</option>
-              <option value="outros">Outros</option>
+              <option v-for="cat in financialCategories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
             </select>
           </label>
 
@@ -97,9 +94,24 @@
 
 <script setup>
 import PageHero from "@/components/PageHero.vue";
-
+import { finantialCategoriesApi } from "@/services/finantialCategoriesApi";
+import { onMounted, ref } from "vue";
 const saldoAtual = "R$ 12.450,00";
 const saldoAtualizacao = "Atualizado em 11/10/2025 as 15:30";
+
+const categoria = ref("");
+const financialCategories = ref([])
+
+onMounted(async () => {
+try {
+  financialCategories.value = await finantialCategoriesApi.getAll()
+} catch (e) {
+  console.error('Erro ao carregar categorias', e)
+}
+})
+
+
+
 </script>
 
 <style scoped>
