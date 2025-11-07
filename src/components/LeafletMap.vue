@@ -5,12 +5,15 @@
 <script setup>
 import { onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import L from 'leaflet'
+import '/src/lib/leaflet-heat.js' // ✅ plugin baixado manualmente
 import 'leaflet/dist/leaflet.css'
 
+// --- Modos de visualização ---
 const MODE_POINTS = 'points'
 const MODE_HEAT = 'heat'
 const MODE_GROUPED = 'clusters'
 
+// --- Propriedades recebidas ---
 const props = defineProps({
   center: { type: Array, default: () => [-10.947247, -37.073082] },
   zoom: { type: Number, default: 12 },
@@ -20,10 +23,11 @@ const props = defineProps({
 
 const mapEl = ref(null)
 let map
-let markerLayer
-let heatLayer
-let clusterLayer
+let markerLayer = null
+let heatLayer = null
+let clusterLayer = null
 
+// --- Inicializa o mapa ---
 onMounted(() => {
   if (!mapEl.value) return
 
@@ -35,12 +39,12 @@ onMounted(() => {
   }).addTo(map)
 
   markerLayer = L.layerGroup()
-  heatLayer = L.layerGroup()
   clusterLayer = L.layerGroup()
 
   renderLayers()
 })
 
+// --- Limpa ao desmontar ---
 onBeforeUnmount(() => {
   if (map) {
     map.remove()
@@ -48,61 +52,61 @@ onBeforeUnmount(() => {
   }
 })
 
+// --- Reações ---
 watch(() => props.center, (center) => {
   if (map && Array.isArray(center) && center.length === 2) {
     map.setView(center, props.zoom)
   }
 })
-
 watch(() => props.markers, renderLayers, { deep: true })
 watch(() => props.mode, renderLayers)
 
+// --- Renderização dinâmica ---
 function renderLayers() {
   if (!map) return
 
   const markers = getValidMarkers(props.markers)
-
   detachLayers()
 
-  if (props.mode === MODE_HEAT) {
-    renderHeat(markers)
-    heatLayer.addTo(map)
-    return
+  switch (props.mode) {
+    case MODE_HEAT:
+      renderHeat(markers)
+      break
+    case MODE_GROUPED:
+      renderClusters(markers)
+      break
+    default:
+      renderPoints(markers)
+      break
   }
-
-  if (props.mode === MODE_GROUPED) {
-    renderClusters(markers)
-    clusterLayer.addTo(map)
-    return
-  }
-
-  renderPoints(markers)
-  markerLayer.addTo(map)
 }
 
+// --- Remove camadas anteriores ---
 function detachLayers() {
-  [markerLayer, heatLayer, clusterLayer].forEach((layer) => {
+  ;[markerLayer, heatLayer, clusterLayer].forEach((layer) => {
     if (!layer) return
-    layer.clearLayers()
-    if (map.hasLayer(layer)) {
-      map.removeLayer(layer)
-    }
+    layer.clearLayers?.()
+    if (map.hasLayer(layer)) map.removeLayer(layer)
   })
 }
 
+// --- Filtra marcadores válidos ---
 function getValidMarkers(source) {
   if (!Array.isArray(source)) return []
   return source.filter((item) => Number.isFinite(item?.lat) && Number.isFinite(item?.lng))
 }
 
+// --- Renderiza marcadores individuais ---
 function renderPoints(markers) {
   markers.forEach((item) => {
     const marker = L.marker([item.lat, item.lng])
     if (item.label) marker.bindPopup(item.label)
     markerLayer.addLayer(marker)
   })
+  markerLayer.addTo(map)
 }
 
+// --- Agrupa marcadores por coordenada aproximada ---
 function aggregateMarkers(markers, precision = 2) {
   const groups = new Map()
   markers.forEach((marker) => {
@@ -124,40 +128,31 @@ function aggregateMarkers(markers, precision = 2) {
   return Array.from(groups.values())
 }
 
+// --- Renderiza o Heatmap ---
 function renderHeat(markers) {
+  if (heatLayer && map.hasLayer(heatLayer)) map.removeLayer(heatLayer)
+
   const groups = aggregateMarkers(markers, 2)
   if (groups.length === 0) return
 
-  const maxCount = Math.max(...groups.map((group) => group.count))
+  const maxCount = Math.max(...groups.map((g) => g.count))
+  const heatData = groups.map((g) => [g.lat, g.lng, g.count / maxCount])
 
-  groups.forEach((group) => {
-    const intensity = group.count / maxCount
-    const circle = L.circleMarker([group.lat, group.lng], {
-      radius: 8 + intensity * 18,
-      fillColor: getHeatColor(intensity),
-      fillOpacity: 0.45 + intensity * 0.4,
-      opacity: 0,
-    })
-    heatLayer.addLayer(circle)
-  })
+  heatLayer = L.heatLayer(heatData, {
+    radius: 25,   // tamanho do ponto
+    blur: 30,     // suavização
+    maxZoom: 10,  // até qual zoom aplica suavização
+    gradient: {
+          0.0: '#5360ED', // azul claro
+          0.25:'#9CA6A0',
+          0.5: '#E5ED53',
+          0.75:'#E9A053',
+          1.0: '#ED5353', // vermelho
+    },
+  }).addTo(map)
 }
 
-function getHeatColor(value) {
-  const v = Math.min(1, Math.max(0, value))
-  if (v <= 0.5) {
-    return interpolateColor([59, 130, 246], [249, 115, 22], v / 0.5)
-  }
-  return interpolateColor([249, 115, 22], [220, 38, 38], (v - 0.5) / 0.5)
-}
-
-function interpolateColor(start, end, ratio) {
-  const clamped = Math.min(1, Math.max(0, ratio))
-  const channels = start.map((channel, index) => {
-    return Math.round(channel + (end[index] - channel) * clamped)
-  })
-  return `rgb(${channels.join(',')})`
-}
-
+// --- Renderiza clusters manuais (bolhas com contagem) ---
 function renderClusters(markers) {
   const groups = aggregateMarkers(markers, 2)
 
@@ -180,6 +175,7 @@ function renderClusters(markers) {
 
     clusterLayer.addLayer(marker)
   })
+  clusterLayer.addTo(map)
 }
 </script>
 
