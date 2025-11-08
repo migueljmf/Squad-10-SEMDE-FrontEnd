@@ -140,7 +140,7 @@ function renderHeat(markers) {
 
   heatLayer = L.heatLayer(heatData, {
     radius: 25,   // tamanho do ponto
-    blur: 30,     // suavização
+    blur: 25,     // suavização
     maxZoom: 10,  // até qual zoom aplica suavização
     gradient: {
           0.0: '#5360ED', // azul claro
@@ -151,17 +151,31 @@ function renderHeat(markers) {
     },
   }).addTo(map)
 }
-
 // --- Renderiza clusters manuais (bolhas com contagem) ---
 function renderClusters(markers) {
   const groups = aggregateMarkers(markers, 2)
 
   groups.forEach((group) => {
-    const icon = L.divIcon({
-      className: 'map-cluster',
-      html: `<span>${group.count}</span>`,
-      iconSize: [44, 44],
-    })
+        const icon = L.divIcon({
+          className: 'heat-count-label',
+          html: `<div style="
+    position: relative;
+                    background: linear-gradient(135deg, #1dd18a, #14b570);
+                    color: white;
+                    font-size: 13px;
+                    font-weight: 600;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    text-align: center;
+                    padding: 2px 10px;
+                    clip-path: polygon(50% 100%, 0 75%, 0 0, 100% 0, 100% 75%);
+                    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+                    border: 2px solid rgba(255,255,255,0.6);
+  ">
+    ${group.count}
+  </div>`,
+        })
 
     const marker = L.marker([group.lat, group.lng], { icon })
 
@@ -184,6 +198,7 @@ function renderClusters(markers) {
   width: 100%;
   height: 100%;
 }
+
 
 .map-cluster {
   background: rgba(37, 99, 235, 0.85);
