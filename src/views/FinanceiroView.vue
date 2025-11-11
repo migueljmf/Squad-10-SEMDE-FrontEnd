@@ -61,29 +61,11 @@
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>11/10/2025</td>
-              <td class="entrada">R$ 1.250,00</td>
+            <tr v-for="financial in financials" :key="financial.id">
+              <td>{{ financial.date }}</td>
+              <td class="entrada">{{ financial.value }}</td>
               <td>Entrada</td>
-              <td>Alimentacao</td>
-            </tr>
-            <tr>
-              <td>10/10/2025</td>
-              <td class="saida">- R$ 320,00</td>
-              <td>Saida</td>
-              <td>Transporte</td>
-            </tr>
-            <tr>
-              <td>08/10/2025</td>
-              <td class="saida">- R$ 180,00</td>
-              <td>Saida</td>
-              <td>Lazer</td>
-            </tr>
-            <tr>
-              <td>07/10/2025</td>
-              <td class="entrada">R$ 2.000,00</td>
-              <td>Entrada</td>
-              <td>Outros</td>
+              <td>{{financial.category}}</td>
             </tr>
           </tbody>
         </table>
@@ -94,25 +76,68 @@
 
 <script setup>
 import PageHero from "@/components/PageHero.vue";
-import { finantialCategoriesApi } from "@/services/finantialCategoriesApi";
+import { financialCategoriesApi } from "@/services/financialCategoriesApi";
+import { financialApi } from "@/services/financialApi";
 import { onMounted, ref } from "vue";
-const saldoAtual = "R$ 12.450,00";
-const saldoAtualizacao = "Atualizado em 11/10/2025 as 15:30";
 
 const categoria = ref("");
-const financialCategories = ref([])
+const financialCategories = ref([]);
+const financials = ref([]);
+const saldoAtual = ref(0);
+const saldoAtualizacao = ref(""); // agora é reativo e será atualizado dinamicamente
 
 onMounted(async () => {
-try {
-  financialCategories.value = await finantialCategoriesApi.getAll()
-} catch (e) {
-  console.error('Erro ao carregar categorias', e)
-}
-})
+  try {
+    // Carrega categorias
+    financialCategories.value = await financialCategoriesApi.getAll();
+  } catch (e) {
+    console.error("Erro ao carregar categorias:", e);
+  }
 
+  try {
+    // Carrega movimentações financeiras
+    financials.value = await financialApi.getAll();
 
+    // Ordena pela data (mais recente por último)
+    financials.value.sort((a, b) => new Date(a.date) - new Date(b.date));
 
+    // Formata as movimentações
+    financials.value = financials.value.map(financial => ({
+      ...financial,
+      dateObj: new Date(financial.date),
+      date: new Date(financial.date).toLocaleDateString("pt-BR"),
+      formattedValue: `R$ ${financial.value.toFixed(2).replace('.', ',')}`,
+      category:
+        financialCategories.value.find(cat => cat.id === financial.financialCategoryId)?.name ||
+        "N/A",
+    }));
+
+    // Calcula saldo com base no tipo
+    saldoAtual.value = financials.value.reduce((total, financial) => {
+      if (financial.type === "entrada") return total + financial.value;
+      if (financial.type === "saida") return total - financial.value;
+      return total;
+    }, 0);
+
+    // Define a data da última atualização com base na última movimentação
+    if (financials.value.length > 0) {
+      const ultima = financials.value[financials.value.length - 1].dateObj;
+      const data = ultima.toLocaleDateString("pt-BR");
+      const hora = ultima.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+      saldoAtualizacao.value = `Atualizado em ${data} às ${hora}`;
+    } else {
+      saldoAtualizacao.value = "Nenhuma movimentação registrada";
+    }
+
+    console.log("Saldo atual:", saldoAtual.value.toFixed(2));
+    console.log(saldoAtualizacao.value);
+  } catch (e) {
+    console.error("Erro ao carregar movimentações financeiras:", e);
+  }
+});
 </script>
+
+
 
 <style scoped>
 .financeiro-page {
