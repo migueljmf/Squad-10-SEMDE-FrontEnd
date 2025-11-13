@@ -127,7 +127,7 @@
         <header class="chart-card__header">
           <div>
             <h2>Atualizacoes recentes</h2>
-            <p>Movimentacoes mais recentes nas demandas</p>
+            <p>Movimentações mais recentes nas demandas</p>
           </div>
         </header>
         <div class="chart-card__body atividades">

@@ -10,4 +10,14 @@ export const financialApi = {
       throw e
     }
   },
+  async create(financialData) {
+    try {
+      const response = await api.post('/financial', financialData)
+      return response.data?.data || response.data
+    } catch (error) {
+      console.error("[v0] Error creating demand:", error)
+      throw error
+    }
+  },
+
 }
