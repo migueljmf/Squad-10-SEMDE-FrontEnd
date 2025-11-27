@@ -1,6 +1,7 @@
 ﻿import { ref, computed } from "vue"
 import { formatarEnderecoCurto, normalizarEnderecoObjeto, enderecoPossuiDados } from "../utils/endereco"
 import { demandasApi } from "../services/demandasApi"
+import { actionApi } from "@/services/actionApi"
 
 const itens = ref([])
 const isLoading = ref(false)
@@ -293,6 +294,9 @@ export function useDemandasStore() {
       if (tipo === "Tarefa") {
       const response = await demandasApi.updateStatus(id, apiStatus)
       itens.value[index] = mapApiToInternalTasks(response.data)
+      } else if (tipo === "Acao") {
+      const response = await actionApi.updateStatus(id, apiStatus)
+      itens.value[index] = mapApiToInternalActions(response.data)
     }
       return true
     } catch (err) {

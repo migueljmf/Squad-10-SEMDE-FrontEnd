@@ -12,11 +12,21 @@ export const actionApi = {
   },
   async update(id, action) {
     try {
-      const res = await api.put(`/contact/${id}`, action)
+      const res = await api.put(`/demands/action/${id}`, action)
       return res.data?.data || res.data
     } catch (e) {
       console.error('[v0] Error updating contact', e)
       throw e
     }
   },
+    async updateStatus(id, status) {
+    try {
+      
+      const response = await api.put(`/demands/action/${id}`, {status })
+      return response.data
+    } catch (error) {
+      console.error("[v0] Error updating demand status:", error)
+      throw error
+    }
+  }
 }

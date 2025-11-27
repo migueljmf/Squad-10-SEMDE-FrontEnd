@@ -177,8 +177,7 @@ async function onDrop(event, newStatus) {
 
 async function atualizarStatus(id, novoStatus, tipo) {
   try {
-    if (tipo === "Tarefa"){
-    await store.updateStatus(id, novoStatus, tipo);}
+    await store.updateStatus(id, novoStatus, tipo);
   } catch (err) {
     window.alert("Erro ao atualizar status. Tente novamente.");
   }
