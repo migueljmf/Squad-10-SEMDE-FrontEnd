@@ -1,5 +1,12 @@
 ﻿<template>
   <div class="endereco-form">
+        <label class="field" style="position:relative">
+      <span>Rua</span>
+      <input class="autocomplete-input" v-model="queryLogradouro" @input="onQueryChange" type="text" placeholder="Rua" autocomplete="off" />
+      <ul v-if="suggestions.length" class="suggestions address-suggestions">
+        <li v-for="(s, idx) in suggestions" :key="idx" @click="selectSuggestion(s)">{{ s.displayText || s.label || s.raw.display_name }}</li>
+      </ul>
+    </label>
     <div class="grid">
       <label class="field">
         <span>Numero</span>
@@ -10,14 +17,6 @@
         <input v-model="form.uf" type="text" maxlength="2" placeholder="UF" />
       </label>
     </div>
-
-    <label class="field" style="position:relative">
-      <span>Rua</span>
-      <input class="autocomplete-input" v-model="queryLogradouro" @input="onQueryChange" type="text" placeholder="Rua" autocomplete="off" />
-      <ul v-if="suggestions.length" class="suggestions address-suggestions">
-        <li v-for="(s, idx) in suggestions" :key="idx" @click="selectSuggestion(s)">{{ s.displayText || s.label || s.raw.display_name }}</li>
-      </ul>
-    </label>
 
     <div class="grid">
       <label class="field">

@@ -59,6 +59,7 @@ const messages = ref([]);
 import  api  from "../services/api.js";
 async function handleSend() {
   const text = currentMessage.value.trim();
+  currentMessage.value = "";
   if (!text) return;
 
   // adiciona a mensagem do usuário na conversa
@@ -83,9 +84,6 @@ async function handleSend() {
       text: "Desculpe, ocorreu um erro ao tentar responder sua pergunta.",
     });
   }
-
-  // limpa o campo de entrada
-  currentMessage.value = "";
 }
 
 </script>

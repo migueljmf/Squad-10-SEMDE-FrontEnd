@@ -171,13 +171,14 @@ async function onDrop(event, newStatus) {
   if (!draggedDemanda.value) return;
 
   const demandaId = draggedDemanda.value.id;
-  await atualizarStatus(demandaId, newStatus);
+  await atualizarStatus(demandaId, newStatus, draggedDemanda.value.tipo);
   draggedDemanda.value = null;
 }
 
-async function atualizarStatus(id, novoStatus) {
+async function atualizarStatus(id, novoStatus, tipo) {
   try {
-    await store.updateStatus(id, novoStatus);
+    if (tipo === "Tarefa"){
+    await store.updateStatus(id, novoStatus, tipo);}
   } catch (err) {
     window.alert("Erro ao atualizar status. Tente novamente.");
   }

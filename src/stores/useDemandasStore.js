@@ -21,22 +21,19 @@ function normalizarTipo(tipo) {
   return (tipo || "Tarefa").toLowerCase()
 }
 
-function mapApiToInternal(apiData) {
-  const tipo = "Tarefa" // já que não vem mais do backend
-  const status = mapApiStatus(apiData.status) // mantém, se a função existir
-  
+function mapApiToInternalTasks(apiData) {
+  const tipo = "Tarefa"
+  const status = mapApiStatus(apiData.status)
+
 
   return {
     id: apiData.id,
     createdAt: apiData.createdAt || new Date().toISOString(),
     tipo,
-    categoria:  apiData.categories?.[0]?.name || tipo,
+    categoria: apiData.categories?.[0]?.name || tipo,
     titulo: apiData.title || "Sem título",
     descricao: apiData.description || "",
     descricaoResumida: (apiData.description || "").slice(0, 105),
-    solicitante: "Não informado", // se quiser, pode substituir depois pelo nome do advisor
-    contato: "Não informado",
-    endereco: "Não informado",
     enderecoDetalhado: null,
     enderecoResumo: "",
     local: "Não informado",
@@ -57,6 +54,28 @@ function mapApiToInternal(apiData) {
     // IDs originais da API
     advisorId: apiData.advisorId,
     contactId: apiData.contactId,
+    priority: apiData.priority,
+  }
+}
+function mapApiToInternalActions(apiData) {
+  const tipo = "Acao"
+  const status = mapApiStatus(apiData.status)
+
+
+  return {
+    id: apiData.id,
+    createdAt: apiData.createdAt || new Date().toISOString(),
+    tipo,
+    categoria: apiData.categories?.[0]?.name || tipo,
+    titulo: apiData.title || "Sem título",
+    descricao: apiData.description || "",
+    descricaoResumida: (apiData.description || "").slice(0, 105),
+    data: apiData.date
+      ? new Date(apiData.date).toISOString().split("T")[0]
+      : "",
+    status,
+    statusSlug: normalizarStatus(status),
+    tipoSlug: normalizarTipo(tipo),
     priority: apiData.priority,
   }
 }
@@ -128,7 +147,7 @@ function gerarDemandaBase(payload = {}) {
     categoria: payload.categoria || tipo,
     titulo: payload.titulo || "Sem titulo",
     descricao: descricaoCompleta,
-    descricaoResumida: descricaoCompleta.slice(0,140),
+    descricaoResumida: descricaoCompleta.slice(0, 140),
     solicitante: payload.solicitante || "Nao informado",
     contato: payload.contato || payload.solicitante || "Nao informado",
     endereco: enderecoObjeto ?? enderecoTexto,
@@ -143,7 +162,7 @@ function gerarDemandaBase(payload = {}) {
     statusSlug: normalizarStatus(status),
     tipoSlug: normalizarTipo(tipo),
     icon: payload.icon || (normalizarTipo(tipo) === "acao" ? "target" : "clipboard-text-outline"),
-  // isFavorito removed
+    // isFavorito removed
     // Keep API-specific fields
     advisorId: payload.advisorId,
     contactId: payload.contactId,
@@ -170,7 +189,7 @@ export function useDemandasStore() {
         else acc.outros += 1
         return acc
       },
-      { pendente: 0, andamento: 0, concluido: 0,cancelado: 0, outros: 0 },
+      { pendente: 0, andamento: 0, concluido: 0, cancelado: 0, outros: 0 },
     ),
   )
 
@@ -182,7 +201,17 @@ export function useDemandasStore() {
       console.log("[v0] API response:", apiData)
 
       // Map API data to internal format
-      itens.value = Array.isArray(apiData?.data) ? apiData.data.map(mapApiToInternal) : []
+      // Primeiro substitui pelos tasks (se existirem)
+      itens.value = Array.isArray(apiData?.data?.tasks)
+        ? apiData.data.tasks.map(mapApiToInternalTasks)
+        : [];
+
+      // Depois adiciona os actions (se existirem)
+      if (Array.isArray(apiData?.data?.actions)) {
+        itens.value.push(
+          ...apiData.data.actions.map(mapApiToInternalActions)
+        );
+      }
 
       console.log("[v0] Mapped demands:", itens.value)
     } catch (err) {
@@ -245,7 +274,8 @@ export function useDemandasStore() {
     }
   }
 
-  const updateStatus = async (id, newStatus) => {
+  const updateStatus = async (id, newStatus, tipo) => {
+    console.log(tipo)
     const index = itens.value.findIndex((item) => item.id === id || item.id === Number(id))
     if (index === -1) return false
 
@@ -260,8 +290,10 @@ export function useDemandasStore() {
       }
 
       const apiStatus = statusMap[newStatus.toLowerCase().replace(/\s+/g, "-")] || "PENDENTE"
+      if (tipo === "Tarefa") {
       const response = await demandasApi.updateStatus(id, apiStatus)
-      itens.value[index] = mapApiToInternal(response.data)
+      itens.value[index] = mapApiToInternalTasks(response.data)
+    }
       return true
     } catch (err) {
       console.error("[v0] Error updating status:", err)
