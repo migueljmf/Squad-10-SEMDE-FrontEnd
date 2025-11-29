@@ -28,5 +28,14 @@ export const actionApi = {
       console.error("[v0] Error updating demand status:", error)
       throw error
     }
-  }
+  },
+  async getActionsCoordinates() {
+    try {
+      const response = await api.get('/action/cordinates')
+      if (Array.isArray(response.data)) return response.data
+      return response.data?.data || []
+    } catch (error) {
+      console.error('[v0] Error fetching action coordinates:', error)
+    }
+  },
 }

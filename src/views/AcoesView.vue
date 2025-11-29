@@ -43,10 +43,11 @@
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
+import { computed, ref, onMounted } from "vue";
 import PageHero from "@/components/PageHero.vue";
 import LeafletMap from "@/components/LeafletMap.vue";
 import { useDemandasStore } from "@/stores/useDemandasStore";
+import { actionApi } from "@/services/actionApi";
 
 const DEFAULT_CENTER = [-23.5505, -46.6333];
 const DEFAULT_ZOOM = 12;
@@ -59,31 +60,58 @@ const modos = [
   { value: "heat", label: "MAPA DE CALOR" },
 ];
 
-const acoes = computed(() =>
-  store.demandas.value.filter((item) => item.tipoSlug === "acao")
+const actions = computed(() =>
+  store.demandas.value.filter((item) => item.tipoSlug === "action")
 );
 
-const totalAcoes = computed(() => acoes.value.length);
-const totalAcoesFormatado = computed(() =>
-  totalAcoes.value.toLocaleString("pt-BR")
+const totalactions = computed(() => actions.value.length);
+const totalactionsFormatado = computed(() =>
+  totalactions.value.toLocaleString("pt-BR")
 );
-const totalAcoesSubtexto = computed(() => {
-  if (totalAcoes.value === 0) return "Nenhuma acao cadastrada";
-  return totalAcoes.value === 1 ? "Acao ativa no mapa" : "Acoes ativas no mapa";
-});
+const externalMarkers = ref([]);
 
-const mapMarkers = computed(() =>
-  acoes.value
-    .map((acao) => ({
-      lat: toNumber(acao.latitude),
-      lng: toNumber(acao.longitude),
-      label: buildLabel(acao),
+const mapMarkers = computed(() => {
+  // prefer coordinates from the new endpoint when available
+  if (externalMarkers.value && externalMarkers.value.length) {
+    return externalMarkers.value
+      .map((t) => ({
+        lat: toNumber(t.address?.latitude),
+        lng: toNumber(t.address?.longitude),
+        label: `<strong>${t.title || "Sem titulo"}</strong>`,
+      }))
+      .filter((m) => Number.isFinite(m.lat) && Number.isFinite(m.lng))
+  }
+
+  return actions.value
+    .map((action) => ({
+      lat: toNumber(action.latitude),
+      lng: toNumber(action.longitude),
+      label: buildLabel(action),
     }))
     .filter((item) => Number.isFinite(item.lat) && Number.isFinite(item.lng))
+});
+
+const actionsComLocalizacao = computed(() => mapMarkers.value.length);
+const actionsComLocalizacaoFormatado = computed(() =>
+  actionsComLocalizacao.value.toLocaleString("pt-BR")
 );
+const actionsHighlightSubtexto = computed(() => {
+  if (actionsComLocalizacao.value === 0) {
+    return "Defina coordenadas para exibir as actions no mapa.";
+  }
+  return `com localização georreferenciada`;
+});
+onMounted(async () => {
+  try {
+    externalMarkers.value = await actionApi.getActionsCoordinates()
+  } catch (err) {
+    console.warn('Nao foi possivel carregar coordenadas externas:', err)
+    externalMarkers.value = []
+  }
+})
 
 const mapCenter = computed(() => {
-  if (mapMarkers.value.length === 0) return DEFAULT_CENTER;
+  if (mapMarkers.value.length === 0) return DEFAULT_CENTER
 
   const { latTotal, lngTotal } = mapMarkers.value.reduce(
     (acc, marker) => ({
@@ -91,29 +119,29 @@ const mapCenter = computed(() => {
       lngTotal: acc.lngTotal + marker.lng,
     }),
     { latTotal: 0, lngTotal: 0 }
-  );
+  )
 
-  return [latTotal / mapMarkers.value.length, lngTotal / mapMarkers.value.length];
-});
+  return [latTotal / mapMarkers.value.length, lngTotal / mapMarkers.value.length]
+})
 
 const mapZoom = computed(() => {
-  if (mapMarkers.value.length === 1) return 14;
-  return DEFAULT_ZOOM;
-});
+  if (mapMarkers.value.length === 1) return 14
+  return DEFAULT_ZOOM
+})
 
 function toNumber(value) {
-  if (value == null) return null;
-  const parsed = typeof value === "string" ? Number.parseFloat(value) : value;
-  return Number.isFinite(parsed) ? parsed : null;
+  if (value == null) return null
+  const parsed = typeof value === 'string' ? Number.parseFloat(value) : value
+  return Number.isFinite(parsed) ? parsed : null
 }
 
-function buildLabel(acao) {
-  const linhas = [];
-  if (acao.titulo) linhas.push(`<strong>${acao.titulo}</strong>`);
-  if (acao.local && acao.local !== "Nao informado") linhas.push(acao.local);
-  if (acao.data) linhas.push(`Data: ${acao.data}`);
-  if (acao.status) linhas.push(`Status: ${acao.status}`);
-  return linhas.join("<br />");
+function buildLabel(action) {
+  const linhas = []
+  if (action.titulo) linhas.push(`<strong>${action.titulo}</strong>`)
+  if (action.local && action.local !== 'Nao informado') linhas.push(action.local)
+  if (action.data) linhas.push(`Data: ${action.data}`)
+  if (action.status) linhas.push(`Status: ${action.status}`)
+  return linhas.join('<br />')
 }
 </script>
 
