@@ -38,4 +38,13 @@ export const actionApi = {
       console.error('[v0] Error fetching action coordinates:', error)
     }
   },
+    async getById(id) {
+    try {
+      const response = await api.get(`/action/${id}`)
+      // backend might respond { message, data: { ... } } or directly the object
+      return response.data?.data || response.data
+    } catch (error) {
+      console.error("[v0] Error fetching demand:", error)
+    }
+  },
 }
