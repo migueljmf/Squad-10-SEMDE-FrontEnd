@@ -2,62 +2,18 @@
   <aside class="sidebar">
     <nav class="sidebar-nav">
       <ul>
-        <li>
-          <RouterLink to="/inicio">
-            <mdicon name="home":size="24" />
-            <span>In&iacute;cio</span>
-          </RouterLink>
-        </li>
-        <li>
-          <RouterLink to="/dashboard">
-            <mdicon name="view-dashboard" :size="24" />
-            <span>Dashboard</span>
-          </RouterLink>
-        </li>
-        <li>
-          <RouterLink to="/gestao-demandas">
-            <mdicon name="clipboard-list" :size="24" />
-            <span>Gest&atilde;o de demandas</span>
-          </RouterLink>
-        </li>
-        <li>
-          <RouterLink to="/acoes">
-            <mdicon name="account-group" :size="24" />
-            <span>A&ccedil;&otilde;es</span>
-          </RouterLink>
-        </li>
-        <li>
-          <RouterLink to="/tarefas">
-            <mdicon name="checkbox-marked" :size="24" />
-            <span>Tarefas</span>
-          </RouterLink>
-        </li>
-        <li>
-          <RouterLink to="/financeiro">
-            <mdicon name="finance" :size="24" />
-            <span>Financeiro</span>
-          </RouterLink>
-        </li>
-        <li>
-          <RouterLink to="/eleicoes">
-            <mdicon name="vote" :size="24" />
-            <span>Eleic&otilde;es</span>
-          </RouterLink>
-        </li>
-        <li>
-          <RouterLink to="/configuracoes">
-            <mdicon name="cog" :size="24" />
-            <span>Configura&ccedil;&otilde;es</span>
-          </RouterLink>
-        </li>
-        <li>
-          <RouterLink to="/agente-ia">
-            <mdicon name="robot" :size="24" />
-            <span>Agente IA</span>
+        <li 
+        v-for="item in menuItems.filter(i => can(i.roles))"
+          :key="item.to">
+
+          <RouterLink :to="item.to">
+            <mdicon :name="item.icon" :size="24" />
+            <span>{{ item.label }}</span>
           </RouterLink>
         </li>
       </ul>
     </nav>
+
     <div class="sidebar-logout">
       <button class="logout-button" @click="onLogout" type="button">
         <mdicon name="logout" :size="24" />
@@ -67,16 +23,75 @@
   </aside>
 </template>
 
+
 <script setup>
 import { RouterLink, useRouter } from "vue-router";
-import { logout } from "../services/authService";
+import { logout, getUser, hasRole } from "../auth/auth.js";
 
 const router = useRouter();
+const can = hasRole;
 
+const menuItems = [
+  {
+    label: "Início",
+    icon: "home",
+    to: "/inicio",
+    roles: ["ADMIN", "PARLIAMENTARY", "ADVISOR"]
+  },
+  {
+    label: "Dashboard",
+    icon: "view-dashboard",
+    to: "/dashboard",
+    roles: ["ADMIN", "PARLIAMENTARY", "ADVISOR"]
+  },
+  {
+    label: "Gestão de demandas",
+    icon: "clipboard-list",
+    to: "/gestao-demandas",
+    roles: ["ADMIN", "PARLIAMENTARY", "ADVISOR"]
+  },
+  {
+    label: "Ações",
+    icon: "account-group",
+    to: "/acoes",
+    roles: ["ADMIN", "PARLIAMENTARY"]
+  },
+  {
+    label: "Tarefas",
+    icon: "checkbox-marked",
+    to: "/tarefas",
+    roles: ["ADMIN", "PARLIAMENTARY", "ADVISOR"]
+  },
+  {
+    label: "Financeiro",
+    icon: "finance",
+    to: "/financeiro",
+    roles: ["ADMIN", "PARLIAMENTARY"]
+  },
+  {
+    label: "Eleições",
+    icon: "vote",
+    to: "/eleicoes",
+    roles: ["ADMIN", "PARLIAMENTARY"]
+  },
+  {
+    label: "Configurações",
+    icon: "cog",
+    to: "/configuracoes",
+    roles: ["ADMIN", "PARLIAMENTARY", "ADVISOR"]
+  },
+  {
+    label: "Agente IA",
+    icon: "robot",
+    to: "/agente-ia",
+    roles: ["PARLIAMENTARY"]
+  }
+];
 const onLogout = () => {
   logout();
   router.push("/login");
 };
+
 </script>
 
 <style scoped>

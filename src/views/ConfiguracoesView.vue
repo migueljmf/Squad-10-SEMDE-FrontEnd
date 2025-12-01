@@ -7,7 +7,7 @@
 
     <section class="configuracoes-cards">
       <article
-        v-for="card in cards"
+        v-for="card in cards.filter(i => hasRole(i.roles))"
         :key="card.title"
         class="configuracoes-card"
       >
@@ -31,6 +31,7 @@
 <script setup>
 import { RouterLink } from "vue-router";
 import PageHero from "@/components/PageHero.vue";
+import { hasRole } from "@/auth/auth";
 
 const cards = [
   {
@@ -39,6 +40,7 @@ const cards = [
       "Atualize a credencial principal do mandato e mantenha o acesso protegido.",
     buttonLabel: "Gerenciar senha",
     to: "/configuracoes/senha",
+    roles: ["ADMIN", "PARLIAMENTARY", "ADVISOR"]
   },
   {
     title: "Cadastro de usuários",
@@ -46,6 +48,7 @@ const cards = [
       "Inclua novos membros e defina os níveis de permissão adequados.",
     buttonLabel: "Cadastrar usuário",
     to: "/configuracoes/cadastro",
+    roles: ["ADMIN"]
   },
   {
     title: "Administração de usuários",
@@ -53,6 +56,7 @@ const cards = [
       "Acompanhe status, papéis e acesse rapidamente os ajustes de cada membro.",
     buttonLabel: "Ver usuários",
     to: "/configuracoes/usuarios",
+    roles: ["ADMIN"]
   },
 ];
 </script>
@@ -117,6 +121,7 @@ const cards = [
   font-weight: 600;
   letter-spacing: 0.04em;
   cursor: pointer;
+  text-decoration: none;
   transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   box-shadow: 0 14px 32px rgba(36, 84, 255, 0.28);
   display: inline-flex;
