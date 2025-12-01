@@ -129,7 +129,6 @@ async function removerDemanda(id) {
     try {
       await store.removeDemanda(id);
     } catch (err) {
-      window.alert("Erro ao excluir demanda. Tente novamente.");
     }
   }
 }
@@ -179,7 +178,7 @@ async function atualizarStatus(id, novoStatus, tipo) {
   try {
     await store.updateStatus(id, novoStatus, tipo);
   } catch (err) {
-    window.alert("Erro ao atualizar status. Tente novamente.");
+    console.error('Erro ao atualizar status da demanda', err)
   }
 }
 

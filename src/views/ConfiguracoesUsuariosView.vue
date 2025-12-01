@@ -27,15 +27,14 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="usuario in usuarios" :key="usuario.email">
+              <tr v-for="usuario in usuarios" :key="usuario.id">
                 <td>
-                  <strong>{{ usuario.nome }}</strong>
-                  <span class="descricao">{{ usuario.area }}</span>
+                  <strong>{{ usuario.name }}</strong>
                 </td>
                 <td>{{ usuario.email }}</td>
-                <td>{{ usuario.papel }}</td>
+                <td>{{ usuario.role }}</td>
                 <td>
-                  <span class="status" :class="usuario.statusClasse">{{ usuario.status }}</span>
+                  <span class="status ativo">Ativo</span>
                 </td>
                 <td class="acoes">
                   <button type="button" class="link">Editar</button>
@@ -52,33 +51,18 @@
 
 <script setup>
 import PageHero from "@/components/PageHero.vue";
+import { usersApi } from "@/services/usersApi";
+import { onMounted, ref } from "vue";
 
-const usuarios = [
-  {
-    nome: "Ana Pereira",
-    area: "Coordenação",
-    email: "ana.pereira@mandattum.com",
-    papel: "Administrador",
-    status: "Ativo",
-    statusClasse: "ativo",
-  },
-  {
-    nome: "Lucas Andrade",
-    area: "Financeiro",
-    email: "lucas.andrade@mandattum.com",
-    papel: "Financeiro",
-    status: "Ativo",
-    statusClasse: "ativo",
-  },
-  {
-    nome: "Renata Silva",
-    area: "Comunicação",
-    email: "renata.silva@mandattum.com",
-    papel: "Editor",
-    status: "Convite pendente",
-    statusClasse: "pendente",
-  },
-];
+const usuarios = ref([]);
+
+onMounted(async() => {
+   try {
+    usuarios.value = await usersApi.getAll();
+    } catch (error) {
+      console.error("Erro ao carregar usuários:", error);
+    }      
+  });
 </script>
 
 <style scoped>

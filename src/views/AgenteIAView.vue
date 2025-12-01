@@ -2,6 +2,7 @@
   <div class="agente-ia">
     <main class="agente-ia__content">
       <section
+        ref="chatContainer"
         class="agente-ia__chat"
         :class="{ 'agente-ia__chat--has-messages': messages.length > 0 }"
       >
@@ -14,7 +15,7 @@
             <span class="chat-message__role">
               {{ message.role === "user" ? "Você" : "Agente IA" }}
             </span>
-            <p class="chat-message__text">{{ message.text }}</p>
+            <p class="chat-message__text"v-html="message.text"></p>
           </li>
         </ul>
 
@@ -50,11 +51,24 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, watch, nextTick } from "vue";
 
 
 const currentMessage = ref("");
 const messages = ref([]);
+const chatContainer = ref(null);
+
+function scrollToBottom() {
+  nextTick(() => {
+    const el = chatContainer.value;
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
+  });
+}
+
+watch(messages, (newVal, oldVal) => {
+  scrollToBottom();
+});
 
 import  api  from "../services/api.js";
 async function handleSend() {
@@ -64,6 +78,7 @@ async function handleSend() {
 
   // adiciona a mensagem do usuário na conversa
   messages.value.push({ role: "user", text });
+  scrollToBottom();
 
   try {
     // faz a requisição GET enviando o texto do usuário
@@ -77,12 +92,14 @@ async function handleSend() {
       role: "assistant",
       text: resposta || "Não foi possível gerar uma resposta.",
     });
+    scrollToBottom();
   } catch (error) {
     console.error("Erro ao consultar IA:", error);
     messages.value.push({
       role: "assistant",
       text: "Desculpe, ocorreu um erro ao tentar responder sua pergunta.",
     });
+    scrollToBottom();
   }
 }
 

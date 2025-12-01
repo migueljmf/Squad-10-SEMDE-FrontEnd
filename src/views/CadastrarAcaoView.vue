@@ -139,7 +139,6 @@ async function salvarTarefa() {
     router.push('/gestao-demandas')
   } catch (e) {
     console.error('Erro ao salvar tarefa', e)
-    alert('Erro ao salvar tarefa. Veja o console para detalhes.')
   }
 }
 

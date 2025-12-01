@@ -17,38 +17,72 @@
         <form class="form" @submit.prevent="handleSubmit">
           <div class="form-row">
             <div class="form-group">
-              <label for="nome-completo">Nome completo</label>
-              <input id="nome-completo" type="text" placeholder="Ex.: Ana Pereira" />
-            </div>
-            <div class="form-group">
-              <label for="email">E-mail institucional</label>
-              <input id="email" type="email" placeholder="nome@mandattum.com" />
+              <label for="role">Papel</label>
+              <select id="role" v-model="role">
+                <option value="admin">Administrador</option>
+                <option value="parliamentary">Parlamentar</option>
+                <option value="advisor">Assessor</option>
+              </select>
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="papel">Papel no sistema</label>
-              <select id="papel">
-                <option>Administrador</option>
-                <option>Editor</option>
-                <option>Financeiro</option>
-                <option>Operacional</option>
-              </select>
+              <label for="name">Nome completo</label>
+              <input id="name" v-model="form.name" type="text" placeholder="Ex.: Ana Pereira" required />
             </div>
+
             <div class="form-group">
-              <label for="departamento">Equipe</label>
-              <input id="departamento" type="text" placeholder="Ex.: Gabinete Central" />
+              <label for="email">E-mail</label>
+              <input id="email" v-model="form.email" type="email" placeholder="nome@exemplo.com" required />
             </div>
           </div>
 
-          <div class="form-group">
-            <label for="observacoes">Observações</label>
-            <textarea
-              id="observacoes"
-              rows="3"
-              placeholder="Detalhes adicionais sobre o nível de acesso, horário de trabalho, etc."
-            />
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cpf">CPF</label>
+              <input id="cpf" v-model="form.cpf" type="text" placeholder="000.000.000-00" required />
+            </div>
+
+            <div class="form-group">
+              <label for="password">Senha</label>
+              <input id="password" v-model="form.password" type="password" placeholder="Senha" required />
+            </div>
+          </div>
+
+          <!-- Campos específicos por papel -->
+          <div v-if="role === 'parliamentary'">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="city">Cidade</label>
+                <input id="city" v-model="form.city" type="text" placeholder="Nome da cidade" />
+              </div>
+              <div class="form-group">
+                <label for="type">Tipo</label>
+                <select id="type" v-model="form.type">
+                  <option value="VEREADOR">VEREADOR</option>
+                  <option value="DEPUTADO_ESTADUAL">DEPUTADO_ESTADUAL</option>
+                  <option value="DEPUTADO_FEDERAL">DEPUTADO_FEDERAL</option>
+                  <option value="SENADOR">SENADOR</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="role === 'advisor'">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="parliamentary">Parlamentar (id ou email)</label>
+                <input id="parliamentary" v-model="form.parliamentary" type="text" placeholder="ID ou email do parlamentar" />
+              </div>
+              <div class="form-group">
+                <label for="team">Equipe</label>
+                <select id="team" v-model="form.team">
+                  <option value="INTERNO">INTERNO</option>
+                  <option value="EXTERNO">EXTERNO</option>
+                </select>
+              </div>
+            </div>
           </div>
 
           <div class="form-actions">
@@ -62,10 +96,94 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import PageHero from "@/components/PageHero.vue";
+import api from '@/services/api'
 
-function handleSubmit() {
-  console.info("Solicitado cadastro de usuário");
+const role = ref('admin')
+
+const form = ref({
+  name: '',
+  email: '',
+  cpf: '',
+  password: '',
+  // parliamentary-specific
+  city: '',
+  type: 'VEREADOR',
+  // advisor-specific
+  parliamentary: '',
+  team: 'INTERNO'
+})
+
+async function handleSubmit() {
+  try {
+    if (!form.value.email || !form.value.password || !form.value.name || !form.value.cpf) {
+      return alert('Preencha os campos obrigatórios: nome, email, cpf e senha.');
+    }
+
+    if (role.value === 'admin') {
+      const payload = {
+        email: form.value.email,
+        password: form.value.password,
+        name: form.value.name,
+        cpf: form.value.cpf,
+        role: 'admin'
+      }
+      // tentar endpoint comum /auth/register e fallback para /auth/registe (conforme solicitado)
+      try {
+        await api.post('/auth/register', payload)
+      } catch (e) {
+        // se erro 404 ou rota não existe, tentar /auth/registe
+        if (e?.response?.status === 404) {
+          await api.post('/auth/registe', payload)
+        } else throw e
+      }
+      resetForm()
+      return
+    }
+
+    if (role.value === 'parliamentary') {
+      if (!form.value.type) return alert('Selecione o tipo de parlamentar.');
+      const payload = {
+        email: form.value.email,
+        password: form.value.password,
+        name: form.value.name,
+        cpf: form.value.cpf,
+        role: 'parliamentary',
+        city: form.value.city || null,
+        type: form.value.type
+      }
+      await api.post('/parliamentary', payload)
+      resetForm()
+      return
+    }
+
+    if (role.value === 'advisor') {
+      if (!form.value.parliamentary) return alert('Informe o parlamentar associado (id ou email).')
+      const payload = {
+        email: form.value.email,
+        password: form.value.password,
+        name: form.value.name,
+        cpf: form.value.cpf,
+        role: 'advisor',
+        parliamentary: form.value.parliamentary,
+        team: form.value.team
+      }
+      await api.post('/advisor', payload)
+      resetForm()
+      return
+    }
+
+  } catch (e) {
+    console.error('Erro ao cadastrar usuário', e)
+    const msg = e?.response?.data?.message || e?.message || 'Erro desconhecido'
+  }
+}
+
+function resetForm() {
+  form.value = {
+    name: '', email: '', cpf: '', password: '', city: '', type: 'VEREADOR', parliamentary: '', team: 'INTERNO'
+  }
 }
 </script>
 
