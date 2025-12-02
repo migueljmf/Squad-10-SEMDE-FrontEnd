@@ -67,7 +67,7 @@ function mapApiToInternalActions(apiData) {
     id: apiData.id,
     createdAt: apiData.createdAt || new Date().toISOString(),
     tipo,
-    categoria: apiData.categories?.[0]?.name || tipo,
+    categoria: apiData.category.name || tipo,
     titulo: apiData.title || "Sem título",
     descricao: apiData.description || "",
     descricaoResumida: (apiData.description || "").slice(0, 105),

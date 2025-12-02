@@ -229,7 +229,7 @@ const resumoCards = computed(() => [
     trend: "positivo",
   },
   {
-    title: "Acoes em andamento",
+    title: "Ações em andamento",
     value: acoesEmAndamento.value,
     subtitle: "Fluxo ativo",
     delta: null,
@@ -706,6 +706,7 @@ const atividadesRecentes = computed(() =>
 
 .bars__item {
   display: flex;
+  min-height: 110px;
   flex-direction: column;
   align-items: center;
   gap: 12px;
