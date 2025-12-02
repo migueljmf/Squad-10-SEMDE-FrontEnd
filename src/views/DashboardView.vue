@@ -1,8 +1,8 @@
 <template>
   <div class="dashboard">
     <PageHero
-      title="Visao Geral"
-      description="Acompanhe os principais indicadores e acompanhe a evolucao das demandas do mandato."
+      title="Visão Geral"
+      description="Acompanhe os principais indicadores e acompanhe a evolucão das demandas do mandato."
       highlight-label="Demandas monitoradas"
       :highlight-value="totalDemandasFormatado"
       highlight-subtext="Atualizado em tempo real com base nos registros mais recentes."
@@ -10,7 +10,7 @@
       <template #extra>
         <div class="hero-actions">
           <button type="button" class="hero-btn">
-            Exportar relatorio
+            Exportar relatório
           </button>
         </div>
       </template>
@@ -38,7 +38,7 @@
         <header class="chart-card__header">
           <div>
             <h2>Demandas criadas por mes</h2>
-            <p>Comparativo dos ultimos seis meses</p>
+            <p>Comparativo dos últimos seis meses</p>
           </div>
           <span class="badge">{{ tendenciaMensal }}</span>
         </header>
@@ -75,7 +75,7 @@
         <header class="chart-card__header">
           <div>
             <h2>Status das demandas</h2>
-            <p>Distribuicao atual entre os status principais</p>
+            <p>Distribuição atual entre os status principais</p>
           </div>
         </header>
         <div class="chart-card__body donut-wrapper">
@@ -100,8 +100,8 @@
       <article class="chart-card">
         <header class="chart-card__header">
           <div>
-            <h2>Acoes por categoria</h2>
-            <p>Totais de acoes agrupados por categoria</p>
+            <h2>Ações por categoria</h2>
+            <p>Totais de ações agrupados por categoria</p>
           </div>
         </header>
         <div class="chart-card__body barras">
@@ -119,14 +119,14 @@
               <span class="bars__item__label">{{ barra.label }}</span>
             </div>
           </div>
-          <p v-else class="empty-state">Nenhuma acao cadastrada ate o momento.</p>
+          <p v-else class="empty-state">Nenhuma ação cadastrada ate o momento.</p>
         </div>
       </article>
 
       <article class="chart-card wide">
         <header class="chart-card__header">
           <div>
-            <h2>Atualizacoes recentes</h2>
+            <h2>Atualizações recentes</h2>
             <p>Movimentações mais recentes nas demandas</p>
           </div>
         </header>

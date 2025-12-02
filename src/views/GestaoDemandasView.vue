@@ -2,7 +2,7 @@
   <div class="gestao-demandas">
     <PageHero
       title="Gestao de Demandas"
-      description="Organize o fluxo de demandas, filtre por status e priorize o que requer acao imediata."
+      description="Organize o fluxo de demandas, filtre por status e priorize o que requer ação imediata."
       highlight-label="Demandas monitoradas"
       :highlight-value="totalDemandasFormatado"
       :highlight-subtext="totalDemandasSubtexto"

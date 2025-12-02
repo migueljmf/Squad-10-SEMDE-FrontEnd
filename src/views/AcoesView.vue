@@ -1,8 +1,8 @@
 <template>
   <div class="acoes">
     <PageHero
-      title="Mapa de Acoes"
-      description="Visualize as iniciativas registradas e altere a forma de visualizacao para analisar distribuicao por bairros ou intensidade."
+      title="Mapa de Ações"
+      description="Visualize as iniciativas registradas e altere a forma de visualizacao para analisar distribuição por bairros ou intensidade."
       highlight-label="Acoes ativas"
       :highlight-value="totalAcoesFormatado"
       :highlight-subtext="totalAcoesSubtexto"
@@ -10,7 +10,7 @@
       <template #extra>
         <button @click="$router.push('/cadastrar-acao')" class="nova-acao">
           <span class="nova-acao-icone">+</span>
-          <span>Nova Acao</span>
+          <span>Nova Ação</span>
         </button>
       </template>
     </PageHero>

@@ -7,7 +7,7 @@
         </div>
         <div>
           <h2 class="main-title">Eleição 2024</h2>
-          <p class="subtitle">Resultado Eleitoral 2024 - Vereador Lúcio Flávio</p>
+          <p class="subtitle"></p>
         </div>
       </div>
     </div>
