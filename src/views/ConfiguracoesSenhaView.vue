@@ -42,10 +42,22 @@
 
 <script setup>
 import PageHero from "@/components/PageHero.vue";
+import { resetPassword } from "@/services/authService.js";
 
 function handleSubmit() {
-  console.info("Solicitada atualização de senha");
+  // Lógica para capturar os valores dos campos e chamar a função de reset de senha
+  const oldPassword = document.getElementById("senha-atual").value;
+  const newPassword = document.getElementById("nova-senha").value;
+  const confirmNewPassword = document.getElementById("confirmar-senha").value;
+  resetPassword(oldPassword, newPassword, confirmNewPassword).then(() => {
+    oldPassword.value = "";
+    newPassword.value = "";
+    confirmNewPassword.value = "";
+  }).catch((error) => {
+    console.error("Erro ao atualizar a senha:", error);
+  });
 }
+
 </script>
 
 <style scoped>

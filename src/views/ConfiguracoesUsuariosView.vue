@@ -38,7 +38,7 @@
                 </td>
                 <td class="acoes">
                   <button type="button" class="link">Editar</button>
-                  <button type="button" class="link danger">Suspender</button>
+                  <button type="button" class="link danger" @click="deleteUser(usuario.id)" >Suspender</button>
                 </td>
               </tr>
             </tbody>
@@ -63,6 +63,10 @@ onMounted(async() => {
       console.error("Erro ao carregar usuários:", error);
     }      
   });
+
+  function deleteUser(id){
+    usuarios.value = usuarios.value.filter(user => user.id !== id);
+  }
 </script>
 
 <style scoped>
