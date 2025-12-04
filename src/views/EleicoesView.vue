@@ -6,7 +6,7 @@
           <mdicon name="vote" :size="24" />
         </div>
         <div>
-          <h2 class="main-title">Eleição 2024</h2>
+          <h2 class="main-title">Eleição</h2>
           <p class="subtitle"></p>
         </div>
       </div>

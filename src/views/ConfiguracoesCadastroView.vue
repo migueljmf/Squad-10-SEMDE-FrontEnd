@@ -72,8 +72,8 @@
           <div v-if="role === 'advisor'">
             <div class="form-row">
               <div class="form-group">
-                <label for="parliamentary">Parlamentar (id ou email)</label>
-                <input id="parliamentary" v-model="form.parliamentary" type="text" placeholder="ID ou email do parlamentar" />
+                <label for="parliamentary">Parlamentar (email)</label>
+                <input id="parliamentary" v-model="form.parliamentary" type="text" placeholder="Email do parlamentar" />
               </div>
               <div class="form-group">
                 <label for="team">Equipe</label>
@@ -99,6 +99,7 @@
 import { ref } from 'vue'
 import PageHero from "@/components/PageHero.vue";
 import api from '@/services/api'
+import { citiesApi } from '@/services/citiesApi';
 
 const role = ref('admin')
 
@@ -143,14 +144,17 @@ async function handleSubmit() {
     }
 
     if (role.value === 'parliamentary') {
+
       if (!form.value.type) return alert('Selecione o tipo de parlamentar.');
+
+      const cityId = (await citiesApi.search(form.value.city))?.[0]?.id;
+      console.log('cityId', cityId)
       const payload = {
         email: form.value.email,
         password: form.value.password,
         name: form.value.name,
         cpf: form.value.cpf,
-        role: 'parliamentary',
-        city: form.value.city || null,
+        cityId: cityId || null,
         type: form.value.type
       }
       await api.post('/parliamentary', payload)
@@ -165,8 +169,7 @@ async function handleSubmit() {
         password: form.value.password,
         name: form.value.name,
         cpf: form.value.cpf,
-        role: 'advisor',
-        parliamentary: form.value.parliamentary,
+        parliamentaryEmail: form.value.parliamentary,
         team: form.value.team
       }
       await api.post('/advisor', payload)
