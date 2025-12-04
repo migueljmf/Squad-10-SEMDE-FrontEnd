@@ -7,6 +7,9 @@
       <!-- Conteudo das rotas -->
       <RouterView />
     </main>
+
+    <!-- global notifications -->
+    <GlobalToast />
   </div>
 </template>
 
@@ -14,6 +17,7 @@
 import { computed } from "vue";
 import { useRoute } from "vue-router";
 import TheSidebar from "./components/TheSidebar.vue";
+import GlobalToast from '@/components/GlobalToast.vue'
 
 const route = useRoute();
 

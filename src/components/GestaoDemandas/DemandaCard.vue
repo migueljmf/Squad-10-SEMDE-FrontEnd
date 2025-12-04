@@ -2,10 +2,10 @@
     <article class="demanda-card" :draggable="true" role="button" tabindex="0" @dragstart="onDragStart($event, demanda)"
         @dragend="onDragEnd" @click="abrir(demanda.id)" @keyup.enter="abrir(demanda.id)">
         <div class="badges-container">
-            <span class="badge badge-type" :class="['type-' + demanda.tipoClass]">{{ demanda.tipo }}</span>
+            <span class="badge badge-type" :class="['type-' + demanda.tipoClass]">{{ demanda.tipo === "Acao" ? "Ação" : demanda.tipo }}</span>
             <div class="badge-status-wrapper" @click.stop>
                 <select :id="'status-' + demanda.id" :value="demanda.statusClass" class="badge badge-status-select"
-                    :class="['status-' + demanda.statusClass]" @change="atualizar(demanda.id, $event.target.value)">
+                    :class="['status-' + demanda.statusClass]" @change="atualizar(demanda.id, $event.target.value, demanda.tipo)">
                     <option value="pendente">Pendente</option>
                     <option value="em-andamento">Em andamento</option>
                     <option value="concluido">Concluída</option>
@@ -49,7 +49,7 @@ function onDragEnd(e) { emit('dragend', e); e.target.style.opacity = '1'; }
 function abrir(id) { emit('abrir', id); }
 function editar(id) { emit('editar', id); }
 function remover(id) { emit('remover', id); }
-function atualizar(id, novo) { emit('atualizar', id, novo); }
+function atualizar(id, novo, tipo) { emit('atualizar', id, novo, tipo); }
 </script>
 
 <style scoped>

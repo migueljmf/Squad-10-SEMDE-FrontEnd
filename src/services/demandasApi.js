@@ -4,7 +4,7 @@ export const demandasApi = {
   async getAll() {
     try {
       // Real API call (commented for now)
-      const response = await api.get("/task")
+      const response = await api.get("/demands")
       return response.data
 
       // Using mock data

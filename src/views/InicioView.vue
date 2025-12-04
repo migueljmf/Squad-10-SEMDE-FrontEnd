@@ -19,7 +19,7 @@
         </RouterLink>
       </div>
       <div class="hero-image">
-        <img src="../assets/img/Mandattum.png" alt="Mandatuum Logo" />
+        <img src="../assets/img/logo.png" alt="Mandatuum Logo" />
       </div>
     </section>
 

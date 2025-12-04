@@ -26,5 +26,15 @@ export function isAuthenticated() {
 
 export function hasRole(requiredRole) {
   const user = getUser();
-  return user && user.role === requiredRole;
+  if (!user) return false;
+
+  if (Array.isArray(requiredRole)) {
+    return requiredRole.includes(user.role);
+  }
+  return user.role === requiredRole;
 }
+
+export function logout() {
+  localStorage.removeItem("token");
+}
+

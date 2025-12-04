@@ -2,7 +2,7 @@
   <div class="financeiro-page">
     <PageHero
       title="Centro financeiro"
-      description="Acompanhe o fluxo de entradas e saidas do mandato em um so lugar. Cadastre movimentacoes e mantenha a equipe informada sobre os recursos disponiveis."
+      description="Acompanhe o fluxo de entradas e saidas do mandato em um so lugar. Cadastre movimentações e mantenha a equipe informada sobre os recursos disponiveis."
       highlight-label="Saldo disponivel"
       :highlight-value="saldoAtual"
       :highlight-subtext="saldoAtualizacao"
@@ -11,22 +11,22 @@
     <main class="financeiro-content">
       <section class="registro-card">
         <header>
-          <h2>Registrar movimentacao</h2>
-          <p>Preencha as informacoes abaixo para lancar uma nova entrada ou saida.</p>
+          <h2>Registrar movimentação</h2>
+          <p>Preencha as informações abaixo para lancar uma nova entrada ou saida.</p>
         </header>
 
-        <form class="registro-form" @submit.prevent>
+        <form class="registro-form" @submit.prevent="sendForm">
           <label class="field">
             <span>Valor</span>
-            <input type="number" placeholder="Ex.: 250.00" min="0" step="0.01" />
+            <input type="number" v-model="value"  placeholder="Ex.: 250.00" min="0" step="0.01" />
           </label>
 
           <label class="field">
             <span>Tipo</span>
-            <select>
+            <select v-model="type">
               <option value="">Selecione</option>
-              <option value="entrada">Entrada</option>
-              <option value="saida">Saida</option>
+              <option value="ENTRADA">Entrada</option>
+              <option value="SAIDA">Saida</option>
             </select>
           </label>
 
@@ -37,15 +37,19 @@
               <option v-for="cat in financialCategories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
             </select>
           </label>
+          <label class="field">
+            <span>Descrição</span>
+            <textarea v-model="description" placeholder="Informe a descrição da movimentação"></textarea>
+          </label>
 
-          <button type="button" class="btn-adicionar">Adicionar</button>
+          <button type="submit" class="btn-adicionar">Adicionar</button>
         </form>
       </section>
 
       <section class="tabela-card">
         <header>
           <div>
-            <h2>Historico de movimentacoes</h2>
+            <h2>Historico de movimentações</h2>
             <span>Ultimos lancamentos registrados</span>
           </div>
           <button type="button" class="btn-exportar">Exportar relatorio</button>
@@ -58,14 +62,16 @@
               <th>Valor</th>
               <th>Tipo</th>
               <th>Categoria</th>
+              <th>Descrição</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="financial in financials" :key="financial.id">
               <td>{{ financial.date }}</td>
-              <td class="entrada">{{ financial.value }}</td>
-              <td>Entrada</td>
+              <td :class="financial.type.toLowerCase()">{{ financial.value }}</td>
+              <td>{{ financial.type }}</td>
               <td>{{financial.category}}</td>
+              <td class="td-wrap">{{ financial.description }}</td>
             </tr>
           </tbody>
         </table>
@@ -84,7 +90,11 @@ const categoria = ref("");
 const financialCategories = ref([]);
 const financials = ref([]);
 const saldoAtual = ref(0);
-const saldoAtualizacao = ref(""); // agora é reativo e será atualizado dinamicamente
+const saldoAtualizacao = ref(""); 
+
+const type = ref("");
+const value = ref(0);
+const description = ref("");
 
 onMounted(async () => {
   try {
@@ -111,11 +121,13 @@ onMounted(async () => {
         financialCategories.value.find(cat => cat.id === financial.financialCategoryId)?.name ||
         "N/A",
     }));
+    financials.value.sort((a, b) => new Date(b.dateObj) - new Date(a.dateObj));
+
 
     // Calcula saldo com base no tipo
     saldoAtual.value = financials.value.reduce((total, financial) => {
-      if (financial.type === "entrada") return total + financial.value;
-      if (financial.type === "saida") return total - financial.value;
+      if (financial.type === "ENTRADA") return total + financial.value;
+      if (financial.type === "SAIDA") return total - financial.value;
       return total;
     }, 0);
 
@@ -135,6 +147,48 @@ onMounted(async () => {
     console.error("Erro ao carregar movimentações financeiras:", e);
   }
 });
+function cleanForm(){
+  type.value = "";
+  value.value = 0;
+  description.value = "";
+  categoria.value = "";
+}
+
+async function sendForm(){
+  try {
+    let valor = value.value;
+    if (typeof valor === "string") {
+      valor = valor.replace(",", ".");
+    }
+    valor = parseFloat(valor)
+    const payload = {
+      type: type.value,
+      value: parseFloat(valor.toFixed(2)),
+      description: description.value,
+      financialCategoryId:categoria.value,
+      date: new Date(),
+    };
+    await financialApi.create(payload);
+    
+
+    const formatPayload = {
+      ...payload,
+      dateObj: new Date(payload.date),
+      date: new Date(payload.date).toLocaleDateString("pt-BR"),
+      formattedValue: `R$ ${payload.value.toFixed(2).replace('.', ',')}`,
+      category:
+        financialCategories.value.find(cat => cat.id === payload.financialCategoryId)?.name ||
+        "N/A",
+    };
+
+    financials.value.push(formatPayload);
+    financials.value.sort((a, b) => new Date(b.dateObj) - new Date(a.dateObj));
+
+    cleanForm();
+  } catch (error) {
+   console.error("Erro ao enviar o formulário:", error); 
+  }
+}
 </script>
 
 
@@ -150,6 +204,13 @@ onMounted(async () => {
   font-family: "Poppins", sans-serif;
   box-sizing: border-box;
 }
+
+.td-wrap {
+  max-width: 250px;
+  white-space: normal;
+  word-break: break-word;
+}
+
 
 .financeiro-content {
   display: grid;
@@ -203,7 +264,7 @@ onMounted(async () => {
 }
 
 .field input,
-.field select {
+.field select, .field textarea {
   padding: 12px 14px;
   border-radius: 14px;
   border: 1px solid rgba(148, 163, 184, 0.35);

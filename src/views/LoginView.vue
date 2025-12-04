@@ -1,8 +1,16 @@
 <template>
   <div class="login-wrapper">
     <div class="login-frame">
+      <div class="login-brand">
+        <img src="../assets/img/logo.png" alt="Logo do projeto" class="logo" />
+        <div class="brand-text">
+          <h1 class="login-title">Mandattum</h1>
+          <small class="logo-note">Simplificando a gestão, fortalecendo equipes e elevando o nível das entregas com organização, clareza e eficiência.</small>
+        </div>
+      </div>
+
       <div class="login-card">
-        <h2>FAZER LOGIN</h2>
+        <h2>Entrar</h2>
 
         <form @submit.prevent="handleLogin" novalidate>
           <div class="form-group">
@@ -12,6 +20,7 @@
               type="text"
               v-model="email"
               placeholder="Digite seu email ou usuário"
+              autocomplete="username"
             />
           </div>
 
@@ -22,15 +31,18 @@
               type="password"
               v-model="senha"
               placeholder="Digite sua senha"
+              autocomplete="current-password"
             />
           </div>
 
-          <div class="forgot">
-            <a href="#">Esqueceu a senha?</a>
+          <div class="row-between">
+            <div class="helper">
+              <small>Use seu e-mail institucional</small>
+            </div>
           </div>
 
           <button class="btn" type="submit" :disabled="loading">
-            {{ loading ? "Entrando..." : "ENTRAR" }}
+            {{ loading ? "Entrando..." : "Entrar" }}
           </button>
         </form>
 
@@ -77,111 +89,91 @@ async function handleLogin() {
 <style scoped>
 :root {
   --primary-blue: #1565c0;
-  --gray-light: #f5f7fa;
+  --accent: #1e40af;
+  --bg: #f3f6fb;
 }
 
-/* Área total */
+
+* { box-sizing: border-box; }
+body, .login-wrapper { font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
+
 .login-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: var(--gray-light);
+  background: linear-gradient(180deg, #eef4ff 0%, #f8fbff 100%);
   margin: 0;
-  padding: 20px;
+  padding: 28px;
 }
 
 .login-frame {
-  display: flex;
+  width: 920px;
+  max-width: 96vw;
+  border-radius: 20px;
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 28px;
   align-items: center;
-  justify-content: center;
-  width: 700px;
-  height: 620px;
-  background-color: var(--primary-blue);
-  border-radius: 32px;
-  padding: 10px;
+  padding: 28px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+  box-shadow: 0 18px 48px rgba(16, 24, 40, 0.08);
+  border: 1px solid rgba(30, 58, 138, 0.06);
+}
+.login-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 38px; 
+  font-weight: 700;
+  color: #1565c0; 
+  margin: 0 0 16px;
+  line-height: 1.3;
 }
 
-/* Frame interno */
+.login-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 24px;
+}
+
+.logo { width: 160px; height: auto; display:block; }
+.brand-text { max-width: 300px; text-align:center; color: #475569; font-size: 13px; }
+.logo-note code { background: #eef2ff; padding: 2px 6px; border-radius: 6px; font-size: 12px; }
+
 .login-card {
-  background-color: white;
-  padding: 40px 30px;
-  border-radius: 24px;
+  background-color: #ffffff;
+  padding: 32px 30px;
+  border-radius: 14px;
   width: 100%;
-  max-width: 500px;
-  box-shadow: 0 4px 20px rgba(21, 101, 192, 0.507); 
-  text-align: center;
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
 }
 
 .login-card h2 {
-  margin-bottom: 25px;
-  font-size: 28px;
-  font-weight: bold;
-  color: #000;
+  margin: 0 0 18px 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
 }
 
-/* Inputs */
-.form-group {
-  margin-bottom: 20px;
-  text-align: left;
+.form-group { margin-bottom: 14px; }
+.form-group label { display:block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom:8px }
+.form-group input { width:100%; padding: 14px 12px; border-radius: 10px; border: 1px solid rgba(15,23,42,0.06); font-size:15px; }
+.form-group input:focus { outline: none; box-shadow: 0 6px 18px rgba(37,99,235,0.08); border-color: var(--accent) }
+
+.row-between { display:flex; justify-content:space-between; align-items:center; margin-bottom: 18px; }
+.forgot a { color: var(--accent); font-weight:600; text-decoration:none }
+.helper small { color:#64748b }
+
+.btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; background: linear-gradient(135deg,#2563eb,#1d4ed8); color: white; border: none; padding: 14px 22px; border-radius: 10px; font-weight:700; cursor:pointer; width:100%; }
+.btn[disabled] { opacity:0.6; cursor:not-allowed }
+
+.error { margin-top:12px; color:#b91c1c; font-weight:600 }
+
+@media (max-width: 900px) {
+  .login-frame { grid-template-columns: 1fr; padding: 18px }
+  .logo { width: 120px }
 }
 
-.form-group label {
-  font-size: 15px;
-  font-weight: 500;
-  display: block;
-  margin-bottom: 5px;
-}
-
-.form-group input {
-  width: 100%;
-  height: 66px;
-  max-width: 460px;
-  padding: 0 14px;
-  border-radius: 12px;
-  border: 1px solid #aaa;
-  font-size: 15px;
-}
-
-.form-group input:focus {
-  border-color: var(--primary-blue);
-  outline: none;
-  box-shadow: 0 0 8px rgba(21, 101, 192, 0.4); 
-}
-
-/*  esqueceu senha */
-.forgot {
-  margin: 20px 0;
-  text-align: center;
-}
-
-.forgot a {
-  color: var(--primary-blue);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.forgot a:hover {
-  text-decoration: underline;
-}
-
-/* Botão azul de ENTRAR */
-.btn {
-  background-color: rgb(74, 137, 253);
-  color: #fff;
-  border: none;
-  width: 269px;
-  height: 65px;
-  border-radius: 12px;
-  font-size: 18px;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 4px 10px rgba(21, 101, 192, 0.4);
-  text-align: center;
-  
-}
-
-.btn:hover {
-  background-color: #1565c0; 
-}
 </style>

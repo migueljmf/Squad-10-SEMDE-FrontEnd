@@ -1,59 +1,65 @@
 <template>
   <section class="detalhe-page">
-    <div v-if="acao" class="detalhe-card">
+    <div v-if="action" class="detalhe-card">
       <header class="detalhe-header">
         <div class="header-texts">
-          <h1>Detalhe da Acao</h1>
-          <p>{{ acao.titulo }}</p>
+          <h1>{{ tituloCabecalho }}</h1>
+          <p>{{ action.titulo }}</p>
         </div>
-        <span class="status-tag" :class="['status-' + acao.statusClass]">
-          {{ acao.estado || acao.status }}
+        <span class="status-tag" :class="['status-' + action.statusClass]">
+          {{ action.status }}
         </span>
       </header>
 
       <div class="detalhe-body">
-        <div class="info-grid">
-          <div class="info-item">
-            <span class="info-label">Titulo da acao</span>
-            <span class="info-value">{{ acao.titulo }}</span>
+        <!-- Section: Dados da Ação -->
+        <div class="detalhe-section">
+          <h2>Dados da Ação</h2>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Tipo</span>
+              <span class="info-value">{{ action.tipo }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Categoria</span>
+              <span class="info-value">{{ action.categoria }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Prioridade</span>
+              <span class="info-value">{{ action.priority || action.prioridade || '-' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Data</span>
+              <span class="info-value">{{ action.dataFormatada }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Status</span>
+              <span class="info-value">{{ action.status }}</span>
+            </div>
           </div>
-          <div class="info-item">
-            <span class="info-label">Responsavel / Solicitante</span>
-            <span class="info-value">{{ acao.solicitante }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Contato</span>
-            <span class="info-value">{{ acao.contato }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Local</span>
-            <span class="info-value">{{ acao.local }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Data da acao</span>
-            <span class="info-value">{{ acao.dataFormatada }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Estado</span>
-            <span class="info-value">{{ acao.estado || acao.status }}</span>
+          <div class="info-item" style="margin-top:16px;">
+            <span class="info-label">Descrição</span>
+            <p class="info-value">{{ action.descricao || 'Sem descricao adicional.' }}</p>
           </div>
         </div>
 
+        <!-- Section: Endereço -->
         <div class="detalhe-section">
-          <h2>Descricao detalhada</h2>
-          <p>{{ acao.descricao || 'Sem descricao adicional.' }}</p>
-        </div>
-
-        <div class="detalhe-section">
-          <h2>Anexos</h2>
-          <ul v-if="anexos.length" class="anexos-list">
-            <li v-for="arquivo in anexos" :key="arquivo.nome" class="anexo-item">
-              <mdicon name="paperclip" :size="18" />
-              <span class="anexo-nome">{{ arquivo.nome }}</span>
-              <small class="anexo-tamanho" v-if="arquivo.tamanho">{{ formatarTamanho(arquivo.tamanho) }}</small>
-            </li>
-          </ul>
-          <p v-else class="anexos-empty">Nenhum anexo enviado.</p>
+          <h2>Endereço</h2>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Rua</span>
+              <span class="info-value">{{ action.enderecoRua || '-' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Bairro</span>
+              <span class="info-value">{{ action.enderecoBairro || '-' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Número</span>
+              <span class="info-value">{{ action.enderecoNumero || '-' }}</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -63,41 +69,107 @@
     </div>
 
     <div v-else class="detalhe-card detalhe-vazio">
-      <h1>Acao nao encontrada</h1>
-      <p>A acao solicitada pode ter sido removida ou ainda nao foi cadastrada.</p>
+      <h1>Demanda nao encontrada</h1>
+      <p>A demanda solicitada pode ter sido removida ou ainda nao foi cadastrada.</p>
       <button type="button" class="btn voltar" @click="voltar">Voltar para Gestao de Demandas</button>
     </div>
   </section>
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import mdicon from "mdi-vue/v3";
 import { useDemandasStore } from "../stores/useDemandasStore";
+import { actionApi } from "../services/actionApi";
 
 const route = useRoute();
 const router = useRouter();
 const store = useDemandasStore();
 
-const acao = computed(() => {
-  const registro = store.getById(route.params.id);
-  if (!registro) {
-    return null;
-  }
-  return {
-    ...registro,
-    estado: registro.estado || registro.status,
-    statusClass: registro.statusSlug || "pendente",
-    dataFormatada: formatarData(registro.data),
-  };
-});
+const apiAction = ref(null)
 
-const anexos = computed(() => acao.value?.anexos || []);
+const action = computed(() => {
+
+  const fromApi = apiAction.value
+  if (fromApi) {
+    const registro = fromApi
+    console.log('Mapping API action detail:', registro)
+    return {
+      id: registro.id,
+      titulo: registro.title || registro.titulo,
+      descricao: registro.description || registro.descricao,
+      data: registro.date ? new Date(registro.date).toISOString().split('T')[0] : registro.data,
+      dataFormatada: formatarData(registro.date || registro.data),
+      status: mapStatus(registro.status) || registro.status,
+      statusClass: mapStatus(registro.status)?.toLowerCase() || registro.statusSlug || 'pendente',
+      tipo: 'Ação',
+      categoria: registro.category?.name || registro.categoria || 'Ação',
+      solicitante: registro.advisor?.userId || registro.solicitante || 'Nao informado',
+      local: registro.address ? formatarEnderecoResumo(registro.address) : registro.local || 'Nao informado',
+      enderecoCompleto: registro.address ? `${registro.address.street || ''}${registro.address.number ? ', ' + registro.address.number : ''}${registro.address.district ? ' - ' + registro.address.district : ''}` : null,
+      enderecoRua: registro.address?.street || null,
+      enderecoBairro: registro.address?.district || null,
+      enderecoNumero: registro.address?.number || null,
+      localFull: registro.address ? `${registro.address.street || ''}${registro.address.number ? ', ' + registro.address.number : ''}${registro.address.district ? ', ' + registro.address.district : ''}` : (registro.local || null),
+      priority: registro.priority || null,
+      categoriasTexto: registro.categories ? registro.categories.map((c) => c.name).join(', ') : null,
+    }
+  }
+
+  const registroStore = store.getById(route.params.id)
+  if (!registroStore) return null
+  return {
+    ...registroStore,
+    statusClass: registroStore.statusSlug || 'pendente',
+    dataFormatada: formatarData(registroStore.data),
+    categoria: registroStore.categoria || registroStore.tipo,
+  }
+})
+
+function mapStatus(apiStatus) {
+  const statusMap = {
+    PENDENTE: 'Pendente',
+    EM_ANDAMENTO: 'Em andamento',
+    CONCLUIDA: 'Concluida',
+    CANCELADA: 'Cancelada'
+  }
+  return statusMap[apiStatus] || apiStatus
+}
+
+function formatarEnderecoResumo(address) {
+  if (!address) return 'Nao informado'
+  const parts = [address.street, address.number, address.district, address.city].filter(Boolean)
+  return parts.join(', ')
+}
+
+
+const tituloCabecalho = computed(() => {
+  const registro = action.value;
+  if (!registro) return "Detalhe da Ação";
+  const tipo = (registro.tipo || "").toLowerCase();
+  if (registro.tipoSlug === "acao" || tipo === "acao") {
+    return "Detalhe da Acao";
+  }
+  return "Detalhe da Ação";
+});
 
 function voltar() {
   router.push("/gestao-demandas");
 }
+
+onMounted(async () => {
+  const id = route.params.id
+  if (!id) return
+  try {
+    const response = await actionApi.getById(id)
+    // response may be { message, data: {...} } or the object directly
+    apiAction.value = response?.data || response
+  } catch (err) {
+    // fallback: store value is already used by computed
+    console.warn('Nao foi possivel buscar detalhe via API, usando dados locais se existirem', err)
+  }
+})
 
 function formatarData(valor) {
   if (!valor) return "Data nao informada";
@@ -126,7 +198,7 @@ function formatarTamanho(bytes) {
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
 
 .detalhe-page {
-  min-height: 100vh;
+  min-height: calc(100vh - 96px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -195,33 +267,34 @@ function formatarTamanho(bytes) {
   display: flex;
   flex-direction: column;
   gap: 32px;
+  color: #263238;
 }
 
 .info-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px 24px;
 }
 
 .info-item {
-  background: #f6f8ff;
-  border-radius: 18px;
-  padding: 18px 20px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  box-shadow: inset 0 0 0 1px rgba(21, 101, 192, 0.08);
+  gap: 6px;
+  background: #f7f9ff;
+  border-radius: 16px;
+  padding: 16px 20px;
 }
 
 .info-label {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: #6b7890;
+  letter-spacing: 0.4px;
+  color: #4f5b6b;
 }
 
 .info-value {
+  text-align: justify;
   font-size: 17px;
   font-weight: 500;
   color: #18263a;

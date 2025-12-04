@@ -2,7 +2,7 @@
   <div class="gestao-demandas">
     <PageHero
       title="Gestao de Demandas"
-      description="Organize o fluxo de demandas, filtre por status e priorize o que requer acao imediata."
+      description="Organize o fluxo de demandas, filtre por status e priorize o que requer ação imediata."
       highlight-label="Demandas monitoradas"
       :highlight-value="totalDemandasFormatado"
       :highlight-subtext="totalDemandasSubtexto"
@@ -129,7 +129,6 @@ async function removerDemanda(id) {
     try {
       await store.removeDemanda(id);
     } catch (err) {
-      window.alert("Erro ao excluir demanda. Tente novamente.");
     }
   }
 }
@@ -171,15 +170,15 @@ async function onDrop(event, newStatus) {
   if (!draggedDemanda.value) return;
 
   const demandaId = draggedDemanda.value.id;
-  await atualizarStatus(demandaId, newStatus);
+  await atualizarStatus(demandaId, newStatus, draggedDemanda.value.tipo);
   draggedDemanda.value = null;
 }
 
-async function atualizarStatus(id, novoStatus) {
+async function atualizarStatus(id, novoStatus, tipo) {
   try {
-    await store.updateStatus(id, novoStatus);
+    await store.updateStatus(id, novoStatus, tipo);
   } catch (err) {
-    window.alert("Erro ao atualizar status. Tente novamente.");
+    console.error('Erro ao atualizar status da demanda', err)
   }
 }
 

@@ -18,6 +18,9 @@ export async function login(email, password) {
   return res.data;
 }
 
+export async function resetPassword(oldPassword, newPassword, confirmNewPassword) {
+  return await api.post("/auth/reset-password", { oldPassword, newPassword, confirmNewPassword });
+}
 export function logout() {
   localStorage.removeItem("token");
 }

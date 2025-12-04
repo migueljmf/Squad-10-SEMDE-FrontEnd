@@ -324,7 +324,6 @@ async function salvarAlteracoes() {
     router.push('/gestao-demandas')
   } catch (err) {
     console.error('Erro ao salvar alteracoes', err)
-    alert('Erro ao salvar alteracoes. Veja o console para mais detalhes.')
   }
 }
 

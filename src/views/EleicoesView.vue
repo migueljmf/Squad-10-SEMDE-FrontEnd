@@ -7,7 +7,7 @@
         </div>
         <div>
           <h2 class="main-title">Eleição 2024</h2>
-          <p class="subtitle">Resultado Eleitoral 2024 - Vereador Lúcio Flávio</p>
+          <p class="subtitle"></p>
         </div>
       </div>
     </div>
@@ -15,11 +15,11 @@
     <section class="summary-cards">
       <div class="info-card">
         <p class="card-title">Total de Votos Absolutos</p>
-        <p class="card-value">3.847</p>
+        <p class="card-value">{{ totalVotos }}</p>
       </div>
       <div class="info-card">
         <p class="card-title">Média Percentual por Bairro</p>
-        <p class="card-value">1.27%</p>
+        <p class="card-value">{{mediaBairros}}</p>
       </div>
     </section>
 
@@ -56,9 +56,9 @@
               <td colspan="3" class="empty-state">Nenhum bairro encontrado.</td>
             </tr>
             <tr v-for="bairro in bairrosFiltrados" :key="bairro.nome">
-              <td>{{ bairro.nome }}</td>
-              <td>{{ bairro.percentual }}%</td>
-              <td>{{ bairro.votos }}</td>
+              <td>{{ bairro.district }}</td>
+              <td>{{ bairro.percentage }}%</td>
+              <td>{{ bairro.count }}</td>
             </tr>
           </tbody>
         </table>
@@ -68,37 +68,47 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import BarChart from '../components/BarChart.vue';
+import { eleicoesApi } from '@/services/eleicoesApi';
 
 const buscaBairro = ref('');
 
-const resultadosBairros = ref([
-  { nome: 'FAROLANDIA', percentual: 1.45, votos: 357 },
-  { nome: 'GRAGERU', percentual: 2.91, votos: 342 },
-  { nome: 'JABOTIANA', percentual: 2.20, votos: 223 },
-  { nome: 'SALGADO FILHO', percentual: 3.26, votos: 178 },
-  { nome: 'LUZIA', percentual: 2.31, votos: 171 },
-  { nome: 'SUISSA', percentual: 1.85, votos: 150 },
-  { nome: 'PONTO NOVO', percentual: 1.95, votos: 145 },
-  { nome: 'CENTRO', percentual: 2.10, votos: 139 },
-  { nome: 'SÃO CONRADO', percentual: 1.59, votos: 240 }, 
-  { nome: 'JARDINS', percentual: 2.74, votos: 195 },
-]);
+const resultadosBairros = ref([]);
 
+
+onMounted(async () => {
+  try {
+    const response = await eleicoesApi.getDistricts();
+    resultadosBairros.value = response;
+  } catch (error) {
+    console.error('Erro ao buscar resultados dos bairros:', error);
+  }
+});
+
+
+var totalVotos = computed(() => {
+  return resultadosBairros.value.reduce((acc, bairro) => acc + bairro.count, 0);
+});
+
+var mediaBairros = computed(() => {
+  if (resultadosBairros.value.length === 0) return 0;
+  const somaPercentuais = resultadosBairros.value.reduce((acc, bairro) => acc + bairro.percentage, 0);
+  return (somaPercentuais / resultadosBairros.value.length).toFixed(2);
+});
 const dadosGrafico = computed(() => {
   return [...resultadosBairros.value] 
-    .sort((a, b) => b.votos - a.votos)
+    .sort((a, b) => b.count - a.count)
     .slice(0, 10);
 });
 
 const chartDataForComponent = computed(() => ({
-  labels: dadosGrafico.value.map(bairro => bairro.nome),
+  labels: dadosGrafico.value.map(bairro => bairro.district),
   datasets: [
     {
       label: 'Votos',
       backgroundColor: '#1565C0',
-      data: dadosGrafico.value.map(bairro => bairro.votos),
+      data: dadosGrafico.value.map(bairro => bairro.count),
       borderRadius: 4, 
     },
   ],
@@ -110,7 +120,7 @@ const bairrosFiltrados = computed(() => {
   }
   const termo = buscaBairro.value.toLowerCase();
   return resultadosBairros.value.filter(bairro =>
-    bairro.nome.toLowerCase().includes(termo)
+    bairro.district.toLowerCase().includes(termo)
   );
 });
 
